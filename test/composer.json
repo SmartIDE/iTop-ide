@@ -5,6 +5,8 @@
 
     "autoload": {
         "psr-4": { "": "src/" }
+    },
+    "require-dev": {
+        "phpmd/phpmd": "^2.6"
     }
-
 }

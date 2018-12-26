@@ -39,6 +39,14 @@ pipeline {
             sh './.jenkins/bin/tests/phpunit.sh'
           }
         }
+
+        stage('phmd') {
+          steps {
+            sh './.jenkins/bin/tests/phpmd.sh'
+          }
+        }
+
+
       }
     }
 
@@ -47,6 +55,8 @@ pipeline {
   post {
     always {
       junit 'var/test/phpunit-log.junit.xml'
+
+      pmd         pattern: 'var/test/phpmd-*.xml'     , canComputeNew: false, defaultEncoding: '', healthy: '', unHealthy: ''
     }
     failure {
       slackSend(channel: "#jenkins-itop", color: '#FF0000', message: "Ho no! Build failed! (${currentBuild.result}), Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
