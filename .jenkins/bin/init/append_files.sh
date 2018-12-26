@@ -4,6 +4,7 @@ set -x
 
 # create target dirs
 mkdir -p var
+mkdir -p var/test
 mkdir -p toolkit
 
 # cleanup target dirs
