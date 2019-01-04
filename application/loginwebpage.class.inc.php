@@ -193,6 +193,37 @@ class LoginWebPage extends NiceWebPage
 		}
 	}
 
+
+    private function DisplayTwoFAForm()
+    {
+        $sAuth2faCode = utils::ReadParam('auth_2fa_code', false, false, 'raw_data');
+
+        $this->DisplayLoginHeader();
+        $this->add("<div id=\"login\">\n");
+        $this->add("<h1>".Dict::S('UI:Login:Welcome')."</h1>\n");
+        if (false !== $sAuth2faCode)
+        {
+            $this->add("<p class=\"hilite\">".Dict::S('UI:Login:2fa:IncorrectCode')."</p>\n");
+        }
+        else
+        {
+            $this->add("<p>".Dict::S('UI:Login:2fa:typeCode')."</p>\n");
+        }
+        $this->add("<form method=\"post\">\n");
+        $this->add("<table>\n");
+        $this->add("<tr><td style=\"text-align:right\"><label for=\"auth_2fa_code\">".Dict::S('UI:Login:2fa:code').":</label></td><td style=\"text-align:left\"><input id=\"auth_2fa_code\" type=\"text\" name=\"auth_2fa_code\" value=\"\" /></td></tr>\n");
+        $this->add("<tr><td colspan=\"2\" class=\"center v-spacer\"><span class=\"btn_border\"><input type=\"submit\" value=\"".Dict::S('UI:Button:2fa:ValidateCode')."\" /></span></td></tr>\n");
+        $this->add("</table>\n");
+        $this->add("<input type=\"hidden\" name=\"loginop\" value=\"2fa_code\" />\n");
+
+        $this->add_ready_script('$("#auth_2fa_code").focus();');
+
+
+        $this->add("</form>\n");
+        $this->add(Dict::S('UI:Login:2fa:About'));
+        $this->add("</div>\n");
+    }
+
 	/**
 	 * Return '' to disable this feature	
 	 */	
@@ -443,7 +474,8 @@ EOF
 		unset($_SESSION['auth_user']);
 		unset($_SESSION['login_mode']);
 		unset($_SESSION['archive_mode']);
-		unset($_SESSION['impersonate_user']);
+        unset($_SESSION['impersonate_user']);
+        unset($_SESSION['2fa_auth_context']);
 		UserRights::_ResetSessionCache();
 		// If it's desired to kill the session, also delete the session cookie.
 		// Note: This will destroy the session, and not just the session data!
@@ -485,6 +517,33 @@ EOF
 			// Non secured URL... request for a secure connection
 			throw new Exception('Secure connection required!');			
 		}
+
+		if (self::HasPendingTwoFA())
+        {
+            if (utils::ReadParam('auth_2fa_cancel', false, false, 'raw_data'))
+            {
+                unset($_SESSION['2fa_auth_context']);
+            }
+            elseif (self::CheckTwoFACode())
+            {
+                $sAuthUser = $_SESSION['2fa_auth_context']['auth_user'];
+                $sAuthentication = $_SESSION['2fa_auth_context']['authentication'];
+                $sLoginMode = $_SESSION['2fa_auth_context']['login_mode'];
+
+                unset($_SESSION['2fa_auth_context']);
+
+                self::OnLoginSuccess($sAuthUser, $sAuthentication, $sLoginMode);
+                return self::EXIT_CODE_OK;
+            }
+            else
+            {
+                $oPage = self::NewLoginWebPage();
+                $oPage->DisplayTwoFAForm();
+                $oPage->output();
+                exit;
+            }
+        }
+
 
 		$aAllowedLoginTypes = MetaModel::GetConfig()->GetAllowedLoginTypes();
 
@@ -566,7 +625,8 @@ EOF
 				// Web server supplied authentication
 				$bExternalAuth = false;
 				$sExtAuthVar = MetaModel::GetConfig()->GetExternalAuthenticationVariable(); // In which variable is the info passed ?
-				eval('$sAuthUser = isset('.$sExtAuthVar.') ? '.$sExtAuthVar.' : false;'); // Retrieve the value
+				/** @var $sAuthUser string|bool */
+                eval('$sAuthUser = isset('.$sExtAuthVar.') ? '.$sExtAuthVar.' : false;'); // Retrieve the value //TODO: I think that this should be refactorized to a form without the need for an eval:  $sAuthUser = isset($$sExtAuthVar) ? $$sExtAuthVar : false;
 				if ($sAuthUser && (strlen($sAuthUser) > 0))
 				{
 					$sAuthPwd = ''; // No password in this case the web server already authentified the user...
@@ -658,24 +718,23 @@ EOF
 					exit;
 				}
 			}
+			elseif (self::IsTwoFAEnabled($sAuthUser, $sAuthentication))
+            {
+                $_SESSION['2fa_auth_context'] = array(
+                    'auth_user' => $sAuthUser,
+                    'login_mode' => $sLoginMode,
+                    'authentication' => $sAuthentication,
+                );
+                //the user has enabled 2FA, but not token is provided , let's ask for it!
+                $oPage = self::NewLoginWebPage();
+                $oPage->DisplayTwoFAForm();
+                $oPage->output();
+                exit;
+            }
 			else
 			{
-				// User is Ok, let's save it in the session and proceed with normal login
-				UserRights::Login($sAuthUser, $sAuthentication); // Login & set the user's language
-				
-				if (MetaModel::GetConfig()->Get('log_usage'))
-				{
-					$oLog = new EventLoginUsage();
-					$oLog->Set('userinfo', UserRights::GetUser());
-					$oLog->Set('user_id', UserRights::GetUserObject()->GetKey());
-					$oLog->Set('message', 'Successful login');
-					$oLog->DBInsertNoReload();
-				}
-				
-				$_SESSION['auth_user'] = $sAuthUser;
-				$_SESSION['login_mode'] = $sLoginMode;
-				UserRights::_InitSessionCache();
-			}
+                self::OnLoginSuccess($sAuthUser, $sAuthentication, $sLoginMode);
+            }
 		}
 		return self::EXIT_CODE_OK;
 	}
@@ -882,4 +941,89 @@ EOF
 		}
 		return false; // nothing matched !!
 	}
+
+    /**
+     * @param $sAuthUser
+     * @param $sAuthentication
+     * @param $sLoginMode
+     *
+     * @throws ArchivedObjectException
+     * @throws CoreCannotSaveObjectException
+     * @throws CoreException
+     * @throws CoreUnexpectedValue
+     * @throws CoreWarning
+     * @throws MySQLException
+     * @throws OQLException
+     */
+    protected static function OnLoginSuccess($sAuthUser, $sAuthentication, $sLoginMode)
+    {
+// User is Ok, let's save it in the session and proceed with normal login
+        UserRights::Login($sAuthUser, $sAuthentication); // Login & set the user's language
+
+        if (MetaModel::GetConfig()->Get('log_usage')) {
+            $oLog = new EventLoginUsage();
+            $oLog->Set('userinfo', UserRights::GetUser());
+            $oLog->Set('user_id', UserRights::GetUserObject()->GetKey());
+            $oLog->Set('message', 'Successful login');
+            $oLog->DBInsertNoReload();
+        }
+
+        $_SESSION['auth_user'] = $sAuthUser;
+        $_SESSION['login_mode'] = $sLoginMode;
+        UserRights::_InitSessionCache();
+    }
+
+
+
+    /**
+     * @return bool
+     * @throws CoreException
+     */
+    private static function IsTwoFAEnabled($sAuthUser, $sAuthentication)
+    {
+
+        if (UserRights::Login($sAuthUser, $sAuthentication) && null != UserRights::GetUserObject()->Get('2fa_secret'))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array|bool|mixed
+     */
+    private static function HasPendingTwoFA()
+    {
+        return isset($_SESSION['2fa_auth_context']);
+    }
+
+    /**
+     * @return void
+     * @throws CoreException
+     */
+    private static function CheckTwoFACode()
+    {
+        $sAuthUser = $_SESSION['2fa_auth_context']['auth_user'];
+        $sAuthentication = $_SESSION['2fa_auth_context']['authentication'];
+        if (!UserRights::Login($sAuthUser, $sAuthentication))
+        {
+            throw new CoreException('Login cannot fail at this point, please check your user consistency!');
+        }
+        $userSecret = UserRights::GetUserObject()->Get('2fa_secret');
+        $submittedTwoFACode = utils::ReadParam('auth_2fa_code', '', false, 'raw_data');
+
+        $codeGenerator = new \Google\Authenticator\GoogleAuthenticator();
+        $expectedCode = $codeGenerator->getCode($userSecret);
+
+        if ($submittedTwoFACode === $expectedCode)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
 } // End of class

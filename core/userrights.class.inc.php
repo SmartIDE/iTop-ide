@@ -189,7 +189,10 @@ abstract class User extends cmdbAbstractObject
 
 		MetaModel::Init_AddAttribute(new AttributeString("login", array("allowed_values"=>null, "sql"=>"login", "default_value"=>null, "is_null_allowed"=>false, "depends_on"=>array())));
 
-		MetaModel::Init_AddAttribute(new AttributeApplicationLanguage("language", array("sql"=>"language", "default_value"=>"EN US", "is_null_allowed"=>false, "depends_on"=>array())));
+        MetaModel::Init_AddAttribute(new AttributeString("2fa_secret", array("allowed_values"=>null, "sql"=>"2fa_secret", "default_value"=>null, "is_null_allowed"=>true, "depends_on"=>array())));
+
+
+        MetaModel::Init_AddAttribute(new AttributeApplicationLanguage("language", array("sql"=>"language", "default_value"=>"EN US", "is_null_allowed"=>false, "depends_on"=>array())));
 		MetaModel::Init_AddAttribute(new AttributeEnum("status", array("allowed_values" => new ValueSetEnum('enabled,disabled'), "sql"=>"status", "default_value"=>"enabled", "is_null_allowed"=>false, "depends_on"=>array())));
 		
 		MetaModel::Init_AddAttribute(new AttributeLinkedSetIndirect("profile_list", array("linked_class"=>"URP_UserProfile", "ext_key_to_me"=>"userid", "ext_key_to_remote"=>"profileid", "allowed_values"=>null, "count_min"=>1, "count_max"=>0, "depends_on"=>array())));
@@ -580,6 +583,7 @@ class UserRights
 {
 	/** @var UserRightsAddOnAPI $m_oAddOn */
 	protected static $m_oAddOn;
+	/** @var User */
 	protected static $m_oUser;
 	protected static $m_oRealUser;
 	protected static $m_sSelfRegisterAddOn = null;

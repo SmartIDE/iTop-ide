@@ -368,6 +368,91 @@ EOF
 		$oP->add('</form>');
 		$oP->add('</fieldset>');
 	}
+
+
+    //////////////////////////////////////////////////////////////////////////
+    //
+    // two factor auth.
+    //
+    //////////////////////////////////////////////////////////////////////////
+
+    $oP->add('<fieldset><legend>'.Dict::S('UI:TwoFASettings').'</legend>');
+    $oP->add('<form method="post">');
+
+    $sTransactionId = utils::GetNewTransactionId();
+
+    if (null == UserRights::GetUserObject()->Get('2fa_secret'))
+    {
+        $bHasTwoFAEnabled = false;
+    }
+    else
+    {
+        $bHasTwoFAEnabled = true;
+    }
+
+    if ($bHasTwoFAEnabled)
+    {
+        $oP->add('<p>Two factor authentication is enabled</p>');
+        $oP->add('<p><a href="?operation=disable_2fa&transaction_id=$sTransactionId">Disable two factor authentification</a></p>');
+    }
+    else
+    {
+        $codeGenerator = new \Google\Authenticator\GoogleAuthenticator();
+        $newSecret = $codeGenerator->generateSecret();
+        $barcodeUrl = $codeGenerator->getUrl(
+            'iTop',
+            utils::GetAbsoluteUrlAppRoot(),
+            $newSecret
+        );
+        $oP->add('<p>Two factor authentication is not yet enabled</p>');
+        $oP->add('<p>Scan this barcode to enable it, then type the code</p>');
+        $oP->add('<input type="hidden" name="transaction_id" value="'.$sTransactionId.'" />');
+        $oP->add('<input type="hidden" name="operation" value="enable_2fa" />');
+        $oP->add('<input type="hidden" name="newSecret" value="'.str_replace('"', '\"', $newSecret).'" />');
+
+
+        $oP->add("
+<table style='width: 100%;'>
+    <tr>
+        <td style='text-align: center;'>
+            <img src='$barcodeUrl'>
+            <br />
+            $newSecret
+        </td>
+        <td style='text-align: right;'>
+            <label>
+                code:
+                <input name='2fa_code'>
+            </label>
+        </td>
+        <td style='text-align: right; width: 35%;'>
+            <br />
+            <input type='submit' name='submit'>
+        </td>
+    </tr>
+</table>");
+
+    }
+
+
+//    $oP->add('<p>'.Dict::Format('UI:TwoFASettings:Default_X_ItemsPerPage', '<input id="default_page_size" name="default_page_size" type="text" size="3" value="'.$iDefaultPageSize.'"/><span id="v_default_page_size"></span>').'</p>');
+//
+//    $bShow = utils::IsArchiveMode() || appUserPreferences::GetPref('show_obsolete_data', MetaModel::GetConfig()->Get('obsolescence.show_obsolete_data'));
+//    $sSelected = $bShow ? ' checked="checked"' : '';
+//    $sDisabled = utils::IsArchiveMode() ? 'disabled="disabled"' : '';
+//    $oP->add(
+//        '<p>'
+//        .'<input type="checkbox" id="show_obsolete_data" name="show_obsolete_data" value="1"'.$sSelected.$sDisabled.'>'
+//        .'<label for="show_obsolete_data" title="'.Dict::S('UI:Favorites:ShowObsoleteData+').'">'.Dict::S('UI:Favorites:ShowObsoleteData').'</label>'
+//        .'</p>');
+//
+//    $oP->add('<input type="hidden" name="operation" value="apply_others"/>');
+//    $oP->add($oAppContext->GetForForm());
+//    $oP->add('<p><input type="button" onClick="window.location.href=\''.$sURL.'\'" value="'.Dict::S('UI:Button:Cancel').'"/>');
+//    $oP->add('&nbsp;&nbsp;');
+//    $oP->add('<input id="other_submit" type="submit" value="'.Dict::S('UI:Button:Apply').'"/></p>');
+    $oP->add('</form>');
+    $oP->add('</fieldset>');
 	
 	//////////////////////////////////////////////////////////////////////////
 	//
@@ -396,6 +481,64 @@ try
 {
 	switch($sOperation)
 	{
+        case 'enable_2fa':
+        $sTransactionId = utils::ReadPostedParam('transaction_id', '', 'transaction_id');
+        if (!utils::IsTransactionValid($sTransactionId))
+        {
+            $oPage->add("<div class=\"header_message message_info\">Error: invalid Transaction ID. The two factor authentication was <b>NOT</b> enabled.</div>");
+            break;
+        }
+        utils::RemoveTransaction($sTransactionId);
+
+        $sNewSecret = utils::ReadPostedParam('newSecret', false, 'raw_data');
+        if (! $sNewSecret)
+        {
+            $oPage->add("<div class=\"header_message message_info\">Error: No secret was received. The two factor authentication was <b>NOT</b> activated.</div>");
+            break;
+        }
+        $sTwoFACode = utils::ReadPostedParam('2fa_code', false, 'raw_data');
+        if (! $sTwoFACode)
+        {
+            $oPage->add("<div class=\"header_message message_info\">Error: No code was received. The two factor authentication was <b>NOT</b> activated.</div>");
+            break;
+        }
+
+        $codeGenerator = new \Google\Authenticator\GoogleAuthenticator();
+        if (! $codeGenerator->checkCode($sNewSecret, $sTwoFACode))
+        {
+            $oPage->add("<div class=\"header_message message_info\">Error: The code received was incorrect, maybe you should verify if your device has the correct time ".date('Y-m-d H:i:s').". The two factor authentication was <b>NOT</b> activated.</div>");
+            break;
+        }
+
+        $oUser = UserRights::GetUserObject();
+
+		$oUser->Set('2fa_secret', $sNewSecret);
+		utils::PushArchiveMode(false);
+		$oUser->AllowWrite(true);
+		$oUser->DBUpdate();
+        utils::PopArchiveMode();
+        $sURL = utils::GetAbsoluteUrlAppRoot().'pages/preferences.php?';
+        $oPage->add_header('Location: '.$sURL);
+		break;
+
+        case 'disable_2fa':
+        $sTransactionId = utils::ReadPostedParam('transaction_id', '', 'transaction_id');
+        if (!utils::IsTransactionValid($sTransactionId))
+        {
+            $oPage->add("<div class=\"header_message message_info\">Error: invalid Transaction ID. The two factor authentication was <b>NOT</b> disabled.</div>");
+        }
+        utils::RemoveTransaction($sTransactionId);
+
+        $oUser = UserRights::GetUserObject();
+        $oUser->Set('2fa_secret', null);
+        utils::PushArchiveMode(false);
+        $oUser->AllowWrite(true);
+        $oUser->DBUpdate();
+        utils::PopArchiveMode();
+        $sURL = utils::GetAbsoluteUrlAppRoot().'pages/preferences.php?';
+        $oPage->add_header('Location: '.$sURL);
+        break;
+
 		case 'apply':
 		$oFilter = DBObjectSearch::FromOQL('SELECT Organization');
 		$sSelectionMode = utils::ReadParam('selectionMode', '');
