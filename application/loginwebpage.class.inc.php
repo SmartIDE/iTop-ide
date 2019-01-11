@@ -214,6 +214,10 @@ class LoginWebPage extends NiceWebPage
         $this->add("<tr><td style=\"text-align:right\"><label for=\"auth_2fa_code\">".Dict::S('UI:Login:2fa:code').":</label></td><td style=\"text-align:left\"><input id=\"auth_2fa_code\" type=\"text\" name=\"auth_2fa_code\" value=\"\" /></td></tr>\n");
         $this->add("<tr><td colspan=\"2\" class=\"center v-spacer\"><span class=\"btn_border\"><input type=\"submit\" value=\"".Dict::S('UI:Button:2fa:ValidateCode')."\" /></span></td></tr>\n");
         $this->add("</table>\n");
+
+        $this->add("<a href='?auth_2fa_cancel=1'>Cancel 2fa</a>\n");
+
+
         $this->add("<input type=\"hidden\" name=\"loginop\" value=\"2fa_code\" />\n");
 
         $this->add_ready_script('$("#auth_2fa_code").focus();');
@@ -523,6 +527,12 @@ EOF
             if (utils::ReadParam('auth_2fa_cancel', false, false, 'raw_data'))
             {
                 unset($_SESSION['2fa_auth_context']);
+
+                if (isset($_GET['auth_2fa_cancel'])) {
+                    $redirectUri = str_replace("auth_2fa_cancel={$_GET['auth_2fa_cancel']}", '', $_SERVER['REQUEST_URI']);
+                    header("location: $redirectUri", true, 302);
+                    exit;
+                }
             }
             elseif (self::CheckTwoFACode())
             {
