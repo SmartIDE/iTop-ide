@@ -1245,3 +1245,41 @@ class RestUtils
 		return $oObject;
 	}
 }
+
+interface iLoginExtension
+{
+
+    /**
+     * @return null|int if not null stop the login process and return this code, @see LoginWebPage::EXIT_CODE_NOTAUTHORIZED and others
+     *
+     * @throws Exception: if an Exception is thrown, a LoginWebPage::EXIT_CODE_NOTAUTHORIZED will be generated
+     */
+    public function BeforeLogin();
+
+    /**
+     * @return null|int if not null stop the login process and return this code, @see LoginWebPage::EXIT_CODE_NOTAUTHORIZED and others
+     *
+     * @throws Exception: if an Exception is thrown, a LoginWebPage::EXIT_CODE_NOTAUTHORIZED will be generated
+     */
+    public function OnCredentialValid($sAuthUser, $sAuthentication, $sLoginMode);
+
+    /**
+    * @return void
+    *
+    */
+    public function OnCredentialNotValid();
+
+    /**
+     * @param LoginWebPage $param
+     * @param string       $sLoginType
+     * @param bool         $bFailedLogin
+     *
+     * @return bool true if the page was generated. If false, the standard iTop code will be triggered.
+     */
+    public function DisplayLoginForm(LoginWebPage $param, $sLoginType, $bFailedLogin);
+
+    /**
+     * @return void
+     */
+    public function ResetSession();
+}

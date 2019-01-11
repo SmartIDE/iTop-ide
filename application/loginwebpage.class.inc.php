@@ -111,7 +111,25 @@ class LoginWebPage extends NiceWebPage
 
 	public function DisplayLoginForm($sLoginType, $bFailedLogin = false)
 	{
-		switch($sLoginType)
+        try
+        {
+            /** @var iLoginExtension $oLoginExtensionInstance */
+            foreach(MetaModel::EnumPlugins('iLoginExtension') as $oLoginExtensionInstance)
+            {
+                $bPageIsGenerated = $oLoginExtensionInstance->DisplayLoginForm($this, $sLoginType, $bFailedLogin);
+                if ($bPageIsGenerated)
+                {
+                    return;
+                }
+            }
+        }
+        catch (Exception $e)
+        {
+            IssueLog::Error($e->getTraceAsString());
+        }
+
+
+	    switch($sLoginType)
 		{
 			case 'cas':
 			utils::InitCASClient();					
@@ -194,39 +212,6 @@ class LoginWebPage extends NiceWebPage
 	}
 
 
-    private function DisplayTwoFAForm()
-    {
-        $sAuth2faCode = utils::ReadParam('auth_2fa_code', false, false, 'raw_data');
-
-        $this->DisplayLoginHeader();
-        $this->add("<div id=\"login\">\n");
-        $this->add("<h1>".Dict::S('UI:Login:Welcome')."</h1>\n");
-        if (false !== $sAuth2faCode)
-        {
-            $this->add("<p class=\"hilite\">".Dict::S('UI:Login:2fa:IncorrectCode')."</p>\n");
-        }
-        else
-        {
-            $this->add("<p>".Dict::S('UI:Login:2fa:typeCode')."</p>\n");
-        }
-        $this->add("<form method=\"post\">\n");
-        $this->add("<table>\n");
-        $this->add("<tr><td style=\"text-align:right\"><label for=\"auth_2fa_code\">".Dict::S('UI:Login:2fa:code').":</label></td><td style=\"text-align:left\"><input id=\"auth_2fa_code\" type=\"text\" name=\"auth_2fa_code\" value=\"\" /></td></tr>\n");
-        $this->add("<tr><td colspan=\"2\" class=\"center v-spacer\"><span class=\"btn_border\"><input type=\"submit\" value=\"".Dict::S('UI:Button:2fa:ValidateCode')."\" /></span></td></tr>\n");
-        $this->add("</table>\n");
-
-        $this->add("<a href='?auth_2fa_cancel=1'>Cancel 2fa</a>\n");
-
-
-        $this->add("<input type=\"hidden\" name=\"loginop\" value=\"2fa_code\" />\n");
-
-        $this->add_ready_script('$("#auth_2fa_code").focus();');
-
-
-        $this->add("</form>\n");
-        $this->add(Dict::S('UI:Login:2fa:About'));
-        $this->add("</div>\n");
-    }
 
 	/**
 	 * Return '' to disable this feature	
@@ -479,7 +464,19 @@ EOF
 		unset($_SESSION['login_mode']);
 		unset($_SESSION['archive_mode']);
         unset($_SESSION['impersonate_user']);
-        unset($_SESSION['2fa_auth_context']);
+        try
+        {
+            /** @var iLoginExtension $oLoginExtensionInstance */
+            foreach(MetaModel::EnumPlugins('iLoginExtension') as $oLoginExtensionInstance)
+            {
+                $oLoginExtensionInstance->ResetSession();
+            }
+        }
+        catch (Exception $e)
+        {
+            IssueLog::Error($e->getTraceAsString());
+        }
+
 		UserRights::_ResetSessionCache();
 		// If it's desired to kill the session, also delete the session cookie.
 		// Note: This will destroy the session, and not just the session data!
@@ -522,37 +519,32 @@ EOF
 			throw new Exception('Secure connection required!');			
 		}
 
-		if (self::HasPendingTwoFA())
-        {
-            if (utils::ReadParam('auth_2fa_cancel', false, false, 'raw_data'))
-            {
-                unset($_SESSION['2fa_auth_context']);
 
-                if (isset($_GET['auth_2fa_cancel'])) {
-                    $redirectUri = str_replace("auth_2fa_cancel={$_GET['auth_2fa_cancel']}", '', $_SERVER['REQUEST_URI']);
-                    header("location: $redirectUri", true, 302);
-                    exit;
+
+        try
+        {
+            /** @var iLoginExtension $oLoginExtensionInstance */
+            foreach(MetaModel::EnumPlugins('iLoginExtension') as $oLoginExtensionInstance)
+            {
+                $iResponse = $oLoginExtensionInstance->BeforeLogin();
+                if ($iResponse instanceof LoginSuccess)
+                {
+                    self::OnLoginSuccess($iResponse->GetSAuthUser(), $iResponse->GetSAuthentication(), $iResponse->GetSLoginMode());
+                    return LoginWebPage::EXIT_CODE_OK;
+                }
+                elseif(!is_null($iResponse))
+                {
+                    return $iResponse;
                 }
             }
-            elseif (self::CheckTwoFACode())
-            {
-                $sAuthUser = $_SESSION['2fa_auth_context']['auth_user'];
-                $sAuthentication = $_SESSION['2fa_auth_context']['authentication'];
-                $sLoginMode = $_SESSION['2fa_auth_context']['login_mode'];
-
-                unset($_SESSION['2fa_auth_context']);
-
-                self::OnLoginSuccess($sAuthUser, $sAuthentication, $sLoginMode);
-                return self::EXIT_CODE_OK;
-            }
-            else
-            {
-                $oPage = self::NewLoginWebPage();
-                $oPage->DisplayTwoFAForm();
-                $oPage->output();
-                exit;
-            }
         }
+		catch (Exception $e)
+        {
+            IssueLog::Error($e->getTraceAsString());
+            return self::EXIT_CODE_NOTAUTHORIZED;
+        }
+
+
 
 
 		$aAllowedLoginTypes = MetaModel::GetConfig()->GetAllowedLoginTypes();
@@ -707,7 +699,20 @@ EOF
 		{
 			if (!UserRights::CheckCredentials($sAuthUser, $sAuthPwd, $sLoginMode, $sAuthentication))
 			{
-				//echo "Check Credentials returned false for user $sAuthUser!";
+                try
+                {
+                    /** @var iLoginExtension $oLoginExtensionInstance */
+                    foreach(MetaModel::EnumPlugins('iLoginExtension') as $oLoginExtensionInstance)
+                    {
+                        $oLoginExtensionInstance->OnCredentialNotValid();
+                    }
+                }
+                catch (Exception $e)
+                {
+                    IssueLog::Error($e->getTraceAsString());
+                }
+
+			    //echo "Check Credentials returned false for user $sAuthUser!";
 				self::ResetSession();
 				if (($iOnExit == self::EXIT_HTTP_401) || ($sLoginMode == 'basic'))
 				{
@@ -728,28 +733,48 @@ EOF
 					exit;
 				}
 			}
-			elseif (self::IsTwoFAEnabled($sAuthUser, $sAuthentication))
-            {
-                $_SESSION['2fa_auth_context'] = array(
-                    'auth_user' => $sAuthUser,
-                    'login_mode' => $sLoginMode,
-                    'authentication' => $sAuthentication,
-                );
-                //the user has enabled 2FA, but not token is provided , let's ask for it!
-                $oPage = self::NewLoginWebPage();
-                $oPage->DisplayTwoFAForm();
-                $oPage->output();
-                exit;
-            }
 			else
-			{
+            {
+                try
+                {
+                    /** @var iLoginExtension $oLoginExtensionInstance */
+                    foreach(MetaModel::EnumPlugins('iLoginExtension') as $oLoginExtensionInstance)
+                    {
+                        $iResponse = $oLoginExtensionInstance->OnCredentialValid($sAuthUser, $sAuthentication, $sLoginMode);
+                        if (!is_null($iResponse))
+                        {
+                            $oPage = self::NewLoginWebPage();
+                            $oPage->DisplayLoginForm( $sLoginMode, true /* failed attempt */);
+                            $oPage->output();
+                            exit;
+                        }
+                    }
+                }
+                catch (Exception $e)
+                {
+                    IssueLog::Error($e->getTraceAsString());
+                    return self::EXIT_CODE_NOTAUTHORIZED;
+                }
+
                 self::OnLoginSuccess($sAuthUser, $sAuthentication, $sLoginMode);
             }
+
+
+
+
 		}
 		return self::EXIT_CODE_OK;
 	}
-	
-	/**
+
+    /**
+     * @return string
+     */
+    public function GetMSLoginFailedMessage()
+    {
+        return self::$m_sLoginFailedMessage;
+    }
+
+    /**
 	 * Overridable: depending on the user, head toward a dedicated portal
 	 * @param string|null $sRequestedPortalId
 	 * @param int $iOnExit How to complete the call: redirect or return a code
@@ -985,55 +1010,44 @@ EOF
 
 
 
-    /**
-     * @return bool
-     * @throws CoreException
-     */
-    private static function IsTwoFAEnabled($sAuthUser, $sAuthentication)
-    {
-
-        if (UserRights::Login($sAuthUser, $sAuthentication) && null != UserRights::GetUserObject()->Get('2fa_secret'))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @return array|bool|mixed
-     */
-    private static function HasPendingTwoFA()
-    {
-        return isset($_SESSION['2fa_auth_context']);
-    }
-
-    /**
-     * @return void
-     * @throws CoreException
-     */
-    private static function CheckTwoFACode()
-    {
-        $sAuthUser = $_SESSION['2fa_auth_context']['auth_user'];
-        $sAuthentication = $_SESSION['2fa_auth_context']['authentication'];
-        if (!UserRights::Login($sAuthUser, $sAuthentication))
-        {
-            throw new CoreException('Login cannot fail at this point, please check your user consistency!');
-        }
-        $userSecret = UserRights::GetUserObject()->Get('2fa_secret');
-        $submittedTwoFACode = utils::ReadParam('auth_2fa_code', '', false, 'raw_data');
-
-        $codeGenerator = new \Google\Authenticator\GoogleAuthenticator();
-        $expectedCode = $codeGenerator->getCode($userSecret);
-
-        if ($submittedTwoFACode === $expectedCode)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
 
 } // End of class
+
+
+class LoginSuccess
+{
+    private $sAuthUser;
+    private $sAuthentication;
+    private $sLoginMode;
+
+    public function __construct($sAuthUser, $sAuthentication, $sLoginMode)
+    {
+        $this->sAuthUser = $sAuthUser;
+        $this->sAuthentication = $sAuthentication;
+        $this->sLoginMode = $sLoginMode;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function GetSAuthUser()
+    {
+        return $this->sAuthUser;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function GetSAuthentication()
+    {
+        return $this->sAuthentication;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function GetSLoginMode()
+    {
+        return $this->sLoginMode;
+    }
+}
