@@ -8,7 +8,8 @@
     "ext-dom": "*",
     "ext-iconv": "*",
     "ext-gd": "*",
-    "sonata-project/google-authenticator": "^1.1"
+    "sonata-project/google-authenticator": "^1.1",
+    "gregwar/captcha": "^1.1"
   },
   "config": {
     "platform": {
