@@ -34,6 +34,8 @@ require_once(APPROOT.'/setup/moduleinstallation.class.inc.php');
 //require_once(APPROOT.'/application/menunode.class.inc.php');
 require_once(APPROOT.'/application/utils.inc.php');
 
+require_once(APPROOT.'/lib/composer-vendor/autoload.php');
+
 class ApplicationException extends CoreException
 {
 }

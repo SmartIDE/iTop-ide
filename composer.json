@@ -1,19 +1,18 @@
 {
   "require": {
     "php": ">=5.6.0",
-    "ext-mysql": "*",
-    "ext-ldap": "*",
-    "ext-mcrypt": "*",
-    "ext-cli": "*",
+
     "ext-soap": "*",
     "ext-json": "*",
     "ext-zip": "*",
     "ext-mysqli": "*",
     "ext-dom": "*",
     "ext-iconv": "*",
-    "ext-gd": "*"
+    "ext-gd": "*",
+    "symfony/yaml": "^3.4"
   },
   "config": {
+    "vendor-dir" : "lib/composer-vendor",
     "platform": {
       "php": "5.6.0"
     }

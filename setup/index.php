@@ -24,6 +24,7 @@
  */
 
 require_once('../approot.inc.php');
+require_once(APPROOT.'/lib/composer-vendor/autoload.php');
 require_once(APPROOT.'/application/utils.inc.php');
 require_once(APPROOT.'/core/config.class.inc.php');
 require_once(APPROOT.'/setup/setuppage.class.inc.php');
