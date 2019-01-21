@@ -1283,3 +1283,19 @@ interface iLoginExtension
      */
     public function ResetSession();
 }
+
+interface iPreferencesExtension
+{
+	/**
+	 * @param \WebPage $oPage
+	 *
+	 */
+	public function DisplayPreferences(WebPage $oPage);
+
+	/**
+	 * @param string $sOperation
+	 *
+	 * @return bool true if the operation has been used
+	 */
+	public function ApplyPreferences(WebPage $oPage, $sOperation);
+}
