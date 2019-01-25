@@ -704,7 +704,7 @@ EOF
                     /** @var iLoginExtension $oLoginExtensionInstance */
                     foreach(MetaModel::EnumPlugins('iLoginExtension') as $oLoginExtensionInstance)
                     {
-                        $oLoginExtensionInstance->OnCredentialNotValid();
+                        $oLoginExtensionInstance->OnCredentialNotValid($sAuthUser, $sAuthPwd, $sLoginMode, $sAuthentication);
                     }
                 }
                 catch (Exception $e)

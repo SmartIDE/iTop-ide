@@ -189,7 +189,11 @@ abstract class User extends cmdbAbstractObject
 
 		MetaModel::Init_AddAttribute(new AttributeString("login", array("allowed_values"=>null, "sql"=>"login", "default_value"=>null, "is_null_allowed"=>false, "depends_on"=>array())));
 
+		//TODO: move this into the itop-guard extensions or appUserPreferences
         MetaModel::Init_AddAttribute(new AttributeString("2fa_secret", array("allowed_values"=>null, "sql"=>"2fa_secret", "default_value"=>null, "is_null_allowed"=>true, "depends_on"=>array())));
+        //TODO: move this into the itop-guard extensions
+        MetaModel::Init_AddAttribute(new AttributeInteger("successive_failed_login_counter", array("allowed_values"=>null, "sql"=>"successive_failed_login_counter", "default_value"=>0, "is_null_allowed"=>false, "depends_on"=>array())));
+
 
 
         MetaModel::Init_AddAttribute(new AttributeApplicationLanguage("language", array("sql"=>"language", "default_value"=>"EN US", "is_null_allowed"=>false, "depends_on"=>array())));

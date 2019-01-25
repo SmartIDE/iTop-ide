@@ -1264,10 +1264,10 @@ interface iLoginExtension
     public function OnCredentialValid($sAuthUser, $sAuthentication, $sLoginMode);
 
     /**
-    * @return void
-    *
-    */
-    public function OnCredentialNotValid();
+     * @return void
+     *
+     */
+    public function OnCredentialNotValid($login, $sAuthPwd, $sLoginMode, $sAuthentication);
 
     /**
      * @param LoginWebPage $param
