@@ -369,91 +369,12 @@ EOF
 		$oP->add('</fieldset>');
 	}
 
+	/** @var iPreferencesExtension $oLoginExtensionInstance */
+	foreach(MetaModel::EnumPlugins('iPreferencesExtension') as $oPreferencesExtensionInstance)
+	{
+		$oPreferencesExtensionInstance->DisplayPreferences($oP);
+	}
 
-    //////////////////////////////////////////////////////////////////////////
-    //
-    // two factor auth.
-    //
-    //////////////////////////////////////////////////////////////////////////
-
-    $oP->add('<fieldset><legend>'.Dict::S('UI:TwoFASettings').'</legend>');
-    $oP->add('<form method="post">');
-
-    $sTransactionId = utils::GetNewTransactionId();
-
-    if (null == UserRights::GetUserObject()->Get('2fa_secret'))
-    {
-        $bHasTwoFAEnabled = false;
-    }
-    else
-    {
-        $bHasTwoFAEnabled = true;
-    }
-
-    if ($bHasTwoFAEnabled)
-    {
-        $oP->add('<p>Two factor authentication is enabled</p>');
-        $oP->add('<p><a href="?operation=disable_2fa&transaction_id=$sTransactionId">Disable two factor authentification</a></p>');
-    }
-    else
-    {
-        $codeGenerator = new \Google\Authenticator\GoogleAuthenticator();
-        $newSecret = $codeGenerator->generateSecret();
-        $barcodeUrl = $codeGenerator->getUrl(
-            'iTop',
-            utils::GetAbsoluteUrlAppRoot(),
-            $newSecret
-        );
-        $oP->add('<p>Two factor authentication is not yet enabled</p>');
-        $oP->add('<p>Scan this barcode to enable it, then type the code</p>');
-        $oP->add('<input type="hidden" name="transaction_id" value="'.$sTransactionId.'" />');
-        $oP->add('<input type="hidden" name="operation" value="enable_2fa" />');
-        $oP->add('<input type="hidden" name="newSecret" value="'.str_replace('"', '\"', $newSecret).'" />');
-
-
-        $oP->add("
-<table style='width: 100%;'>
-    <tr>
-        <td style='text-align: center;'>
-            <img src='$barcodeUrl'>
-            <br />
-            $newSecret
-        </td>
-        <td style='text-align: right;'>
-            <label>
-                code:
-                <input name='2fa_code'>
-            </label>
-        </td>
-        <td style='text-align: right; width: 35%;'>
-            <br />
-            <input type='submit' name='submit'>
-        </td>
-    </tr>
-</table>");
-
-    }
-
-
-//    $oP->add('<p>'.Dict::Format('UI:TwoFASettings:Default_X_ItemsPerPage', '<input id="default_page_size" name="default_page_size" type="text" size="3" value="'.$iDefaultPageSize.'"/><span id="v_default_page_size"></span>').'</p>');
-//
-//    $bShow = utils::IsArchiveMode() || appUserPreferences::GetPref('show_obsolete_data', MetaModel::GetConfig()->Get('obsolescence.show_obsolete_data'));
-//    $sSelected = $bShow ? ' checked="checked"' : '';
-//    $sDisabled = utils::IsArchiveMode() ? 'disabled="disabled"' : '';
-//    $oP->add(
-//        '<p>'
-//        .'<input type="checkbox" id="show_obsolete_data" name="show_obsolete_data" value="1"'.$sSelected.$sDisabled.'>'
-//        .'<label for="show_obsolete_data" title="'.Dict::S('UI:Favorites:ShowObsoleteData+').'">'.Dict::S('UI:Favorites:ShowObsoleteData').'</label>'
-//        .'</p>');
-//
-//    $oP->add('<input type="hidden" name="operation" value="apply_others"/>');
-//    $oP->add($oAppContext->GetForForm());
-//    $oP->add('<p><input type="button" onClick="window.location.href=\''.$sURL.'\'" value="'.Dict::S('UI:Button:Cancel').'"/>');
-//    $oP->add('&nbsp;&nbsp;');
-//    $oP->add('<input id="other_submit" type="submit" value="'.Dict::S('UI:Button:Apply').'"/></p>');
-    $oP->add('</form>');
-    $oP->add('</fieldset>');
-	
 	//////////////////////////////////////////////////////////////////////////
 	//
 	// Footer
@@ -479,160 +400,120 @@ $sOperation = utils::ReadParam('operation', '');
 	
 try
 {
-	switch($sOperation)
+	/** @var iPreferencesExtension $oLoginExtensionInstance */
+	$bOperationUsed = false;
+	foreach(MetaModel::EnumPlugins('iPreferencesExtension') as $oPreferencesExtensionInstance)
 	{
-        case 'enable_2fa':
-        $sTransactionId = utils::ReadPostedParam('transaction_id', '', 'transaction_id');
-        if (!utils::IsTransactionValid($sTransactionId))
-        {
-            $oPage->add("<div class=\"header_message message_info\">Error: invalid Transaction ID. The two factor authentication was <b>NOT</b> enabled.</div>");
-            break;
-        }
-        utils::RemoveTransaction($sTransactionId);
-
-        $sNewSecret = utils::ReadPostedParam('newSecret', false, 'raw_data');
-        if (! $sNewSecret)
-        {
-            $oPage->add("<div class=\"header_message message_info\">Error: No secret was received. The two factor authentication was <b>NOT</b> activated.</div>");
-            break;
-        }
-        $sTwoFACode = utils::ReadPostedParam('2fa_code', false, 'raw_data');
-        if (! $sTwoFACode)
-        {
-            $oPage->add("<div class=\"header_message message_info\">Error: No code was received. The two factor authentication was <b>NOT</b> activated.</div>");
-            break;
-        }
-
-        $codeGenerator = new \Google\Authenticator\GoogleAuthenticator();
-        if (! $codeGenerator->checkCode($sNewSecret, $sTwoFACode))
-        {
-            $oPage->add("<div class=\"header_message message_info\">Error: The code received was incorrect, maybe you should verify if your device has the correct time ".date('Y-m-d H:i:s').". The two factor authentication was <b>NOT</b> activated.</div>");
-            break;
-        }
-
-        $oUser = UserRights::GetUserObject();
-
-		$oUser->Set('2fa_secret', $sNewSecret);
-		utils::PushArchiveMode(false);
-		$oUser->AllowWrite(true);
-		$oUser->DBUpdate();
-        utils::PopArchiveMode();
-        $sURL = utils::GetAbsoluteUrlAppRoot().'pages/preferences.php?';
-        $oPage->add_header('Location: '.$sURL);
-		break;
-
-        case 'disable_2fa':
-        $sTransactionId = utils::ReadPostedParam('transaction_id', '', 'transaction_id');
-        if (!utils::IsTransactionValid($sTransactionId))
-        {
-            $oPage->add("<div class=\"header_message message_info\">Error: invalid Transaction ID. The two factor authentication was <b>NOT</b> disabled.</div>");
-        }
-        utils::RemoveTransaction($sTransactionId);
-
-        $oUser = UserRights::GetUserObject();
-        $oUser->Set('2fa_secret', null);
-        utils::PushArchiveMode(false);
-        $oUser->AllowWrite(true);
-        $oUser->DBUpdate();
-        utils::PopArchiveMode();
-        $sURL = utils::GetAbsoluteUrlAppRoot().'pages/preferences.php?';
-        $oPage->add_header('Location: '.$sURL);
-        break;
-
-		case 'apply':
-		$oFilter = DBObjectSearch::FromOQL('SELECT Organization');
-		$sSelectionMode = utils::ReadParam('selectionMode', '');
-		$aExceptions = utils::ReadParam('storedSelection', array());
-		if (($sSelectionMode == 'negative') && (count($aExceptions) == 0))
+		if ($oPreferencesExtensionInstance->ApplyPreferences($oPage, $sOperation))
 		{
-			// All Orgs selected
-			appUserPreferences::SetPref('favorite_orgs', null);
+			$bOperationUsed = true;
+			break;
 		}
-		else
-		{
-			// Some organizations selected... store them
-			$aSelectOrgs = utils::ReadMultipleSelection($oFilter);
-			appUserPreferences::SetPref('favorite_orgs', $aSelectOrgs);
-		}
-		DisplayPreferences($oPage);
-		break;
-		
-		case 'apply_language':
-		$sLangCode = utils::ReadParam('language', 'EN US');
-		$oUser = UserRights::GetUserObject();
-		$oUser->Set('language', $sLangCode);
-		utils::PushArchiveMode(false);
-		$oUser->AllowWrite(true);
-		$oUser->DBUpdate();
-		utils::PopArchiveMode();
-		// Redirect to force a reload/display of the page with the new language
-		$oAppContext = new ApplicationContext();
-		$sURL = utils::GetAbsoluteUrlAppRoot().'pages/preferences.php?'.$oAppContext->GetForLink();
-		$oPage->add_header('Location: '.$sURL);
-		break;
-		case 'apply_others':
-		$iDefaultPageSize = (int)utils::ReadParam('default_page_size', -1);
-		if ($iDefaultPageSize > 0)
-		{
-			appUserPreferences::SetPref('default_page_size', $iDefaultPageSize);
-		}
-		$bShowObsoleteData = (bool)utils::ReadParam('show_obsolete_data', 0);
-		appUserPreferences::SetPref('show_obsolete_data', $bShowObsoleteData);
-		DisplayPreferences($oPage);
-		break;
-		
-		case 'apply_newsroom_preferences':
-		$iCountProviders = 0;
-		$oUser = UserRights::GetUserObject();
-		$aProviders = MetaModel::EnumPlugins('iNewsroomProvider');
-		foreach($aProviders as $oProvider)
-		{
-			if ($oProvider->IsApplicable($oUser))
-			{
-				$iCountProviders++;
-			}
-		}
-		$bNewsroomEnabled = (MetaModel::GetConfig()->Get('newsroom_enabled') !== false);
-		if ($bNewsroomEnabled && ($iCountProviders > 0))
-		{
-			$iNewsroomDisplaySize = (int)utils::ReadParam('newsroom_display_size', 7);
-			if ($iNewsroomDisplaySize < 1) $iNewsroomDisplaySize = 1;
-			if ($iNewsroomDisplaySize > 20) $iNewsroomDisplaySize = 20;
-			$iCurrentDisplaySize = (int)appUserPreferences::GetPref('newsroom_display_size', $iNewsroomDisplaySize);
-			if ($iCurrentDisplaySize != $iNewsroomDisplaySize)
-			{
-				// Save the preference only if it differs from the current (or default) value
-				appUserPreferences::SetPref('newsroom_display_size', $iNewsroomDisplaySize);
-			}
-		}
-		$bProvidersModified = false;
-		foreach($aProviders as $oProvider)
-		{
-			if ($oProvider->IsApplicable($oUser))
-			{
-				$sProviderClass = get_class($oProvider);
-				$bProviderEnabled = (utils::ReadParam('newsroom_provider_'.$sProviderClass, 'off') == 'on');
-				$bCurrentValue = appUserPreferences::GetPref('newsroom_provider_'.$sProviderClass, true);
-				if ($bCurrentValue != $bProviderEnabled)
-				{
-					// Save the preference only if it differs from the current value
-					$bProvidersModified = true;
-					appUserPreferences::SetPref('newsroom_provider_'.$sProviderClass, $bProviderEnabled);
-				}
-			}
-		}
-		if ($bProvidersModified)
-		{
-			$oPage->add_ready_script('$(".itop-newsroom_menu").newsroom_menu("clearCache");');
-		}
-		DisplayPreferences($oPage);
-		break;
-		
-		case 'display':
-		default:
-		$oPage->SetBreadCrumbEntry('ui-tool-preferences', Dict::S('UI:Preferences'), Dict::S('UI:Preferences'), '', utils::GetAbsoluteUrlAppRoot().'images/wrench.png');
-		DisplayPreferences($oPage);
 	}
+
+	if (!$bOperationUsed)
+	{
+		switch ($sOperation)
+		{
+			case 'apply':
+				$oFilter = DBObjectSearch::FromOQL('SELECT Organization');
+				$sSelectionMode = utils::ReadParam('selectionMode', '');
+				$aExceptions = utils::ReadParam('storedSelection', array());
+				if (($sSelectionMode == 'negative') && (count($aExceptions) == 0))
+				{
+					// All Orgs selected
+					appUserPreferences::SetPref('favorite_orgs', null);
+				}
+				else
+				{
+					// Some organizations selected... store them
+					$aSelectOrgs = utils::ReadMultipleSelection($oFilter);
+					appUserPreferences::SetPref('favorite_orgs', $aSelectOrgs);
+				}
+				break;
+
+			case 'apply_language':
+				$sLangCode = utils::ReadParam('language', 'EN US');
+				$oUser = UserRights::GetUserObject();
+				$oUser->Set('language', $sLangCode);
+				utils::PushArchiveMode(false);
+				$oUser->AllowWrite(true);
+				$oUser->DBUpdate();
+				utils::PopArchiveMode();
+				// Redirect to force a reload/display of the page with the new language
+				$oAppContext = new ApplicationContext();
+				$sURL = utils::GetAbsoluteUrlAppRoot().'pages/preferences.php?'.$oAppContext->GetForLink();
+				$oPage->add_header('Location: '.$sURL);
+				break;
+
+			case 'apply_others':
+				$iDefaultPageSize = (int)utils::ReadParam('default_page_size', -1);
+				if ($iDefaultPageSize > 0)
+				{
+					appUserPreferences::SetPref('default_page_size', $iDefaultPageSize);
+				}
+				$bShowObsoleteData = (bool)utils::ReadParam('show_obsolete_data', 0);
+				appUserPreferences::SetPref('show_obsolete_data', $bShowObsoleteData);
+				break;
+
+			case 'apply_newsroom_preferences':
+				$iCountProviders = 0;
+				$oUser = UserRights::GetUserObject();
+				$aProviders = MetaModel::EnumPlugins('iNewsroomProvider');
+				foreach ($aProviders as $oProvider)
+				{
+					if ($oProvider->IsApplicable($oUser))
+					{
+						$iCountProviders++;
+					}
+				}
+				$bNewsroomEnabled = (MetaModel::GetConfig()->Get('newsroom_enabled') !== false);
+				if ($bNewsroomEnabled && ($iCountProviders > 0))
+				{
+					$iNewsroomDisplaySize = (int)utils::ReadParam('newsroom_display_size', 7);
+					if ($iNewsroomDisplaySize < 1)
+					{
+						$iNewsroomDisplaySize = 1;
+					}
+					if ($iNewsroomDisplaySize > 20)
+					{
+						$iNewsroomDisplaySize = 20;
+					}
+					$iCurrentDisplaySize = (int)appUserPreferences::GetPref('newsroom_display_size', $iNewsroomDisplaySize);
+					if ($iCurrentDisplaySize != $iNewsroomDisplaySize)
+					{
+						// Save the preference only if it differs from the current (or default) value
+						appUserPreferences::SetPref('newsroom_display_size', $iNewsroomDisplaySize);
+					}
+				}
+				$bProvidersModified = false;
+				foreach ($aProviders as $oProvider)
+				{
+					if ($oProvider->IsApplicable($oUser))
+					{
+						$sProviderClass = get_class($oProvider);
+						$bProviderEnabled = (utils::ReadParam('newsroom_provider_'.$sProviderClass, 'off') == 'on');
+						$bCurrentValue = appUserPreferences::GetPref('newsroom_provider_'.$sProviderClass, true);
+						if ($bCurrentValue != $bProviderEnabled)
+						{
+							// Save the preference only if it differs from the current value
+							$bProvidersModified = true;
+							appUserPreferences::SetPref('newsroom_provider_'.$sProviderClass, $bProviderEnabled);
+						}
+					}
+				}
+				if ($bProvidersModified)
+				{
+					$oPage->add_ready_script('$(".itop-newsroom_menu").newsroom_menu("clearCache");');
+				}
+				break;
+
+			case 'display':
+			default:
+				$oPage->SetBreadCrumbEntry('ui-tool-preferences', Dict::S('UI:Preferences'), Dict::S('UI:Preferences'), '', utils::GetAbsoluteUrlAppRoot().'images/wrench.png');
+		}
+	}
+	DisplayPreferences($oPage);
 	$oPage->output();
 }
 catch(CoreException $e)
