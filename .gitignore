@@ -6,12 +6,16 @@
 # composer reserver directory, from sources, populate/update using "composer install"
 vendor/*
 test/vendor/*
+lib/composer-vendor/*
+!lib/composer-vendor/.gitkeep
 
 # all datas but listing prevention
 data/*
 !data/.htaccess
 !data/index.php
 !data/web.config
+
+datamodels/2.x/itop-portal-base/portal-symfony/var
 
 # iTop extensions
 extensions/*

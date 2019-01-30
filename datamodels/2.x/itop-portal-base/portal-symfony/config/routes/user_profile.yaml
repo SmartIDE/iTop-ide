@@ -1,0 +1,6 @@
+
+p_user_profile_brick:
+  path: '/user/{sBrickId}'
+  defaults:
+    _controller: 'Combodo\iTop\Portal\Controller\UserProfileBrickController::DisplayAction'
+    sBrickId: ~

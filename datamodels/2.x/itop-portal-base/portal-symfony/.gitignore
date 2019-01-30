@@ -1,0 +1,9 @@
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/public/bundles/
+/datamodels/2.x/itop-portal-base/portal-symfony/var/
+/vendor/
+###< symfony/framework-bundle ###

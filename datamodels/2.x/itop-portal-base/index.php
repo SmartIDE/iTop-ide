@@ -48,4 +48,5 @@ if(!defined('PORTAL_ID'))
     define('PORTAL_ID', $sPortalId);
 }
 
-require_once APPROOT . '/env-' . utils::GetCurrentEnvironment() . '/itop-portal-base/portal/web/index.php';
+//require_once APPROOT . '/env-' . utils::GetCurrentEnvironment() . '/itop-portal-base/portal/web/index.php';
+require_once APPROOT . '/env-' . utils::GetCurrentEnvironment() . '/itop-portal-base/portal-symfony/public/index.php';

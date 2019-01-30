@@ -1,0 +1,58 @@
+<html><head><title>PHPMD</title></head><body>
+<center><h1>PHPMD report</h1></center><center><h2>Problems found</h2></center>
+<table align="center" cellspacing="0" cellpadding="3"><tr><th>#</th><th>File</th><th>Line</th><th>Problem</th></tr>
+<tr bgcolor="lightgrey">
+<td align="center">1</td>
+<td>/var/www/itop/iTop/webservices/createfrommail.php</td>
+<td align="center" width="5%">106</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$iChangeId'.</a></td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td>/var/www/itop/iTop/webservices/cron.php</td>
+<td align="center" width="5%">87</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oStartDate'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">3</td>
+<td>/var/www/itop/iTop/webservices/cron.php</td>
+<td align="center" width="5%">409</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$oLastRunProcess'.</a></td>
+</tr>
+<tr>
+<td align="center">4</td>
+<td>/var/www/itop/iTop/webservices/export-v2.php</td>
+<td align="center" width="5%">105</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$sLabel'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">5</td>
+<td>/var/www/itop/iTop/webservices/export-v2.php</td>
+<td align="center" width="5%">348</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sFileName'.</a></td>
+</tr>
+<tr>
+<td align="center">6</td>
+<td>/var/www/itop/iTop/webservices/export-v2.php</td>
+<td align="center" width="5%">489</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$foo'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">7</td>
+<td>/var/www/itop/iTop/webservices/export-v2.php</td>
+<td align="center" width="5%">535</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$bInteractive'.</a></td>
+</tr>
+<tr>
+<td align="center">8</td>
+<td>/var/www/itop/iTop/webservices/import.php</td>
+<td align="center" width="5%">192</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oP'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">9</td>
+<td>/var/www/itop/iTop/webservices/webservices.basic.php</td>
+<td align="center" width="5%">178</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$iChangeId'.</a></td>
+</tr>
+</table></body></html>

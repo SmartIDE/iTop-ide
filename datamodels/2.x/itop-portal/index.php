@@ -50,4 +50,5 @@ $sDir = basename(__DIR__);
 define('PORTAL_MODULE_ID', $sDir);
 define('PORTAL_ID', $sDir);
 
+
 require_once APPROOT . '/env-' . utils::GetCurrentEnvironment() . '/itop-portal-base/index.php';

@@ -334,10 +334,11 @@ class ApplicationContext
    {
    	$oAppContext = new ApplicationContext();
 
-      if (is_null($sUrlMakerClass))
-      {
-			$sUrlMakerClass = self::GetUrlMakerClass();
-		}
+        if (is_null($sUrlMakerClass))
+        {
+            $sUrlMakerClass = self::GetUrlMakerClass();
+        }
+
 		$sUrl = call_user_func(array($sUrlMakerClass, 'MakeObjectUrl'), $sObjClass, $sObjKey);
 		if (strlen($sUrl) > 0)
 		{

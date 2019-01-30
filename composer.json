@@ -1,8 +1,11 @@
 {
   "require": {
-    "php": ">=5.6.0"
+    "php": ">=5.6.0",
+
+    "symfony/symfony": "^3.4"
   },
   "config": {
+    "vendor-dir" : "lib/composer-vendor",
     "platform": {
       "php": "5.6.0"
     }

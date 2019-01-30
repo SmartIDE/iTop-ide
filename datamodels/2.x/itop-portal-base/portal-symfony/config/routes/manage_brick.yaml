@@ -1,0 +1,35 @@
+
+
+
+
+p_manage_brick:
+  path: '/manage/{sBrickId}/{sGroupingTab}'
+  defaults:
+    _controller: 'Combodo\iTop\Portal\Controller\ManageBrickController::DisplayAction'
+    sGroupingTab: ~
+
+p_manage_brick_display_as:
+  path: '/manage/{sBrickId}/display-as/{sDisplayMode}/{sGroupingTab}'
+  defaults:
+    _controller: 'Combodo\iTop\Portal\Controller\ManageBrickController::DisplayAction'
+    sGroupingTab: ~
+  requirements:
+    sDisplayMode: 'list|pie-chart|bar-chart'
+
+p_manage_brick_lazy:
+  path: '/manage/{sBrickId}/{sGroupingTab}/{sGroupingArea}/page/{iPageNumber}/show/{iListLength}'
+  defaults:
+    _controller: 'Combodo\iTop\Portal\Controller\ManageBrickController::DisplayAction'
+    sDataLoading: lazy
+    iPageNumber: 1
+    iListLength: 20
+  requirements:
+    iPageNumber: '\d+'
+    iListLength: '\d+'
+
+p_manage_brick_excel_export_start:
+  path: '/manage/export/excel/start/{sBrickId}/{sGroupingTab}/{sGroupingArea}'
+  defaults:
+    _controller: 'Combodo\iTop\Portal\Controller\ManageBrickController::ExcelExportStartAction'
+
+

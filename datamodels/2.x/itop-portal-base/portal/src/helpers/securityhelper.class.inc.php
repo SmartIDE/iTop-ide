@@ -51,23 +51,28 @@ class SecurityHelper
      * - Optionally, if $sObjectId provided: Is object within scope for $sObjectClass / $sObjectId / $sAction
      * - Is allowed by datamodel for $sObjectClass / $sAction
      *
-     * @param \Silex\Application $oApp
-     * @param string $sAction Must be in UR_ACTION_READ|UR_ACTION_MODIFY|UR_ACTION_CREATE
-     * @param string $sObjectClass
-     * @param string $sObjectId
+     * @param ScopeValidatorHelper $scopeValidator
+     * @param boolean              $isDebugEnabled
+     * @param string               $sAction Must be in UR_ACTION_READ|UR_ACTION_MODIFY|UR_ACTION_CREATE
+     * @param string               $sObjectClass
+     * @param string               $sObjectId
      *
      * @return boolean
      *
      * @throws \CoreException
+     * @throws \MissingQueryArgument
+     * @throws \MySQLException
+     * @throws \MySQLHasGoneAwayException
+     * @throws \OQLException
      */
-	public static function IsActionAllowed(Application $oApp, $sAction, $sObjectClass, $sObjectId = null)
+	public static function IsActionAllowed(ScopeValidatorHelper $scopeValidator, $isDebugEnabled, $sAction, $sObjectClass, $sObjectId = null)
 	{
 		$sDebugTracePrefix = __CLASS__ . ' / ' . __METHOD__ . ' : Returned false for action ' . $sAction . ' on ' . $sObjectClass . '::' . $sObjectId;
 
 		// Checking action type
 		if (!in_array($sAction, array(UR_ACTION_READ, UR_ACTION_MODIFY, UR_ACTION_CREATE)))
 		{
-			if ($oApp['debug'])
+			if ($isDebugEnabled)
 			{
 				IssueLog::Info($sDebugTracePrefix . ' as the action value could not be understood (' . UR_ACTION_READ . '/' . UR_ACTION_MODIFY . '/' . UR_ACTION_CREATE . ' expected');
 			}
@@ -78,10 +83,10 @@ class SecurityHelper
 		// - Transforming scope action as there is only 2 values
 		$sScopeAction = ($sAction === UR_ACTION_READ) ? UR_ACTION_READ : UR_ACTION_MODIFY;
 		// - Retrieving the query. If user has no scope, it can't access that kind of objects
-		$oScopeQuery = $oApp['scope_validator']->GetScopeFilterForProfiles(UserRights::ListProfiles(), $sObjectClass, $sScopeAction);
+		$oScopeQuery = $scopeValidator->GetScopeFilterForProfiles(UserRights::ListProfiles(), $sObjectClass, $sScopeAction);
 		if ($oScopeQuery === null)
 		{
-			if ($oApp['debug'])
+			if ($isDebugEnabled)
 			{
 				IssueLog::Info($sDebugTracePrefix . ' as there was no scope defined for action ' . $sScopeAction . ' and profiles ' . implode('/', UserRights::ListProfiles()));
 			}
@@ -98,7 +103,7 @@ class SecurityHelper
                 {
                     if(static::$aAllowedScopeObjectsCache[$sScopeAction][$sObjectClass][$sObjectId] === false)
                     {
-                        if ($oApp['debug'])
+                        if ($isDebugEnabled)
                         {
                             IssueLog::Info($sDebugTracePrefix . ' as it was denied in the scope objects cache');
                         }
@@ -126,7 +131,7 @@ class SecurityHelper
                         // Updating cache
                         static::$aAllowedScopeObjectsCache[$sScopeAction][$sObjectClass][$sObjectId] = false;
 
-                        if ($oApp['debug'])
+                        if ($isDebugEnabled)
                         {
                             IssueLog::Info($sDebugTracePrefix . ' as there was no result for the following scope query : ' . $oScopeQuery->ToOQL(true));
                         }
@@ -144,7 +149,7 @@ class SecurityHelper
 		{
 			// For security reasons, we don't want to give the user too many informations on why he cannot access the object.
 			//throw new SecurityException('User not allowed to view this object', array('class' => $sObjectClass, 'id' => $sObjectId));
-			if ($oApp['debug'])
+			if ($isDebugEnabled)
 			{
 				IssueLog::Info($sDebugTracePrefix . ' as the user is not allowed to access this object according to the datamodel security (cf. Console settings)');
 			}
@@ -177,14 +182,16 @@ class SecurityHelper
     /**
      * Preloads scope objects cache with objects from $oQuery
      *
-     * @param \Silex\Application $oApp
-     * @param \DBSearch $oSearch
-     * @param array $aExtKeysToPreload
+     * @param ScopeValidatorHelper $scopeValidator
+     * @param \DBSearch            $oSearch
+     * @param array                $aExtKeysToPreload
      *
-     * @throws \Exception
      * @throws \CoreException
+     * @throws \CoreUnexpectedValue
+     * @throws \MySQLException
+     * @throws \OQLException
      */
-	public static function PreloadForCache(Application $oApp, DBSearch $oSearch, $aExtKeysToPreload = null)
+	public static function PreloadForCache(ScopeValidatorHelper $scopeValidator, DBSearch $oSearch, $aExtKeysToPreload = null)
     {
         $sObjectClass = $oSearch->GetClass();
         $aObjectIds = array();
@@ -234,7 +241,7 @@ class SecurityHelper
         {
             // Retrieving scope query
             /** @var DBSearch $oScopeQuery */
-            $oScopeQuery = $oApp['scope_validator']->GetScopeFilterForProfiles(UserRights::ListProfiles(), $sObjectClass, $sScopeAction);
+            $oScopeQuery = $scopeValidator->GetScopeFilterForProfiles(UserRights::ListProfiles(), $sObjectClass, $sScopeAction);
             if($oScopeQuery !== null)
             {
                 // Restricting scope if specified
@@ -274,7 +281,7 @@ class SecurityHelper
                 $oTargetSearch = new DBObjectSearch($sTargetClass);
                 $oTargetSearch->AddCondition('id', $aTargetIds, 'IN');
 
-                static::PreloadForCache($oApp, $oTargetSearch);
+                static::PreloadForCache($scopeValidator, $oTargetSearch);
             }
         }
     }

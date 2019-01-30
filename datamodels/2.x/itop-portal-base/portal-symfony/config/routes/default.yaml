@@ -1,0 +1,4 @@
+
+p_home:
+  path: '/'
+  controller: 'Combodo\iTop\Portal\Controller\DefaultController::homeAction'

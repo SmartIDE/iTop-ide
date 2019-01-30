@@ -1,0 +1,5 @@
+
+p_create_brick:
+  path: '/create/{sBrickId}'
+  defaults:
+    _controller: 'Combodo\iTop\Portal\Controller\CreateBrickController::DisplayAction'

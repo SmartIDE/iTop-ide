@@ -1,0 +1,27 @@
+# This file is the entry point to configure your own HTTP routes.
+# Files in the routes/ subdirectory configure the routes for your dependencies.
+
+#index:
+#    path: /
+#    defaults: { _controller: 'Combodo\iTop\Portal\Controller\DefaultController::index' }
+
+defaults:
+  resource: 'routes/default.yaml'
+
+browse_brick:
+  resource: 'routes/browse_brick.yaml'
+
+create_brick:
+  resource: 'routes/create_brick.yaml'
+
+manage_brick:
+  resource: 'routes/manage_brick.yaml'
+
+user_profile:
+  resource: 'routes/user_profile.yaml'
+
+object_router:
+  resource: 'routes/object_router.php'
+
+extensions_extra_routes:
+  resource: 'routes/extensions_extra_routes.php'

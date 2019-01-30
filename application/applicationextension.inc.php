@@ -644,52 +644,52 @@ interface iPortalUIExtension
     /**
      * Returns an array of CSS file urls
      *
-     * @param \Silex\Application $oApp
+     * @param \Symfony\Component\DependencyInjection\Container $container
      * @return array
      */
-    public function GetCSSFiles(\Silex\Application $oApp);
+    public function GetCSSFiles(\Symfony\Component\DependencyInjection\Container $container);
     /**
      * Returns inline (raw) CSS
      *
-     * @param \Silex\Application $oApp
+     * @param \Symfony\Component\DependencyInjection\Container $container
      * @return string
      */
-    public function GetCSSInline(\Silex\Application $oApp);
+    public function GetCSSInline(\Symfony\Component\DependencyInjection\Container $container);
     /**
      * Returns an array of JS file urls
      *
-     * @param \Silex\Application $oApp
+     * @param \Symfony\Component\DependencyInjection\Container $container
      * @return array
      */
-    public function GetJSFiles(\Silex\Application $oApp);
+    public function GetJSFiles(\Symfony\Component\DependencyInjection\Container $container);
     /**
      * Returns raw JS code
      *
-     * @param \Silex\Application $oApp
+     * @param \Symfony\Component\DependencyInjection\Container $container
      * @return string
      */
-    public function GetJSInline(\Silex\Application $oApp);
+    public function GetJSInline(\Symfony\Component\DependencyInjection\Container $container);
     /**
      * Returns raw HTML code to put at the end of the <body> tag
      *
-     * @param \Silex\Application $oApp
+     * @param \Symfony\Component\DependencyInjection\Container $container
      * @return string
      */
-    public function GetBodyHTML(\Silex\Application $oApp);
+    public function GetBodyHTML(\Symfony\Component\DependencyInjection\Container $container);
     /**
      * Returns raw HTML code to put at the end of the #main-wrapper element
      *
-     * @param \Silex\Application $oApp
+     * @param \Symfony\Component\DependencyInjection\Container $container
      * @return string
      */
-    public function GetMainContentHTML(\Silex\Application $oApp);
+    public function GetMainContentHTML(\Symfony\Component\DependencyInjection\Container $container);
     /**
      * Returns raw HTML code to put at the end of the #topbar and #sidebar elements
      *
-     * @param \Silex\Application $oApp
+     * @param \Symfony\Component\DependencyInjection\Container $container
      * @return string
      */
-    public function GetNavigationMenuHTML(\Silex\Application $oApp);
+    public function GetNavigationMenuHTML(\Symfony\Component\DependencyInjection\Container $container);
 }
 
 /**
@@ -700,49 +700,49 @@ abstract class AbstractPortalUIExtension implements iPortalUIExtension
     /**
      * @inheritDoc
      */
-    public function GetCSSFiles(\Silex\Application $oApp)
+    public function GetCSSFiles(\Symfony\Component\DependencyInjection\Container $container)
     {
         return array();
     }
     /**
      * @inheritDoc
      */
-    public function GetCSSInline(\Silex\Application $oApp)
+    public function GetCSSInline(\Symfony\Component\DependencyInjection\Container $container)
     {
         return null;
     }
     /**
      * @inheritDoc
      */
-    public function GetJSFiles(\Silex\Application $oApp)
+    public function GetJSFiles(\Symfony\Component\DependencyInjection\Container $container)
     {
         return array();
     }
     /**
      * @inheritDoc
      */
-    public function GetJSInline(\Silex\Application $oApp)
+    public function GetJSInline(\Symfony\Component\DependencyInjection\Container $container)
     {
         return null;
     }
     /**
      * @inheritDoc
      */
-    public function GetBodyHTML(\Silex\Application $oApp)
+    public function GetBodyHTML(\Symfony\Component\DependencyInjection\Container $container)
     {
         return null;
     }
     /**
      * @inheritDoc
      */
-    public function GetMainContentHTML(\Silex\Application $oApp)
+    public function GetMainContentHTML(\Symfony\Component\DependencyInjection\Container $container)
     {
         return null;
     }
     /**
      * @inheritDoc
      */
-    public function GetNavigationMenuHTML(\Silex\Application $oApp)
+    public function GetNavigationMenuHTML(\Symfony\Component\DependencyInjection\Container $container)
     {
         return null;
     }

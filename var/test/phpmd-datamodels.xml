@@ -1,0 +1,658 @@
+<html><head><title>PHPMD</title></head><body>
+<center><h1>PHPMD report</h1></center><center><h2>Problems found</h2></center>
+<table align="center" cellspacing="0" cellpadding="3"><tr><th>#</th><th>File</th><th>Line</th><th>Problem</th></tr>
+<tr bgcolor="lightgrey">
+<td align="center">1</td>
+<td>/var/www/itop/iTop/datamodels/2.x/authent-external/model.authent-external.php</td>
+<td align="center" width="5%">66</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sPassword'.</a></td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td>/var/www/itop/iTop/datamodels/2.x/authent-external/model.authent-external.php</td>
+<td align="center" width="5%">83</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sOldPassword'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">3</td>
+<td>/var/www/itop/iTop/datamodels/2.x/authent-external/model.authent-external.php</td>
+<td align="center" width="5%">83</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sNewPassword'.</a></td>
+</tr>
+<tr>
+<td align="center">4</td>
+<td>/var/www/itop/iTop/datamodels/2.x/authent-ldap/model.authent-ldap.php</td>
+<td align="center" width="5%">105</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$bind'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">5</td>
+<td>/var/www/itop/iTop/datamodels/2.x/authent-ldap/model.authent-ldap.php</td>
+<td align="center" width="5%">179</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sOldPassword'.</a></td>
+</tr>
+<tr>
+<td align="center">6</td>
+<td>/var/www/itop/iTop/datamodels/2.x/authent-ldap/model.authent-ldap.php</td>
+<td align="center" width="5%">179</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sNewPassword'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">7</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">45</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sFormPrefix'.</a></td>
+</tr>
+<tr>
+<td align="center">8</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">96</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oObject'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">9</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">101</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oObject'.</a></td>
+</tr>
+<tr>
+<td align="center">10</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">106</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oObject'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">11</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">113</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oSet'.</a></td>
+</tr>
+<tr>
+<td align="center">12</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">119</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oObject'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">13</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">124</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oObject'.</a></td>
+</tr>
+<tr>
+<td align="center">14</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">129</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oObject'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">15</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">134</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oChange'.</a></td>
+</tr>
+<tr>
+<td align="center">16</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">156</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oChange'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">17</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">212</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$sMaxWidth'.</a></td>
+</tr>
+<tr>
+<td align="center">18</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">255</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$iObjectId'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">19</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">505</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$iAttachmentId'.</a></td>
+</tr>
+<tr>
+<td align="center">20</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">629</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$iId'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">21</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">660</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sState'.</a></td>
+</tr>
+<tr>
+<td align="center">22</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">750</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$bIsHtml'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">23</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/main.attachments.php</td>
+<td align="center" width="5%">805</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$bIsHtml'.</a></td>
+</tr>
+<tr>
+<td align="center">24</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/module.attachments.php</td>
+<td align="center" width="5%">90</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">25</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/module.attachments.php</td>
+<td align="center" width="5%">90</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr>
+<td align="center">26</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/module.attachments.php</td>
+<td align="center" width="5%">103</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$iRet'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">27</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/module.attachments.php</td>
+<td align="center" width="5%">119</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr>
+<td align="center">28</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/module.attachments.php</td>
+<td align="center" width="5%">119</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sPreviousVersion'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">29</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-attachments/module.attachments.php</td>
+<td align="center" width="5%">119</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr>
+<td align="center">30</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-backup/backup.php</td>
+<td align="center" width="5%">67</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$aMatches'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">31</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-backup/dbrestore.class.inc.php</td>
+<td align="center" width="5%">35</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sMsg'.</a></td>
+</tr>
+<tr>
+<td align="center">32</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-backup/dbrestore.class.inc.php</td>
+<td align="center" width="5%">50</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$oMysqli'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">33</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-backup/main.itop-backup.php</td>
+<td align="center" width="5%">140</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$iUnixTimeLimit'.</a></td>
+</tr>
+<tr>
+<td align="center">34</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-change-mgmt/module.itop-change-mgmt.php</td>
+<td align="center" width="5%">63</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">35</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-change-mgmt/module.itop-change-mgmt.php</td>
+<td align="center" width="5%">63</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sPreviousVersion'.</a></td>
+</tr>
+<tr>
+<td align="center">36</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-change-mgmt/module.itop-change-mgmt.php</td>
+<td align="center" width="5%">63</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">37</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-change-mgmt/module.itop-change-mgmt.php</td>
+<td align="center" width="5%">74</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr>
+<td align="center">38</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-change-mgmt/module.itop-change-mgmt.php</td>
+<td align="center" width="5%">74</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sPreviousVersion'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">39</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-change-mgmt/module.itop-change-mgmt.php</td>
+<td align="center" width="5%">74</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr>
+<td align="center">40</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-config-mgmt/module.itop-config-mgmt.php</td>
+<td align="center" width="5%">83</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">41</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-config-mgmt/module.itop-config-mgmt.php</td>
+<td align="center" width="5%">83</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr>
+<td align="center">42</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-config-mgmt/module.itop-config-mgmt.php</td>
+<td align="center" width="5%">111</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">43</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-config-mgmt/module.itop-config-mgmt.php</td>
+<td align="center" width="5%">111</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sPreviousVersion'.</a></td>
+</tr>
+<tr>
+<td align="center">44</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-config-mgmt/module.itop-config-mgmt.php</td>
+<td align="center" width="5%">111</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">45</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-config/config.php</td>
+<td align="center" width="5%">33</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oP'.</a></td>
+</tr>
+<tr>
+<td align="center">46</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-config/config.php</td>
+<td align="center" width="5%">63</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$iEnd'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">47</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-config/config.php</td>
+<td align="center" width="5%">64</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$iTotalLines'.</a></td>
+</tr>
+<tr>
+<td align="center">48</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-endusers-devices/module.itop-endusers-devices.php</td>
+<td align="center" width="5%">90</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">49</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-endusers-devices/module.itop-endusers-devices.php</td>
+<td align="center" width="5%">90</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr>
+<td align="center">50</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-endusers-devices/module.itop-endusers-devices.php</td>
+<td align="center" width="5%">105</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">51</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-endusers-devices/module.itop-endusers-devices.php</td>
+<td align="center" width="5%">105</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sPreviousVersion'.</a></td>
+</tr>
+<tr>
+<td align="center">52</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-endusers-devices/module.itop-endusers-devices.php</td>
+<td align="center" width="5%">105</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">53</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-hub-connector/ajax.php</td>
+<td align="center" width="5%">51</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$aInfos'.</a></td>
+</tr>
+<tr>
+<td align="center">54</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-hub-connector/ajax.php</td>
+<td align="center" width="5%">57</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$aErrors'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">55</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-hub-connector/ajax.php</td>
+<td align="center" width="5%">111</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$bSuccess'.</a></td>
+</tr>
+<tr>
+<td align="center">56</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-knownerror-mgmt/module.itop-knownerror-mgmt.php</td>
+<td align="center" width="5%">65</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">57</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-knownerror-mgmt/module.itop-knownerror-mgmt.php</td>
+<td align="center" width="5%">65</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr>
+<td align="center">58</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-knownerror-mgmt/module.itop-knownerror-mgmt.php</td>
+<td align="center" width="5%">80</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">59</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-knownerror-mgmt/module.itop-knownerror-mgmt.php</td>
+<td align="center" width="5%">80</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sPreviousVersion'.</a></td>
+</tr>
+<tr>
+<td align="center">60</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-knownerror-mgmt/module.itop-knownerror-mgmt.php</td>
+<td align="center" width="5%">80</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">61</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/controllers/aggregatepagebrickcontroller.class.inc.php</td>
+<td align="center" width="5%">79</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$iBrickRank'.</a></td>
+</tr>
+<tr>
+<td align="center">62</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/controllers/browsebrickcontroller.class.inc.php</td>
+<td align="center" width="5%">313</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$sTmpClassName'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">63</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/controllers/objectcontroller.class.inc.php</td>
+<td align="center" width="5%">550</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$aTransitionDef'.</a></td>
+</tr>
+<tr>
+<td align="center">64</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/controllers/objectcontroller.class.inc.php</td>
+<td align="center" width="5%">1206</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oRequest'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">65</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/controllers/objectcontroller.class.inc.php</td>
+<td align="center" width="5%">1206</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oApp'.</a></td>
+</tr>
+<tr>
+<td align="center">66</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/controllers/objectcontroller.class.inc.php</td>
+<td align="center" width="5%">1206</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sTargetAttCode'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">67</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/controllers/objectcontroller.class.inc.php</td>
+<td align="center" width="5%">1206</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sHostObjectClass'.</a></td>
+</tr>
+<tr>
+<td align="center">68</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/controllers/objectcontroller.class.inc.php</td>
+<td align="center" width="5%">1206</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sHostObjectId'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">69</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/controllers/objectcontroller.class.inc.php</td>
+<td align="center" width="5%">1225</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oRequest'.</a></td>
+</tr>
+<tr>
+<td align="center">70</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/controllers/objectcontroller.class.inc.php</td>
+<td align="center" width="5%">1406</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oRequest'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">71</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/controllers/userprofilebrickcontroller.class.inc.php</td>
+<td align="center" width="5%">151</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oRequest'.</a></td>
+</tr>
+<tr>
+<td align="center">72</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/controllers/userprofilebrickcontroller.class.inc.php</td>
+<td align="center" width="5%">224</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oRequest'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">73</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/forms/objectformmanager.class.inc.php</td>
+<td align="center" width="5%">834</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$sImpactedFieldId'.</a></td>
+</tr>
+<tr>
+<td align="center">74</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/forms/objectformmanager.class.inc.php</td>
+<td align="center" width="5%">904</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$aArgs'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">75</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/forms/objectformmanager.class.inc.php</td>
+<td align="center" width="5%">1095</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$aObjData'.</a></td>
+</tr>
+<tr>
+<td align="center">76</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/forms/objectformmanager.class.inc.php</td>
+<td align="center" width="5%">1104</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$aObjdata'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">77</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/forms/passwordformmanager.class.inc.php</td>
+<td align="center" width="5%">189</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$aArgs'.</a></td>
+</tr>
+<tr>
+<td align="center">78</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/forms/preferencesformmanager.class.inc.php</td>
+<td align="center" width="5%">186</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$aArgs'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">79</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/helpers/applicationhelper.class.inc.php</td>
+<td align="center" width="5%">842</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oApp'.</a></td>
+</tr>
+<tr>
+<td align="center">80</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/helpers/applicationhelper.class.inc.php</td>
+<td align="center" width="5%">927</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oApp'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">81</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/helpers/applicationhelper.class.inc.php</td>
+<td align="center" width="5%">1199</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oApp'.</a></td>
+</tr>
+<tr>
+<td align="center">82</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/helpers/applicationhelper.class.inc.php</td>
+<td align="center" width="5%">1354</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$sMessageId'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">83</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/helpers/lifecyclevalidatorhelper.class.inc.php</td>
+<td align="center" width="5%">295</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$aData'.</a></td>
+</tr>
+<tr>
+<td align="center">84</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/providers/contextmanipulatorserviceprovider.class.inc.php</td>
+<td align="center" width="5%">47</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oApp'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">85</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/providers/lifecyclevalidatorserviceprovider.class.inc.php</td>
+<td align="center" width="5%">50</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oApp'.</a></td>
+</tr>
+<tr>
+<td align="center">86</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/providers/requestmanipulatorserviceprovider.class.inc.php</td>
+<td align="center" width="5%">55</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oApp'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">87</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/providers/scopevalidatorserviceprovider.class.inc.php</td>
+<td align="center" width="5%">50</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oApp'.</a></td>
+</tr>
+<tr>
+<td align="center">88</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-portal-base/portal/src/providers/urlgeneratorserviceprovider.class.inc.php</td>
+<td align="center" width="5%">44</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oApp'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">89</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-service-mgmt-provider/module.itop-service-mgmt-provider.php</td>
+<td align="center" width="5%">76</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr>
+<td align="center">90</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-service-mgmt-provider/module.itop-service-mgmt-provider.php</td>
+<td align="center" width="5%">76</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">91</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-service-mgmt-provider/module.itop-service-mgmt-provider.php</td>
+<td align="center" width="5%">93</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr>
+<td align="center">92</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-service-mgmt-provider/module.itop-service-mgmt-provider.php</td>
+<td align="center" width="5%">93</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sPreviousVersion'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">93</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-service-mgmt-provider/module.itop-service-mgmt-provider.php</td>
+<td align="center" width="5%">93</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr>
+<td align="center">94</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-service-mgmt/module.itop-service-mgmt.php</td>
+<td align="center" width="5%">76</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">95</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-service-mgmt/module.itop-service-mgmt.php</td>
+<td align="center" width="5%">76</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr>
+<td align="center">96</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-service-mgmt/module.itop-service-mgmt.php</td>
+<td align="center" width="5%">90</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">97</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-service-mgmt/module.itop-service-mgmt.php</td>
+<td align="center" width="5%">90</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sPreviousVersion'.</a></td>
+</tr>
+<tr>
+<td align="center">98</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-service-mgmt/module.itop-service-mgmt.php</td>
+<td align="center" width="5%">90</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">99</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-sla-computation/main.itop-sla-computation.php</td>
+<td align="center" width="5%">138</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oTicket'.</a></td>
+</tr>
+<tr>
+<td align="center">100</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-sla-computation/main.itop-sla-computation.php</td>
+<td align="center" width="5%">158</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oTicket'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">101</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-storage-mgmt/module.itop-storage-mgmt.php</td>
+<td align="center" width="5%">90</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr>
+<td align="center">102</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-storage-mgmt/module.itop-storage-mgmt.php</td>
+<td align="center" width="5%">90</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">103</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-storage-mgmt/module.itop-storage-mgmt.php</td>
+<td align="center" width="5%">105</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr>
+<td align="center">104</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-storage-mgmt/module.itop-storage-mgmt.php</td>
+<td align="center" width="5%">105</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sPreviousVersion'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">105</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-storage-mgmt/module.itop-storage-mgmt.php</td>
+<td align="center" width="5%">105</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+<tr>
+<td align="center">106</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-tickets/main.itop-tickets.php</td>
+<td align="center" width="5%">177</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedlocalvariable">Avoid unused local variables such as '$sKey'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">107</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-tickets/module.itop-tickets.php</td>
+<td align="center" width="5%">50</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$oConfiguration'.</a></td>
+</tr>
+<tr>
+<td align="center">108</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-tickets/module.itop-tickets.php</td>
+<td align="center" width="5%">50</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sPreviousVersion'.</a></td>
+</tr>
+<tr bgcolor="lightgrey">
+<td align="center">109</td>
+<td>/var/www/itop/iTop/datamodels/2.x/itop-tickets/module.itop-tickets.php</td>
+<td align="center" width="5%">50</td>
+<td><a href="http://phpmd.org/rules/unusedcode.html#unusedformalparameter">Avoid unused parameters such as '$sCurrentVersion'.</a></td>
+</tr>
+</table></body></html>
