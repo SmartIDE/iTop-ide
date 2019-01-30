@@ -78,6 +78,9 @@ class DBObjectSet implements iDBObjectSetIterator
 	 */
 	protected $m_oSQLResult;
 	protected $m_bSort;
+	protected $m_iLimitCount;
+	protected $m_iLimitStart;
+	protected $m_aExtendedDataSpec;
 
 	/**
 	 * Create a new set based on a Search definition.
