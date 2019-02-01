@@ -840,16 +840,17 @@ abstract class DBObject implements iDisplay
 			{
 				// The current object exists only in memory, don't try to query it in the DB !
 				// instead let's query for the object pointed by the external key, and get its name
-				$targetObjId = $this->Get($sAttCode);
-				$oTargetObj = MetaModel::GetObject($sTargetClass, $targetObjId, false); // false => not sure it exists
-				if (is_object($oTargetObj))
+				$iTargetObjId = $this->Get($sAttCode);
+				$sEditValue = 0;
+				// get only existing entries
+				if ($iTargetObjId > 0)
 				{
-					$sEditValue = $oTargetObj->GetName();
+					$oTargetObj = MetaModel::GetObject($sTargetClass, $iTargetObjId, false); // false => not sure it exists
+					if (is_object($oTargetObj))
+					{
+						$sEditValue = $oTargetObj->GetName();
+					}
 				}
-				else
-				{
-					$sEditValue = 0;
-				}					
 			}
 			else
 			{
