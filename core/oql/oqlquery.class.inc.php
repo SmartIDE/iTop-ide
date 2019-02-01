@@ -567,6 +567,7 @@ class OqlUnionQuery extends OqlQuery
 
 	public function __construct(OqlObjectQuery $oLeftQuery, OqlQuery $oRightQueryOrUnion)
 	{
+		parent::__construct(); // for code analysis
 		$this->aQueries[] = $oLeftQuery;
 		if ($oRightQueryOrUnion instanceof OqlUnionQuery)
 		{
@@ -637,6 +638,7 @@ class OqlUnionQuery extends OqlQuery
 		}
 		foreach ($aColumnToClasses as $iColumn => $aClasses)
 		{
+			$sRootClass = null; // For code analysis
 			foreach ($aClasses as $iQuery => $aData)
 			{
 				if ($iQuery == 0)
