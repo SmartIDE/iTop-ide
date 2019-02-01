@@ -1,0 +1,32 @@
+{
+  "name": "itop",
+  "version": "2.7.0",
+  "description": "itop javascript dependencies",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "dependencies": {
+    "jquery": "^3",
+    "jquery-ui": "^1",
+    "qtip2": "^3.0.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Combodo/iTop.git"
+  },
+  "keywords": [
+    "iTop"
+  ],
+  "author": "Combodo",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Combodo/iTop/issues"
+  },
+  "homepage": "https://github.com/Combodo/iTop#readme"
+}
