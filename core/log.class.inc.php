@@ -34,22 +34,27 @@ class FileLog
 
 	public function Error($sText)
 	{
-		self::Write("Error | ".$sText);
+		$this->Write("Error | ".$sText);
 	}
 
 	public function Warning($sText)
 	{
-		self::Write("Warning | ".$sText);
+		$this->Write("Warning | ".$sText);
 	}
 
 	public function Info($sText)
 	{
-		self::Write("Info | ".$sText);
+		$this->Write("Info | ".$sText);
 	}
 
 	public function Ok($sText)
 	{
-		self::Write("Ok | ".$sText);
+		$this->Write("Ok | ".$sText);
+	}
+
+	public function Trace($sText)
+	{
+		$this->Write("Trace | ".$sText);
 	}
 
 	protected function Write($sText)
@@ -71,6 +76,10 @@ class FileLog
 
 abstract class LogAPI
 {
+	protected static $m_aTraces = array();
+	/** @var FileLog m_oFileLog */
+	protected static $m_oFileLog;
+
 	public static function Enable($sTargetFile)
 	{
 		static::$m_oFileLog = new FileLog($sTargetFile);
@@ -80,6 +89,16 @@ abstract class LogAPI
 	{
 		if (static::$m_oFileLog)
 		{
+			foreach (static::$m_aTraces as $sTrace)
+			{
+				static::$m_oFileLog->Trace($sTrace);
+			}
+			static::ClearTrace();
+			$aBacktrace = debug_backtrace();
+			$sClass = empty($aBacktrace[1]["class"]) ? '' : $aBacktrace[1]["class"].'::';
+
+			$sTrace = 'Function: '.$sClass.$aBacktrace[1]["function"].'() in '.$aBacktrace[1]["file"].':'.$aBacktrace[1]["line"];
+			static::$m_oFileLog->Trace($sTrace);
 			static::$m_oFileLog->Error($sText);
 		}
 	}
@@ -103,6 +122,22 @@ abstract class LogAPI
 		{
 			static::$m_oFileLog->Ok($sText);
 		}
+	}
+	// Memory log displayed only in case of error
+	public static function Trace($mTrace)
+	{
+		if (is_string($mTrace))
+		{
+			static::$m_aTraces[] = $mTrace;
+		}
+		else
+		{
+			static::$m_aTraces[] = print_r($mTrace, true);
+		}
+	}
+	public static function ClearTrace()
+	{
+		static::$m_aTraces = array();
 	}
 }
 
