@@ -62,7 +62,7 @@ class SQLObjectQuery extends SQLQuery
 	{
 		parent::__construct();
 
-		// This check is not needed but for developping purposes
+		// This check is not needed but for developing purposes
 		//if (!CMDBSource::IsTable($sTable))
 		//{
 		//	throw new CoreException("Unknown table '$sTable'");
@@ -339,7 +339,8 @@ class SQLObjectQuery extends SQLQuery
 		$this->PrepareRendering();
 		$sFrom   = self::ClauseFrom($this->__aFrom, $sIndent);
 		$sWhere  = self::ClauseWhere($this->m_oConditionExpr, $aArgs);
-		// Sanity
+		// Count can be limited for performance reason, in this case the total amount is not important,
+		// we only need to know if the number of entries is greater than a certain amount.
 		$iLimitCount = (int)$iLimitCount;
 		if ($iLimitCount > 0)
 		{
@@ -351,6 +352,23 @@ class SQLObjectQuery extends SQLQuery
 		{
 			$sLimit = '';
 		}
+		if (!utils::GetConfig()->Get('use_legacy_dbsearch'))
+		{
+			$iJoinCount = count(explode(' JOIN ', $sFrom)) - 1;
+			if ($iJoinCount == 0)
+			{
+				$sDistinct = '';
+			}
+			else
+			{
+				$sDistinct = 'DISTINCT';
+			}
+		}
+		else
+		{
+			$sDistinct = 'DISTINCT';
+		}
+
 		if ($bGetCount)
 		{
 			if (count($this->__aSelectedIdFields) > 0)
@@ -361,13 +379,11 @@ class SQLObjectQuery extends SQLQuery
 					$aCountFields[] = "COALESCE($sFieldExpr, 0)"; // Null values are excluded from the count
 				}
 				$sCountFields = implode(', ', $aCountFields);
-				// Count can be limited for performance reason, in this case the total amount is not important,
-				// we only need to know if the number of entries is greater than a certain amount.
-				$sSQL = "SELECT COUNT(*) AS COUNT FROM (SELECT$sLineSep DISTINCT $sCountFields $sLineSep FROM $sFrom$sLineSep WHERE $sWhere $sLimit) AS _tatooine_";
+				$sSQL = "SELECT COUNT(*) AS COUNT FROM (SELECT$sLineSep $sDistinct $sCountFields $sLineSep FROM $sFrom$sLineSep WHERE $sWhere $sLimit) AS _itop_select_count_";
 			}
 			else
 			{
-				$sSQL = "SELECT COUNT(*) AS COUNT FROM (SELECT$sLineSep 1 $sLineSep FROM $sFrom$sLineSep WHERE $sWhere $sLimit) AS _tatooine_";
+				$sSQL = "SELECT COUNT(*) AS COUNT FROM (SELECT$sLineSep 1 $sLineSep FROM $sFrom$sLineSep WHERE $sWhere $sLimit) AS _itop_select_count_";
 			}
 		}
 		else
@@ -379,7 +395,7 @@ class SQLObjectQuery extends SQLQuery
 				$sOrderBy = "ORDER BY $sOrderBy$sLineSep";
 			}
 
-			$sSQL = "SELECT$sLineSep DISTINCT $sSelect$sLineSep FROM $sFrom$sLineSep WHERE $sWhere$sLineSep $sOrderBy $sLimit";
+			$sSQL = "SELECT $sLineSep $sDistinct $sSelect$sLineSep FROM $sFrom$sLineSep WHERE $sWhere$sLineSep $sOrderBy $sLimit";
 		}
 		return $sSQL;
 	}

@@ -294,6 +294,14 @@ class IntervalOqlExpression extends IntervalExpression implements CheckableExpre
 	}
 }
 
+class TrueOqlExpression extends TrueExpression implements CheckableExpression
+{
+	public function Check(ModelReflection $oModelReflection, $aAliases, $sSourceQuery)
+	{
+		// an true expression is always fine
+	}
+}
+
 abstract class OqlQuery
 {
 	public function __construct()
