@@ -302,7 +302,12 @@ class utils
 				break;
 
 			case 'string':
-				$retValue = filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS);
+			$retValue = filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS);
+			break;
+
+			case 'filename':
+				// Check base file name (without path)
+				$retValue = filter_var($value, FILTER_VALIDATE_REGEXP, array("options"=>array("regexp"=>"@^[^<>:;,?\"*|/\\\\]+$@")));
 				break;
 
 			case 'context_param':
