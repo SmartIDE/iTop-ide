@@ -72,8 +72,8 @@ class ItopDataTestCase extends ItopTestCase
 		parent::setUp();
 		//require_once(APPROOT.'/application/startup.inc.php');
 
-		require_once(APPROOT.'/core/cmdbobject.class.inc.php');
 		require_once(APPROOT.'/application/utils.inc.php');
+		require_once(APPROOT.'/core/cmdbobject.class.inc.php');
 		require_once(APPROOT.'/core/contexttag.class.inc.php');
 		$sEnv = 'production';
 		$sConfigFile = APPCONF.$sEnv.'/'.ITOP_CONFIG_FILE;
