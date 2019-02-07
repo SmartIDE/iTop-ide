@@ -16,8 +16,17 @@
 //   You should have received a copy of the GNU Affero General Public License
 //   along with iTop. If not, see <http://www.gnu.org/licenses/>
 
+$bUseLegacyDBSearch = utils::GetConfig()->Get('use_legacy_dbsearch');
 
-require_once('dbobjectsearch.class.php');
+if ($bUseLegacyDBSearch)
+{
+	require_once('dbobjectsearchlegacy.class.php');
+}
+else
+{
+	require_once('dbobjectsearch.class.php');
+}
+
 require_once('dbunionsearch.class.php');
 
 /**
@@ -161,9 +170,9 @@ abstract class DBSearch
 	abstract public function AddCondition($sFilterCode, $value, $sOpCode = null);
 	/**
 	 * Specify a condition on external keys or link sets
-	 * @param sAttSpec Can be either an attribute code or extkey->[sAttSpec] or linkset->[sAttSpec] and so on, recursively
+	 * @param string sAttSpec Can be either an attribute code or extkey->[sAttSpec] or linkset->[sAttSpec] and so on, recursively
 	 *                 Example: infra_list->ci_id->location_id->country	 
-	 * @param value The value to match (can be an array => IN(val1, val2...)
+	 * @param mixed value The value to match (can be an array => IN(val1, val2...)
 	 * @return void
 	 */
 	abstract public function AddConditionAdvanced($sAttSpec, $value);
@@ -449,7 +458,7 @@ abstract class DBSearch
 	 * @param array $aOrderBy Array of '[<classalias>.]attcode' => bAscending
 	 * @param array $aArgs
 	 *
-	 * @return array|void
+	 * @return array|null
 	 * @throws \CoreException
 	 * @throws \MissingQueryArgument
 	 * @throws \MySQLException
@@ -461,7 +470,7 @@ abstract class DBSearch
 		$resQuery = CMDBSource::Query($sSQL);
 		if (!$resQuery)
 		{
-			return;
+			return null;
 		}
 
 		if (count($aColumns) == 0)
@@ -581,7 +590,7 @@ abstract class DBSearch
 		catch (Exception $e)
 		{
 			// Add some information...
-			$e->addInfo('OQL', $this->ToOQL());
+			IssueLog::Trace('OQL: '.$this->ToOQL());
 			throw $e;
 		}
 		$this->AddQueryTraceGroupBy($aArgs, $aGroupByExpr, $sRes);
@@ -590,7 +599,7 @@ abstract class DBSearch
 
 
 	/**
-	 * @param array|hash $aOrderBy Array of '[<classalias>.]attcode' => bAscending
+	 * @param array $aOrderBy Array of '[<classalias>.]attcode' => bAscending
 	 * @param array $aArgs
 	 * @param null $aAttToLoad
 	 * @param null $aExtendedDataSpec
@@ -653,6 +662,7 @@ abstract class DBSearch
 			}			
 		}
 
+		/** @var SQLObjectQuery $oSQLQuery */
 		$oSQLQuery = $this->GetSQLQuery($aOrderBy, $aArgs, $aAttToLoad, $aExtendedDataSpec, $iLimitCount, $iLimitStart, $bGetCount);
 
 		if ($this->m_bNoContextParameters)
@@ -677,10 +687,10 @@ abstract class DBSearch
 		catch (MissingQueryArgument $e)
 		{
 			// Add some information...
-			$e->addInfo('OQL', $this->ToOQL());
+			IssueLog::Trace('OQL: '.$this->ToOQL());
 			throw $e;
 		}
-		$this->AddQueryTraceSelect($aOrderBy, $aArgs, $aAttToLoad, $aExtendedDataSpec, $iLimitCount, $iLimitStart, $bGetCount, $sRes);
+		$this->AddQueryTraceSelect($oSQLQuery->GetSourceOQL(), $aOrderBy, $aScalarArgs, $aAttToLoad, $aExtendedDataSpec, $iLimitCount, $iLimitStart, $bGetCount, $sRes);
 		return $sRes;
 	}
 
@@ -727,9 +737,16 @@ abstract class DBSearch
 		return $oSQLQuery;
 	}
 
-	public abstract function GetSQLQueryStructure(
-		$aAttToLoad, $bGetCount, $aGroupByExpr = null, $aSelectedClasses = null, $aSelectExpr = null
-	);
+	/**
+	 * @param $aAttToLoad
+	 * @param $bGetCount
+	 * @param null $aGroupByExpr
+	 * @param null $aSelectedClasses
+	 * @param null $aSelectExpr
+	 *
+	 * @return \SQLObjectQuery
+	 */
+	public abstract function GetSQLQueryStructure($aAttToLoad, $bGetCount, $aGroupByExpr = null, $aSelectedClasses = null, $aSelectExpr = null);
 
 	/**
 	 * @return \Expression
@@ -789,9 +806,9 @@ abstract class DBSearch
 	}
 
 
-	protected function AddQueryTraceSelect($aOrderBy, $aArgs, $aAttToLoad, $aExtendedDataSpec, $iLimitCount, $iLimitStart, $bGetCount, $sSql)
+	protected function AddQueryTraceSelect($sOql, $aOrderBy, $aArgs, $aAttToLoad, $aExtendedDataSpec, $iLimitCount, $iLimitStart, $bGetCount, $sSql)
 	{
-		if (self::$m_bTraceQueries)
+		if (self::$m_bTraceQueries || (utils::GetConfig()->Get('log_kpi_record_oql') == 1))
 		{
 			$aQueryData = array(
 				'type' => 'select',
@@ -804,8 +821,25 @@ abstract class DBSearch
 				'limit_start' => $iLimitStart,
 				'is_count' => $bGetCount
 			);
-			$sOql = $this->ToOQL(true, $aArgs);
-			self::AddQueryTrace($aQueryData, $sOql, $sSql);
+			if (self::$m_bTraceQueries)
+			{
+				self::AddQueryTrace($aQueryData, $sOql, $sSql);
+			}
+			if (utils::GetConfig()->Get('log_kpi_record_oql') == 1)
+			{
+				$aQueryData['oql'] = $sOql;
+				unset($aQueryData['filter']);
+
+				$hLogFile = @fopen(APPROOT.'log/oql_records.txt', 'a');
+				if ($hLogFile !== false)
+				{
+					flock($hLogFile, LOCK_EX);
+					fwrite($hLogFile, serialize($aQueryData)."\n");
+					fflush($hLogFile);
+					flock($hLogFile, LOCK_UN);
+					fclose($hLogFile);
+				}
+			}
 		}
 	}
 	
@@ -933,23 +967,14 @@ abstract class DBSearch
 			$aCallers[] = $aStackInfo["function"];
 		}
 		$sCallers = "Callstack: ".implode(', ', $aCallers);
-		$sFunction = "<b title=\"$sCallers\">".$aBacktrace[1]["function"]."</b>";
-
-		if (is_object($value))
-		{
-			echo "$sIndent$sFunction:\n<pre>\n";
-			print_r($value);
-			echo "</pre>\n";
-		}
-		else
-		{
-			echo "$sIndent$sFunction: $value<br/>\n";
-		}
+		IssueLog::Trace($sCallers);
+		IssueLog::Trace($sIndent.$aBacktrace[1]["function"]);
+		IssueLog::Trace($value);
 	}
 
 	/**
 	 * Experimental!
-	 * todo: implement the change tracking
+	 * Later: implement the change tracking
 	 *
 	 * @param $bArchive
 	 * @throws Exception

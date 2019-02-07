@@ -979,7 +979,6 @@ class DBObjectSearch extends DBSearch
 				throw new CoreException("Limitation: cannot merge two queries if the queried class ({$oRightFilter->GetClass()} AS {$oRightFilter->GetClassAlias()}) is not the first joined class ({$oRightFilter->GetFirstJoinedClass()} AS {$oRightFilter->GetFirstJoinedClassAlias()})");
 			}
 
-			/** @var \DBObjectSearch $oLeftFilter */
 			$oLeftFilter = $this->DeepClone();
 			$oRightFilter = $oRightFilter->DeepClone();
 
@@ -1296,14 +1295,6 @@ class DBObjectSearch extends DBSearch
 		return $sRes;
 	}
 
-	/**
-	 * @param $sQuery
-	 * @param $oExpression
-	 * @param $aClassAliases
-	 *
-	 * @return \BinaryExpression|\FieldExpression|\FunctionExpression|\IntervalExpression|\ListExpression|\ScalarExpression|\TrueExpression|\VariableExpression
-	 * @throws \CoreException
-	 */
 	protected function OQLExpressionToCondition($sQuery, $oExpression, $aClassAliases)
 	{
 		if ($oExpression instanceof BinaryOqlExpression)
@@ -1604,7 +1595,7 @@ class DBObjectSearch extends DBSearch
 			}
 			$aContextData['sModifierProperties'] = $sModifierProperties;
 
-			$sRawId = Dict::GetUserLanguage().'-'.$sOqlQuery.$sModifierProperties;
+			$sRawId = $sOqlQuery.$sModifierProperties;
 			if (!is_null($aAttToLoad))
 			{
 				$sRawId .= json_encode($aAttToLoad);
@@ -1724,7 +1715,7 @@ class DBObjectSearch extends DBSearch
 	{
 		$oBuild = new QueryBuilderContext($this, $aModifierProperties, $aGroupByExpr, $aSelectedClasses, $aSelectExpr);
 
-		$oSQLQuery = $this->MakeSQLObjectQuery($oBuild, $aAttToLoad, array(), $bGetCount);
+		$oSQLQuery = $this->MakeSQLObjectQuery($oBuild, $aAttToLoad, array());
 		$oSQLQuery->SetCondition($oBuild->m_oQBExpressions->GetCondition());
 		if (is_array($aGroupByExpr))
 		{
@@ -1777,15 +1768,12 @@ class DBObjectSearch extends DBSearch
 
 	/**
 	 * @param $oBuild
-	 * @param array $aAttToLoad
+	 * @param null $aAttToLoad
 	 * @param array $aValues
-	 * @param bool $bGetCount
-	 *
 	 * @return null|SQLObjectQuery
 	 * @throws \CoreException
-	 * @throws \Exception
 	 */
-	protected function MakeSQLObjectQuery(&$oBuild, $aAttToLoad = null, $aValues = array(), $bGetCount = false)
+	protected function MakeSQLObjectQuery(&$oBuild, $aAttToLoad = null, $aValues = array())
 	{
 		// Note: query class might be different than the class of the filter
 		// -> this occurs when we are linking our class to an external class (referenced by, or pointing to)
@@ -1798,23 +1786,15 @@ class DBObjectSearch extends DBSearch
 
 		//$sRootClass = MetaModel::GetRootClass($sClass);
 		$sKeyField = MetaModel::DBGetKey($sClass);
-		$aExtKeys = array(); // array of sTableClass => array of (sAttCode (keys) => array of (sAttCode (fields)=> oAttDef))
 
 		if ($bIsOnQueriedClass)
 		{
-			// default to the whole list of attributes (unless it is count) + the very std id/finalclass
+			// default to the whole list of attributes + the very std id/finalclass
 			$oBuild->m_oQBExpressions->AddSelect($sClassAlias.'id', new FieldExpression('id', $sClassAlias));
 			if (is_null($aAttToLoad) || !array_key_exists($sClassAlias, $aAttToLoad))
 			{
 				$sSelectedClass = $oBuild->GetSelectedClass($sClassAlias);
-				if ($bGetCount)
-				{
-					$aAttList = array();
-				}
-				else
-				{
-					$aAttList = MetaModel::ListAttributeDefs($sSelectedClass);
-				}
+				$aAttList = MetaModel::ListAttributeDefs($sSelectedClass);
 			}
 			else
 			{
@@ -1836,14 +1816,8 @@ class DBObjectSearch extends DBSearch
 						$oBuild->m_oQBExpressions->AddSelect($sClassAlias.$sAttCode.$sColId, new FieldExpression($sAttCode.$sColId, $sClassAlias));
 					}
 				}
-				if ($oAttDef->IsExternalKey())
-				{
-					$sKeyTableClass = MetaModel::GetAttributeOrigin($sClass, $sAttCode);
-					$aExtKeys[$sKeyTableClass][$sAttCode] = array();
-				}
 			}
 		}
-
 		//echo "<p>oQBExpr ".__LINE__.": <pre>\n".print_r($oBuild->m_oQBExpressions, true)."</pre></p>\n";
 		$aExpectedAtts = array(); // array of (attcode => fieldexpression)
 		//echo "<p>".__LINE__.": GetUnresolvedFields($sClassAlias, ...)</p>\n";
@@ -1852,14 +1826,24 @@ class DBObjectSearch extends DBSearch
 		// Compute a clear view of required joins (from the current class)
 		// Build the list of external keys:
 		// -> ext keys required by an explicit join
-		// -> ext keys mentioned in a 'pointing to' condition
+		// -> ext keys mentionned in a 'pointing to' condition
 		// -> ext keys required for an external field
 		// -> ext keys required for a friendly name
 		//
+		$aExtKeys = array(); // array of sTableClass => array of (sAttCode (keys) => array of (sAttCode (fields)=> oAttDef))
 		//
 		// Optimization: could be partially computed once for all (cached) ?
 		//  
 
+		if ($bIsOnQueriedClass)
+		{
+			// Get all Ext keys for the queried class (??)
+			foreach(MetaModel::GetKeysList($sClass) as $sKeyAttCode)
+			{
+				$sKeyTableClass = MetaModel::GetAttributeOrigin($sClass, $sKeyAttCode);
+				$aExtKeys[$sKeyTableClass][$sKeyAttCode] = array();
+			}
+		}
 		// Get all Ext keys used by the filter
 		foreach ($this->GetCriteria_PointingTo() as $sKeyAttCode => $aPointingTo)
 		{
@@ -1953,47 +1937,86 @@ class DBObjectSearch extends DBSearch
 			}
 		}
 
-		// First query built from the root, adding all tables including the leaf
-		//   Before N.1065 we were joining from the leaf first, but this wasn't a good choice :
-		//   most of the time (obsolescence, friendlyname, ...) we want to get a root attribute !
-		//
-		$oSelectBase = null;
-		$aClassHierarchy = MetaModel::EnumParentClasses($sClass, ENUM_PARENT_CLASSES_ALL, true);
-		$bIsClassStandaloneClass = (count($aClassHierarchy) == 1);
-		foreach($aClassHierarchy as $sSomeClass)
+		$bRootFirst = MetaModel::GetConfig()->Get('optimize_requests_for_join_count');
+		if ($bRootFirst)
 		{
-			if (!MetaModel::HasTable($sSomeClass))
+			// First query built from the root, adding all tables including the leaf
+			//   Before N.1065 we were joining from the leaf first, but this wasn't a good choice :
+			//   most of the time (obsolescence, friendlyname, ...) we want to get a root attribute !
+			//
+			$oSelectBase = null;
+			$aClassHierarchy = MetaModel::EnumParentClasses($sClass, ENUM_PARENT_CLASSES_ALL, true);
+			$bIsClassStandaloneClass = (count($aClassHierarchy) == 1);
+			foreach($aClassHierarchy as $sSomeClass)
 			{
-				continue;
-			}
-
-			self::DbgTrace("Adding join from root to leaf: $sSomeClass... let's call MakeSQLObjectQuerySingleTable()");
-			$oSelectParentTable = $this->MakeSQLObjectQuerySingleTable($oBuild, $aAttToLoad, $sSomeClass, $aExtKeys, $aValues);
-			if (is_null($oSelectBase))
-			{
-				$oSelectBase = $oSelectParentTable;
-				if (!$bIsClassStandaloneClass && (MetaModel::IsRootClass($sSomeClass)))
+				if (!MetaModel::HasTable($sSomeClass))
 				{
-					// As we're linking to root class first, we're adding a where clause on the finalClass attribute :
-					//      COALESCE($sRootClassFinalClass IN ('$sExpectedClasses'), 1)
-					// If we don't, the child classes can be removed in the query optimisation phase, including the leaf that was queried
-					// So we still need to filter records to only those corresponding to the child classes !
-					// The coalesce is mandatory if we have a polymorphic query (left join)
-					$oClassListExpr = ListExpression::FromScalars(MetaModel::EnumChildClasses($sClass, ENUM_CHILD_CLASSES_ALL));
-					$sFinalClassSqlColumnName = MetaModel::DBGetClassField($sSomeClass);
-					$oClassExpr = new FieldExpression($sFinalClassSqlColumnName, $oSelectBase->GetTableAlias());
-					$oInExpression = new BinaryExpression($oClassExpr, 'IN', $oClassListExpr);
-					$oTrueExpression = new TrueExpression();
-					$aCoalesceAttr = array($oInExpression, $oTrueExpression);
-					$oFinalClassRestriction = new FunctionExpression("COALESCE", $aCoalesceAttr);
-
-					$oBuild->m_oQBExpressions->AddCondition($oFinalClassRestriction);
+					continue;
 				}
+
+				self::DbgTrace("Adding join from root to leaf: $sSomeClass... let's call MakeSQLObjectQuerySingleTable()");
+				$oSelectParentTable = $this->MakeSQLObjectQuerySingleTable($oBuild, $aAttToLoad, $sSomeClass, $aExtKeys, $aValues);
+				if (is_null($oSelectBase))
+				{
+					$oSelectBase = $oSelectParentTable;
+					if (!$bIsClassStandaloneClass && (MetaModel::IsRootClass($sSomeClass)))
+					{
+						// As we're linking to root class first, we're adding a where clause on the finalClass attribute :
+						//      COALESCE($sRootClassFinalClass IN ('$sExpectedClasses'), 1)
+						// If we don't, the child classes can be removed in the query optimisation phase, including the leaf that was queried
+						// So we still need to filter records to only those corresponding to the child classes !
+						// The coalesce is mandatory if we have a polymorphic query (left join)
+						$oClassListExpr = ListExpression::FromScalars(MetaModel::EnumChildClasses($sClass, ENUM_CHILD_CLASSES_ALL));
+						$sFinalClassSqlColumnName = MetaModel::DBGetClassField($sSomeClass);
+						$oClassExpr = new FieldExpression($sFinalClassSqlColumnName, $oSelectBase->GetTableAlias());
+						$oInExpression = new BinaryExpression($oClassExpr, 'IN', $oClassListExpr);
+						$oTrueExpression = new TrueExpression();
+						$aCoalesceAttr = array($oInExpression, $oTrueExpression);
+						$oFinalClassRestriction = new FunctionExpression("COALESCE", $aCoalesceAttr);
+
+						$oBuild->m_oQBExpressions->AddCondition($oFinalClassRestriction);
+					}
+				}
+				else
+				{
+					$oSelectBase->AddInnerJoin($oSelectParentTable, $sKeyField, MetaModel::DBGetKey($sSomeClass));
+				}
+			}
+		}
+		else
+		{
+			// First query built upon on the leaf (ie current) class
+			//
+			self::DbgTrace("Main (=leaf) class, call MakeSQLObjectQuerySingleTable()");
+			if (MetaModel::HasTable($sClass))
+			{
+				$oSelectBase = $this->MakeSQLObjectQuerySingleTable($oBuild, $aAttToLoad, $sClass, $aExtKeys, $aValues);
 			}
 			else
 			{
-				/** @var SQLObjectQuery $oSelectBase */
-				$oSelectBase->AddInnerJoin($oSelectParentTable, $sKeyField, MetaModel::DBGetKey($sSomeClass));
+				$oSelectBase = null;
+
+				// As the join will not filter on the expected classes, we have to specify it explicitely
+				$sExpectedClasses = implode("', '", MetaModel::EnumChildClasses($sClass, ENUM_CHILD_CLASSES_ALL));
+				$oFinalClassRestriction = Expression::FromOQL("`$sClassAlias`.finalclass IN ('$sExpectedClasses')");
+				$oBuild->m_oQBExpressions->AddCondition($oFinalClassRestriction);
+			}
+
+			// Then we join the queries of the eventual parent classes (compound model)
+			foreach(MetaModel::EnumParentClasses($sClass) as $sParentClass)
+			{
+				if (!MetaModel::HasTable($sParentClass)) continue;
+
+				self::DbgTrace("Parent class: $sParentClass... let's call MakeSQLObjectQuerySingleTable()");
+				$oSelectParentTable = $this->MakeSQLObjectQuerySingleTable($oBuild, $aAttToLoad, $sParentClass, $aExtKeys, $aValues);
+				if (is_null($oSelectBase))
+				{
+					$oSelectBase = $oSelectParentTable;
+				}
+				else
+				{
+					$oSelectBase->AddInnerJoin($oSelectParentTable, $sKeyField, MetaModel::DBGetKey($sParentClass));
+				}
 			}
 		}
 
@@ -2069,16 +2092,6 @@ class DBObjectSearch extends DBSearch
 		return $oSelectBase;
 	}
 
-	/**
-	 * @param $oBuild
-	 * @param $aAttToLoad
-	 * @param $sTableClass
-	 * @param $aExtKeys
-	 * @param $aValues
-	 *
-	 * @return \SQLObjectQuery
-	 * @throws \CoreException
-	 */
 	protected function MakeSQLObjectQuerySingleTable(&$oBuild, $aAttToLoad, $sTableClass, $aExtKeys, $aValues)
 	{
 		// $aExtKeys is an array of sTableClass => array of (sAttCode (keys) => array of sAttCode (fields))
@@ -2294,8 +2307,8 @@ class DBObjectSearch extends DBSearch
 						$oJoinExpr = $oBuild->m_oQBExpressions->PopJoinField();
 						$sExternalKeyTable = $oJoinExpr->GetParent();
 						$sExternalKeyField = $oJoinExpr->GetName();
-						$sLeftIndex = $sExternalKeyField.'_left'; // Later use GetSQLLeft()
-						$sRightIndex = $sExternalKeyField.'_right'; // Later use GetSQLRight()
+						$sLeftIndex = $sExternalKeyField.'_left'; // TODO use GetSQLLeft()
+						$sRightIndex = $sExternalKeyField.'_right'; // TODO use GetSQLRight()
 	
 						$LocalKeyLeft = $oKeyAttDef->GetSQLLeft();
 						$LocalKeyRight = $oKeyAttDef->GetSQLRight();

@@ -23,7 +23,9 @@
 
 require_once('../approot.inc.php');
 require_once(APPROOT.'application/startup.inc.php');
+require_once(APPROOT.'application/loginwebpage.class.inc.php');
 
+LoginWebPage::DoLogin(true);
 
 $sEnvironment = MetaModel::GetEnvironmentId();
 $aEntries = array();
