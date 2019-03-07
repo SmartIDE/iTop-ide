@@ -541,6 +541,7 @@ EOF
 		catch (Exception $e)
         {
             IssueLog::Error($e->getTraceAsString());
+            die($e->getMessage());
             return self::EXIT_CODE_NOTAUTHORIZED;
         }
 
