@@ -41,7 +41,15 @@ if (!file_exists($sConfigFile))
 	exit(EXIT_CODE_ERROR);
 }
 
-require_once(APPROOT.'/application/startup.inc.php');
+try
+{
+	require_once(APPROOT.'/application/startup.inc.php');
+}
+catch (Exception $e)
+{
+	echo $e->getMessage()."\n";
+	exit(EXIT_CODE_ERROR);
+}
 
 $oCtx = new ContextTag('CRON');
 
