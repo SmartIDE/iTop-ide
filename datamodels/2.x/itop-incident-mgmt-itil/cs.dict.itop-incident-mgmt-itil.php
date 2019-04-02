@@ -193,6 +193,10 @@ Dict::Add('CS CZ', 'Czech', 'Čeština', array(
 	'Class:Incident/Attribute:parent_change_id+' => '',
 	'Class:Incident/Attribute:parent_change_ref' => 'Odkaz na nadřazenou změnu',
 	'Class:Incident/Attribute:parent_change_ref+' => '',
+	'Class:Incident/Attribute:parent_problem_id' => 'Nadřazený problém',
+	'Class:Incident/Attribute:parent_problem_id+' => '',
+	'Class:Incident/Attribute:parent_problem_ref' => 'Odkaz na nadřazený problém',
+	'Class:Incident/Attribute:parent_problem_ref+' => '',
 	'Class:Incident/Attribute:related_request_list' => 'Seznam souvisejících požadavků',
 	'Class:Incident/Attribute:related_request_list+' => '',
 	'Class:Incident/Attribute:child_incidents_list' => 'Podřízené incidenty',
@@ -236,4 +240,15 @@ Dict::Add('CS CZ', 'Czech', 'Čeština', array(
 	'Class:Incident/Method:ResolveChildTickets' => 'Vyřešit podřízené tikety',
 	'Class:Incident/Method:ResolveChildTickets+' => 'Cascade the resolution to child ticket (ev_autoresolve), and align the following characteristics: service, team, agent, resolution info~~',
 	'Tickets:Related:OpenIncidents' => 'Otevřené incidenty',
+));
+
+//
+// Class: Incident
+//
+
+Dict::Add('CS CZ', 'Czech', 'Čeština', array(
+	'Class:Incident/Attribute:parent_problem_id' => 'Nadřazený problém',
+	'Class:Incident/Attribute:parent_problem_id+' => '',
+	'Class:Incident/Attribute:parent_problem_ref' => 'Odkaz na nadřazený problém',
+	'Class:Incident/Attribute:parent_problem_ref+' => '',
 ));

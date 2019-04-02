@@ -35,4 +35,26 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'Attachment:Max_Ko' => '(Taille de fichier max.: %1$s Kb)',
 	'Attachments:NoAttachment' => 'Aucune pièce jointe.',
 	'Attachments:PreviewNotAvailable' => 'Pas d\'aperçu pour ce type de pièce jointe.',
+	'Attachments:Error:FileTooLarge' => 'Le fichier est trop gros pour être chargé. %1$s',
+));
+
+//
+// Class: Attachment
+//
+
+Dict::Add('FR FR', 'French', 'Français', array(
+	'Class:Attachment' => 'Attachement',
+	'Class:Attachment+' => '',
+	'Class:Attachment/Attribute:expire' => 'Expire',
+	'Class:Attachment/Attribute:expire+' => '',
+	'Class:Attachment/Attribute:temp_id' => 'Id Temporaire',
+	'Class:Attachment/Attribute:temp_id+' => '',
+	'Class:Attachment/Attribute:item_class' => 'Classe d\'Item',
+	'Class:Attachment/Attribute:item_class+' => '',
+	'Class:Attachment/Attribute:item_id' => 'Item',
+	'Class:Attachment/Attribute:item_id+' => '',
+	'Class:Attachment/Attribute:item_org_id' => 'Organisation de l\'Item',
+	'Class:Attachment/Attribute:item_org_id+' => '',
+	'Class:Attachment/Attribute:contents' => 'Contenu',
+	'Class:Attachment/Attribute:contents+' => '',
 ));

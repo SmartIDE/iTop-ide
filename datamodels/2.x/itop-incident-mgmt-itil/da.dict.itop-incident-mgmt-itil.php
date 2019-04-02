@@ -190,6 +190,10 @@ Dict::Add('DA DA', 'Danish', 'Dansk', array(
 	'Class:Incident/Attribute:parent_change_id+' => '',
 	'Class:Incident/Attribute:parent_change_ref' => 'Parent-Change-Reference',
 	'Class:Incident/Attribute:parent_change_ref+' => '',
+	'Class:Incident/Attribute:parent_problem_id' => 'Parent problem id~~',
+	'Class:Incident/Attribute:parent_problem_id+' => '~~',
+	'Class:Incident/Attribute:parent_problem_ref' => 'Parent problem ref~~',
+	'Class:Incident/Attribute:parent_problem_ref+' => '~~',
 	'Class:Incident/Attribute:related_request_list' => 'Child requests~~',
 	'Class:Incident/Attribute:related_request_list+' => '~~',
 	'Class:Incident/Attribute:child_incidents_list' => 'Afledte Incidents',
@@ -233,4 +237,15 @@ Dict::Add('DA DA', 'Danish', 'Dansk', array(
 	'Class:Incident/Method:ResolveChildTickets' => 'ResolveChildTickets~~',
 	'Class:Incident/Method:ResolveChildTickets+' => 'Cascade the resolution to child ticket (ev_autoresolve), and align the following characteristics: service, team, agent, resolution info~~',
 	'Tickets:Related:OpenIncidents' => 'Open incidents~~',
+));
+
+//
+// Class: Incident
+//
+
+Dict::Add('DA DA', 'Danish', 'Dansk', array(
+	'Class:Incident/Attribute:parent_problem_id' => 'Parent problem id~~',
+	'Class:Incident/Attribute:parent_problem_id+' => '~~',
+	'Class:Incident/Attribute:parent_problem_ref' => 'Parent problem ref~~',
+	'Class:Incident/Attribute:parent_problem_ref+' => '~~',
 ));

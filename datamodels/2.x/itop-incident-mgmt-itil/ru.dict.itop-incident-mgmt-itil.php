@@ -5,7 +5,7 @@
  * @author      Vladimir Kunin <v.b.kunin@gmail.com>
  * @link        http://community.itop-itsm.ru  iTop Russian Community
  * @link        https://github.com/itop-itsm-ru/itop-rus
- * @license     http://www.opensource.org/licenses/gpl-3.0.html LGPL
+ * @license     http://opensource.org/licenses/AGPL-3.0
  *
  */
 Dict::Add('RU RU', 'Russian', 'Русский', array(
@@ -178,6 +178,10 @@ Dict::Add('RU RU', 'Russian', 'Русский', array(
 	'Class:Incident/Attribute:parent_change_id+' => '',
 	'Class:Incident/Attribute:parent_change_ref' => 'Родительское изменение',
 	'Class:Incident/Attribute:parent_change_ref+' => '',
+	'Class:Incident/Attribute:parent_problem_id' => 'Родительская проблема',
+	'Class:Incident/Attribute:parent_problem_id+' => '',
+	'Class:Incident/Attribute:parent_problem_ref' => 'Родительская проблема',
+	'Class:Incident/Attribute:parent_problem_ref+' => '',
 	'Class:Incident/Attribute:related_request_list' => 'Запросы',
 	'Class:Incident/Attribute:related_request_list+' => 'Все пользовательские запросы, связанные с этим инцидентом',
 	'Class:Incident/Attribute:child_incidents_list' => 'Дочерние инциденты',
@@ -219,6 +223,17 @@ Dict::Add('RU RU', 'Russian', 'Русский', array(
 	'Class:Incident/Error:CannotAssignParentIncidentIdToSelf' => 'Невозможно назначить этот же инцидент в качестве родительского',
 
 	'Class:Incident/Method:ResolveChildTickets' => 'ResolveChildTickets',
-	'Class:Incident/Method:ResolveChildTickets+' => 'Cascade the resolution to child ticket (ev_autoresolve), and align the following characteristics: service, team, agent, resolution info',
+	'Class:Incident/Method:ResolveChildTickets+' => 'Каскадное решение дочерних тикетов (ev_autoresolve) с установкой следующих параметров: услуга, команда, агент, информация о решении.',
 	'Tickets:Related:OpenIncidents' => 'Открытые инциденты',
+));
+
+//
+// Class: Incident
+//
+
+Dict::Add('RU RU', 'Russian', 'Русский', array(
+	'Class:Incident/Attribute:parent_problem_id' => 'Родительская проблема',
+	'Class:Incident/Attribute:parent_problem_id+' => '',
+	'Class:Incident/Attribute:parent_problem_ref' => 'Родительская проблема',
+	'Class:Incident/Attribute:parent_problem_ref+' => '',
 ));

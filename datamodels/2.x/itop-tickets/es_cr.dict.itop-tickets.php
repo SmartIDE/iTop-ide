@@ -123,6 +123,8 @@ Dict::Add('ES CR', 'Spanish', 'Español, Castellaño', array(
 	'Class:lnkFunctionalCIToTicket/Attribute:ticket_id+' => 'Ticket',
 	'Class:lnkFunctionalCIToTicket/Attribute:ticket_ref' => 'Ref.',
 	'Class:lnkFunctionalCIToTicket/Attribute:ticket_ref+' => 'Ref.',
+	'Class:lnkFunctionalCIToTicket/Attribute:ticket_title' => 'Ticket title~~',
+	'Class:lnkFunctionalCIToTicket/Attribute:ticket_title+' => '~~',
 	'Class:lnkFunctionalCIToTicket/Attribute:functionalci_id' => 'EC',
 	'Class:lnkFunctionalCIToTicket/Attribute:functionalci_id+' => 'Elemanto de Configuración',
 	'Class:lnkFunctionalCIToTicket/Attribute:functionalci_name' => 'Elemanto de Configuración',
@@ -248,4 +250,13 @@ Dict::Add('ES CR', 'Spanish', 'Español, Castellaño', array(
 	'Brick:Portal:OngoingRequests:Tab:OnGoing' => 'En proceso',
 	'Brick:Portal:OngoingRequests:Tab:Resolved' => 'Solucionado',
 	'Brick:Portal:ClosedRequests:Title' => 'Requerimientos Cerrados',
+));
+
+//
+// Class: lnkFunctionalCIToTicket
+//
+
+Dict::Add('ES CR', 'Spanish', 'Español, Castellaño', array(
+	'Class:lnkFunctionalCIToTicket/Attribute:ticket_title' => 'Ticket title~~',
+	'Class:lnkFunctionalCIToTicket/Attribute:ticket_title+' => '~~',
 ));

@@ -1583,12 +1583,13 @@ abstract class DBObject implements iDisplay
 	 */
 	protected function GetSearchForUniquenessRule($sUniquenessRuleId, $aUniquenessRuleProperties)
 	{
-		$sCurrentClass = get_class($this);
-		$sOqlUniquenessQuery = "SELECT $sCurrentClass";
+		$sRuleRootClass = $aUniquenessRuleProperties['root_class'];
+		$sOqlUniquenessQuery = "SELECT $sRuleRootClass";
 		if (!(empty($sUniquenessFilter = $aUniquenessRuleProperties['filter'])))
 		{
 			$sOqlUniquenessQuery .= ' WHERE '.$sUniquenessFilter;
 		}
+		/** @var \DBObjectSearch $oUniquenessQuery */
 		$oUniquenessQuery = DBObjectSearch::FromOQL($sOqlUniquenessQuery);
 
 		if (!$this->IsNew())
@@ -1600,6 +1601,12 @@ abstract class DBObject implements iDisplay
 		{
 			$attributeValue = $this->Get($sAttributeCode);
 			$oUniquenessQuery->AddCondition($sAttributeCode, $attributeValue, '=');
+		}
+
+		$aChildClassesWithRuleDisabled = MetaModel::GetChildClassesWithDisabledUniquenessRule($sRuleRootClass, $sUniquenessRuleId);
+		if (!empty($aChildClassesWithRuleDisabled))
+		{
+			$oUniquenessQuery->AddConditionForInOperatorUsingParam('finalclass', $aChildClassesWithRuleDisabled, false);
 		}
 
 		return $oUniquenessQuery;
@@ -2377,6 +2384,7 @@ abstract class DBObject implements iDisplay
 						if (in_array($sState, $oAttDef->GetStates()))
 						{
 							// Compute or recompute the deadlines
+							/** @var \ormStopWatch $oSW */
 							$oSW = $this->Get($sAttCode);
 							$oSW->ComputeDeadlines($this, $oAttDef);
 							$this->Set($sAttCode, $oSW);

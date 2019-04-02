@@ -37,6 +37,7 @@ Dict::Add('NL NL', 'Dutch', 'Nederlands', array(
 	'Portal:Button:Delete' => 'Verwijderen',
 	'Portal:EnvironmentBanner:Title' => 'Je werkt momenteel in de <strong>%1$s</strong>-omgeving',
 	'Portal:EnvironmentBanner:GoToProduction' => 'Keer terug naar de productie-omgeving',
+    'Error:HTTP:400' => 'Bad request~~',
     'Error:HTTP:401' => 'Aanmelden is vereist',
     'Error:HTTP:404' => 'Pagina kan niet worden gevonden',
 	'Error:HTTP:500' => 'Oeps! Er is een fout opgetreden',
@@ -139,7 +140,7 @@ Dict::Add('NL NL', 'Dutch', 'Nederlands', array(
 
 // Filter brick
 Dict::Add('NL NL', 'Dutch', 'Nederlands', array(
-    'Brick:Portal:Filter:Name' => 'Prefilter a brick~~', // @todo review where this is used
+    'Brick:Portal:Filter:Name' => 'Prefilter a brick~~',
     'Brick:Portal:Filter:SearchInput:Placeholder' => 'bv. wifi-verbinding',
     'Brick:Portal:Filter:SearchInput:Submit' => 'Zoek',
 ));

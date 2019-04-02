@@ -1374,6 +1374,11 @@ class AttributeLinkedSet extends AttributeDefinition
 	 */
 	public function GetDefaultValue(DBObject $oHostObject = null)
 	{
+		if ($oHostObject === null)
+		{
+			return null;
+		}
+
 		$sLinkClass = $this->GetLinkedClass();
 		$sExtKeyToMe = $this->GetExtKeyToMe();
 
@@ -3264,10 +3269,13 @@ class AttributeClassState extends AttributeString
 			$sClass = $oHostObj->Get($sTargetClass);
 
 			$aAllowedStates = array();
-			$aValues = MetaModel::EnumStates($sClass);
-			foreach(array_keys($aValues) as $sState)
+			foreach (MetaModel::EnumChildClasses($sClass, ENUM_CHILD_CLASSES_ALL) as $sChildClass)
 			{
-				$aAllowedStates[$sState] = $sState.' ('.MetaModel::GetStateLabel($sClass, $sState).')';
+				$aValues = MetaModel::EnumStates($sChildClass);
+				foreach (array_keys($aValues) as $sState)
+				{
+					$aAllowedStates[$sState] = $sState.' ('.MetaModel::GetStateLabel($sChildClass, $sState).')';
+				}
 			}
 			return $aAllowedStates;
 		}
@@ -3286,9 +3294,15 @@ class AttributeClassState extends AttributeString
 		{
 			$sTargetClass = $this->Get('class_field');
 			$sClass = $oHostObject->Get($sTargetClass);
-
-			$sHTML = '<span class="attribute-set-item" data-code="'.$sValue.'" data-label="'.$sValue.' ('.MetaModel::GetStateLabel($sClass, $sValue).')'.'" data-description="">'.$sValue.'</span>';
-			return $sHTML;
+			foreach (MetaModel::EnumChildClasses($sClass, ENUM_CHILD_CLASSES_ALL) as $sChildClass)
+			{
+				$aValues = MetaModel::EnumStates($sChildClass);
+				if (in_array($sValue, $aValues))
+				{
+					$sHTML = '<span class="attribute-set-item" data-code="'.$sValue.'" data-label="'.$sValue.' ('.MetaModel::GetStateLabel($sChildClass, $sValue).')'.'" data-description="">'.$sValue.'</span>';
+					return $sHTML;
+				}
+			}
 		}
 
 		return $sValue;
@@ -6242,6 +6256,15 @@ class AttributeExternalKey extends AttributeDBFieldVoid
 		return $oFormField;
 	}
 
+	public function GetAsHTML($sValue, $oHostObject = null, $bLocalize = true)
+	{
+		if (!is_null($oHostObject))
+		{
+			return $oHostObject->GetAsHTML($this->GetCode(), $oHostObject);
+		}
+
+		return DBObject::MakeHyperLink($this->GetTargetClass(), $sValue);
+	}
 }
 
 /**

@@ -460,11 +460,12 @@ class SetupUtils
 
 	/**
 	 * Check that the backup could be executed
-	 * @param $sDestDir
+	 * @param $sDBBackupPath
+	 * @param $sMySQLBinDir
 	 * @return array An array of CheckResults objects
 	 * @internal param Page $oP The page used only for its 'log' method
 	 */
-	static function CheckBackupPrerequisites($sDestDir, $sMySQLBinDir = null)
+	static function CheckBackupPrerequisites($sDBBackupPath, $sMySQLBinDir = null)
 	{
 		$aResult = array();
 		SetupPage::log('Info - CheckBackupPrerequisites');
@@ -528,6 +529,15 @@ class SetupUtils
 		foreach($aOutput as $sLine)
 		{
 			SetupPage::log('Info - mysqldump -V said: '.$sLine);
+		}
+		
+		// create and test destination location
+		//
+		$sDestDir = dirname($sDBBackupPath);
+		setuputils::builddir($sDestDir);
+		if (!is_dir($sDestDir))
+		{
+			$aResult[] = new CheckResult(CheckResult::ERROR, "$sDestDir does not exist and could not be created.");
 		}
 
 		// check disk space
@@ -1306,9 +1316,8 @@ EOF
 		$bIsWindows = (array_key_exists('WINDIR', $_SERVER) || array_key_exists('windir', $_SERVER));
 		if ($bIsWindows && (preg_match('@([%!"])@',$sDBPwd) > 0))
 		{
-			// Unsuported Password, disable the "Next" button
-			$oPage->add_ready_script('$("#wiz_form").data("db_connection", "error");');
-			$oPage->add_ready_script('$("#db_info").html("<img src=\'../images/error.png\'/>&nbsp;On Windows, database password must not contain %, ! or &quot; character");');
+			// Unsuported Password, warn the user
+			$oPage->add_ready_script('$("#db_info").html("<img src=\'../images/error.png\'/>&nbsp;On Windows, the backup won\'t work because database password contains %, ! or &quot; character");');
 		}
 		else
 		{
