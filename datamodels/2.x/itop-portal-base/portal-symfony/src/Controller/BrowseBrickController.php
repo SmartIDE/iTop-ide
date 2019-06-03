@@ -97,7 +97,9 @@ class BrowseBrickController extends BrickController
 		$aData = array();
 		$aLevelsProperties = array();
 		$aLevelsClasses = array();
-		static::TreeToFlatLevelsProperties($oBrick->GetLevels(), $aLevelsProperties, 'L', $bricksCollection, $scopeValidator, $router, $isDebugEnabled);
+        $oSecurityHelper = $this->get(SecurityHelper::class);
+
+		static::TreeToFlatLevelsProperties($oBrick->GetLevels(), $aLevelsProperties, 'L', $bricksCollection, $scopeValidator, $router, $isDebugEnabled, $oSecurityHelper);
 
 		// Concistency checks
 		if (!in_array($sBrowseMode, array_keys($aBrowseModes)))
@@ -428,25 +430,30 @@ class BrowseBrickController extends BrickController
 		return $oResponse;
 	}
 
-	/**
-	 * Flattens the $aLevels into $aLevelsProperties in order to be able to build an OQL query from multiple single queries related to each
-	 * others. As of now it only keeps search / parent_att / name_att properties.
-	 *
-	 * Note : This is not in the BrowseBrick class because the classes should not rely on DBObjectSearch.
-	 *
-	 * @param \Silex\Application $oApp
-	 * @param array $aLevels Levels from a BrowseBrick class
-	 * @param array $aLevelsProperties Reference to an array that will contain the flattened levels
-	 * @param string $sLevelAliasPrefix String that will be prefixed to the level ID as an unique path identifier
-	 *
-	 * @throws \Exception
-	 * @throws \OQLException
-	 * @throws \CoreException
-	 */
-	public static function TreeToFlatLevelsProperties(array $aLevels, array &$aLevelsProperties, $sLevelAliasPrefix = 'L', BricksCollection $bricksCollection, ScopeValidatorHelper $scopeValidator, Router $router, $isDebugEnabled)
+    /**
+     * Flattens the $aLevels into $aLevelsProperties in order to be able to build an OQL query from multiple single queries related to each
+     * others. As of now it only keeps search / parent_att / name_att properties.
+     *
+     * Note : This is not in the BrowseBrick class because the classes should not rely on DBObjectSearch.
+     *
+     * @param array                $aLevels           Levels from a BrowseBrick class
+     * @param array                $aLevelsProperties Reference to an array that will contain the flattened levels
+     * @param string               $sLevelAliasPrefix String that will be prefixed to the level ID as an unique path identifier
+     * @param BricksCollection     $bricksCollection
+     * @param ScopeValidatorHelper $scopeValidator
+     * @param Router               $router
+     * @param bool                 $isDebugEnabled
+     * @param SecurityHelper       $oSecurityHelper
+     *
+     * @throws \CoreException
+     * @throws \DictExceptionMissingString
+     * @throws \MissingQueryArgument
+     * @throws \MySQLException
+     * @throws \MySQLHasGoneAwayException
+     * @throws \OQLException
+     */
+	public static function TreeToFlatLevelsProperties(array $aLevels, array &$aLevelsProperties, $sLevelAliasPrefix = 'L', BricksCollection $bricksCollection, ScopeValidatorHelper $scopeValidator, Router $router, $isDebugEnabled, SecurityHelper $oSecurityHelper)
 	{
-
-
         foreach ($aLevels as $aLevel)
 		{
 			$sCurrentLevelAlias = $sLevelAliasPrefix . static::LEVEL_SEPARATOR . $aLevel['id'];
@@ -498,7 +505,7 @@ class BrowseBrickController extends BrickController
 					{
 						// Checking if the sublevel if allowed
 						$oChildSearch = DBSearch::FromOQL($aChildLevel['oql']);
-						if (SecurityHelper::IsActionAllowed($scopeValidator, $isDebugEnabled, UR_ACTION_READ, $oChildSearch->GetClass()))
+						if ($oSecurityHelper->IsActionAllowed($scopeValidator, $isDebugEnabled, UR_ACTION_READ, $oChildSearch->GetClass()))
 						{
 							// Adding the sublevel to this one
 							$aLevelsProperties[$sCurrentLevelAlias]['levels'][] = $sCurrentLevelAlias . static::LEVEL_SEPARATOR . $aChildLevel['id'];
@@ -515,7 +522,8 @@ class BrowseBrickController extends BrickController
 						}
 						unset($oChildSearch);
 					}
-					static::TreeToFlatLevelsProperties( $aLevel['levels'], $aLevelsProperties, $sCurrentLevelAlias, $bricksCollection, $scopeValidator, $router, $isDebugEnabled);
+
+					static::TreeToFlatLevelsProperties( $aLevel['levels'], $aLevelsProperties, $sCurrentLevelAlias, $bricksCollection, $scopeValidator, $router, $isDebugEnabled, $oSecurityHelper);
 				}
 
 				// Adding actions to the level
@@ -525,11 +533,11 @@ class BrowseBrickController extends BrickController
 					if (!array_key_exists($sId, $aLevelsProperties[$sCurrentLevelAlias]['actions']))
 					{
 						// Adding action only if allowed
-						if (($aAction['type'] === BrowseBrick::ENUM_ACTION_VIEW) && !SecurityHelper::IsActionAllowed($scopeValidator, $isDebugEnabled, UR_ACTION_READ, $oSearch->GetClass()))
+						if (($aAction['type'] === BrowseBrick::ENUM_ACTION_VIEW) && !$oSecurityHelper->IsActionAllowed($scopeValidator, $isDebugEnabled, UR_ACTION_READ, $oSearch->GetClass()))
 						{
 							continue;
 						}
-						elseif (($aAction['type'] === BrowseBrick::ENUM_ACTION_EDIT) && !SecurityHelper::IsActionAllowed($scopeValidator, $isDebugEnabled, UR_ACTION_MODIFY, $oSearch->GetClass()))
+						elseif (($aAction['type'] === BrowseBrick::ENUM_ACTION_EDIT) && !$oSecurityHelper->IsActionAllowed($scopeValidator, $isDebugEnabled, UR_ACTION_MODIFY, $oSearch->GetClass()))
 						{
 							continue;
 						}

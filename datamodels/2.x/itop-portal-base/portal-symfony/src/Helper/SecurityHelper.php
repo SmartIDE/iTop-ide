@@ -19,7 +19,6 @@
 
 namespace Combodo\iTop\Portal\Helper;
 
-use Silex\Application;
 use UserRights;
 use IssueLog;
 use MetaModel;
@@ -43,6 +42,21 @@ class SecurityHelper
         UR_ACTION_READ => array(),
         UR_ACTION_MODIFY => array(),
     );
+    /**
+     * @var ScopeValidatorHelper
+     */
+    private $oScopeValidator;
+    /**
+     * @var LifecycleValidatorHelper
+     */
+    private $oLifecycleValidator;
+
+    public function __construct(ScopeValidatorHelper $oScopeValidator, LifecycleValidatorHelper $oLifecycleValidator)
+    {
+
+        $this->oScopeValidator = $oScopeValidator;
+        $this->oLifecycleValidator = $oLifecycleValidator;
+    }
 
     /**
      * Returns true if the current user is allowed to do the $sAction on an $sObjectClass object (with optionnal $sObjectId id)
@@ -65,7 +79,7 @@ class SecurityHelper
      * @throws \MySQLHasGoneAwayException
      * @throws \OQLException
      */
-	public static function IsActionAllowed(ScopeValidatorHelper $scopeValidator, $isDebugEnabled, $sAction, $sObjectClass, $sObjectId = null)
+	public function IsActionAllowed($isDebugEnabled, $sAction, $sObjectClass, $sObjectId = null)
 	{
 		$sDebugTracePrefix = __CLASS__ . ' / ' . __METHOD__ . ' : Returned false for action ' . $sAction . ' on ' . $sObjectClass . '::' . $sObjectId;
 
@@ -83,7 +97,7 @@ class SecurityHelper
 		// - Transforming scope action as there is only 2 values
 		$sScopeAction = ($sAction === UR_ACTION_READ) ? UR_ACTION_READ : UR_ACTION_MODIFY;
 		// - Retrieving the query. If user has no scope, it can't access that kind of objects
-		$oScopeQuery = $scopeValidator->GetScopeFilterForProfiles(UserRights::ListProfiles(), $sObjectClass, $sScopeAction);
+		$oScopeQuery = $this->scopeValidator->GetScopeFilterForProfiles(UserRights::ListProfiles(), $sObjectClass, $sScopeAction);
 		if ($oScopeQuery === null)
 		{
 			if ($isDebugEnabled)
@@ -168,7 +182,7 @@ class SecurityHelper
      * @return bool
      * @throws \Exception
      */
-	public static function IsStimulusAllowed(LifecycleValidatorHelper $lifecycleValidator, $sStimulusCode, $sObjectClass, $oInstanceSet = null)
+	public function IsStimulusAllowed($sStimulusCode, $sObjectClass, $oInstanceSet = null)
 	{
 	    // Checking DataModel layer
         $aStimuliFromDatamodel = Metamodel::EnumStimuli($sObjectClass);
@@ -179,7 +193,7 @@ class SecurityHelper
         }
 
         // Checking portal security layer
-        $aStimuliFromPortal = $lifecycleValidator->GetStimuliForProfiles(UserRights::ListProfiles(), $sObjectClass);
+        $aStimuliFromPortal = $this->lifecycleValidator->GetStimuliForProfiles(UserRights::ListProfiles(), $sObjectClass);
 		if(!in_array($sStimulusCode, $aStimuliFromPortal))
         {
             return false;
@@ -200,7 +214,7 @@ class SecurityHelper
      * @throws \MySQLException
      * @throws \OQLException
      */
-	public static function PreloadForCache(ScopeValidatorHelper $scopeValidator, DBSearch $oSearch, $aExtKeysToPreload = null)
+	public function PreloadForCache(DBSearch $oSearch, $aExtKeysToPreload = null)
     {
         $sObjectClass = $oSearch->GetClass();
         $aObjectIds = array();
@@ -250,7 +264,7 @@ class SecurityHelper
         {
             // Retrieving scope query
             /** @var DBSearch $oScopeQuery */
-            $oScopeQuery = $scopeValidator->GetScopeFilterForProfiles(UserRights::ListProfiles(), $sObjectClass, $sScopeAction);
+            $oScopeQuery = $this->scopeValidator->GetScopeFilterForProfiles(UserRights::ListProfiles(), $sObjectClass, $sScopeAction);
             if($oScopeQuery !== null)
             {
                 // Restricting scope if specified
@@ -290,7 +304,7 @@ class SecurityHelper
                 $oTargetSearch = new DBObjectSearch($sTargetClass);
                 $oTargetSearch->AddCondition('id', $aTargetIds, 'IN');
 
-                static::PreloadForCache($scopeValidator, $oTargetSearch);
+                static::PreloadForCache($this->scopeValidator, $oTargetSearch);
             }
         }
     }
