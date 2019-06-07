@@ -738,6 +738,7 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'UI:Schema:DisplaySelector/Label' => 'Label',
 	'UI:Schema:DisplaySelector/Code' => 'Code',
 	'UI:Schema:Attribute/Filter' => 'Filtre',
+	'UI:Schema:OpenFilter' => 'Ouvrir le filtre',
 	'UI:Schema:DefaultNullValue' => 'Valeur null par défaut : "%1$s"',
 	'UI:LinksWidget:Autocomplete+' => 'Tapez les 3 premiers caractères...',
 	'UI:Edit:TestQuery' => 'Tester la requête',

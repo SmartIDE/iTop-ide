@@ -52,6 +52,24 @@ function MakeRelationHLink($sRelCode, $sContext)
 }
 
 /**
+ * @param string $sFilterOql OQL for filter
+ * @param string $sLinkTitle if needed link title. Defaults to UI:Schema:OpenFilter
+ *
+ * @return string link HTML
+ */
+function MakeFilterLink($sFilterOql, $sLinkTitle = null)
+{
+	if ($sLinkTitle === null)
+	{
+		$sLinkTitle = Dict::S('UI:Schema:OpenFilter');
+	}
+
+	$sEscapedOql = urlencode($sFilterOql);
+
+	return "<a href=\"run_query.php?expression=$sEscapedOql\" class='fa fa-2x fa-eye' title='$sLinkTitle'></a>";
+}
+
+/**
  * Helper for the global list and the details of a given class
  */
 function DisplaySubclasses($oPage, $sClass, $sContext)
@@ -896,10 +914,9 @@ function DisplayClassDetails($oPage, $sClass, $sContext)
 		elseif (is_object($oAllowedValuesDef = $oAttDef->GetValuesDef()))
 		{
 			$sAllowedValues = str_replace("Filter: ", "", $oAllowedValuesDef->GetValuesDescription());
-            $sAllowedValuesEscpd = json_encode($sAllowedValues);
-
-            $sFilterURL = urlencode($sAllowedValues);
-			$sAllowedValues = "<span id=\"values" . $sAttrCode ."\"><a href=\"run_query.php?expression=" . $sFilterURL . "\">⚵</a>" . Dict::S('UI:Schema:Attribute/Filter') . "</span>";
+			$sAllowedValuesEscpd = json_encode($sAllowedValues);
+			$sFilterLink = MakeFilterLink($sAllowedValues);
+			$sAllowedValues = "<span id=\"values".$sAttrCode."\">$sFilterLink&nbsp;".Dict::S('UI:Schema:Attribute/Filter')."</span>";
         }
 		else
 		{
