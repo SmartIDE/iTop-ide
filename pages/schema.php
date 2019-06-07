@@ -66,7 +66,7 @@ function MakeFilterLink($sFilterOql, $sLinkTitle = null)
 
 	$sEscapedOql = urlencode($sFilterOql);
 
-	return "<a href=\"run_query.php?expression=$sEscapedOql\" class='fa fa-2x fa-eye' title='$sLinkTitle'></a>";
+	return "<a href=\"run_query.php?expression=$sEscapedOql\" class='fa fa-eye' title='$sLinkTitle'></a>";
 }
 
 /**
@@ -1068,9 +1068,11 @@ function DisplayClassHeader($oPage, $sClass){
 	$oPage->add("<div id=\"dataModelHeader\">");
 	DisplayGranularityDisplayer($oPage);
 	$oPage->add("<div id=\"dataModelClassIcon\">" . MetaModel::GetClassIcon($sClass) . "</div>");
-	$sClassDescritpion = MetaModel::GetClassDescription($sClass);
+	$sClassDescription = MetaModel::GetClassDescription($sClass);
 
-	$oPage->add("<h2 id=\"classDetailsClassName\"><span class=\"attrLabel\">".MetaModel::GetName($sClass)."</span> <span class=\"parenthesis\">(</span><span class=\"attrCode\">" .$sClass."</span><span class=\"parenthesis\">)</span>" . ($sClassDescritpion == "" ? "" : " - " . $sClassDescritpion) . "</h2>\n");
+	$sClassFilter = 'SELECT '.$sClass;
+	$oPage->add("<h2 id=\"classDetailsClassName\"><span class=\"attrLabel\">".MetaModel::GetName($sClass)."</span> <span class=\"parenthesis\">(</span><span class=\"attrCode\">".$sClass."</span><span class=\"parenthesis\">)</span>".($sClassDescription == "" ? "" : " - ".$sClassDescription).'&nbsp;'.MakeFilterLink($sClassFilter,
+			Dict::S('UI:Schema:SeeClassInstances'))."</h2>\n");
 	if (MetaModel::IsAbstract($sClass))
 	{
 		$oPage->p(Dict::S('UI:Schema:AbstractClass'));

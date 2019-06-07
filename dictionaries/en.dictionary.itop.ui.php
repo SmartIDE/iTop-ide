@@ -696,6 +696,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'UI:Schema:Relationships' => 'Relationships',
 	'UI:Schema:AbstractClass' => 'Abstract class: no object from this class can be instantiated.',
 	'UI:Schema:NonAbstractClass' => 'Non abstract class: objects from this class can be instantiated.',
+	'UI:Schema:SeeClassInstances' => 'See all instances',
 	'UI:Schema:ClassHierarchyTitle' => 'Class hierarchy',
 	'UI:Schema:AllClasses' => 'All classes',
 	'UI:Schema:ExternalKey_To' => 'External key to %1$s',

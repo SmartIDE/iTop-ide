@@ -678,6 +678,7 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'UI:Schema:Relationships' => 'Relations',
 	'UI:Schema:AbstractClass' => 'Classe abstraite : les objets de cette classe ne peuvent pas être instanciés.',
 	'UI:Schema:NonAbstractClass' => 'Classe concrète : les objets de cette classe peuvent être instanciés.',
+	'UI:Schema:SeeClassInstances' => 'Voir toutes les instances',
 	'UI:Schema:ClassHierarchyTitle' => 'Hiérachie des classes',
 	'UI:Schema:AllClasses' => 'Toutes les classes',
 	'UI:Schema:ExternalKey_To' => 'Clef externe vers %1$s',
