@@ -2,15 +2,32 @@
 
 namespace Combodo\iTop\Config\Test\Validator;
 
-use Combodo\iTop\Test\UnitTest\ItopTestCase;
+namespace Combodo\iTop\Test\UnitTest;
+use PHPUnit\Framework\TestCase;
 use AspectMock\Test as test;
 
-class StaticMockTest extends ItopTestCase
+class StaticMockTest extends TestCase
 {
 
 	public function setUp()
 	{
-		parent::setUp();
+
+		@include_once '../approot.inc.php';
+		@include_once '../../approot.inc.php';
+		@include_once '../../../approot.inc.php';
+		@include_once '../../../../approot.inc.php';
+		@include_once '../../../../../approot.inc.php';
+		@include_once '../../../../../../approot.inc.php';
+		@include_once '../../../../../../../approot.inc.php';
+		@include_once '../../../../../../../../approot.inc.php';
+
+		$kernel = \AspectMock\Kernel::getInstance();
+		$kernel->init([
+			'debug' => true,
+			'includePaths' => [APPROOT . '/core'],
+			'cacheDir'  => APPROOT . '/data/test/_aspectmock',
+			'excludePaths' => [APPROOT  . '/test/'] // tests dir should be excluded
+		]);
 	}
 
 

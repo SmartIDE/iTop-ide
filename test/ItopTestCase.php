@@ -45,14 +45,6 @@ class ItopTestCase extends TestCase
 		@include_once '../../../../../../../approot.inc.php';
 		@include_once '../../../../../../../../approot.inc.php';
 
-		$kernel = \AspectMock\Kernel::getInstance();
-		$kernel->init([
-			'debug' => true,
-			'includePaths' => [APPROOT . '/core'],
-            'cacheDir'  => APPROOT . '/data/test/_aspectmock',
-			'excludePaths' => [APPROOT  . '/test/'] // tests dir should be excluded
-		]);
-
         $this->debug("\n----------\n---------- ".$this->getName()."\n----------\n");
 	}
 
