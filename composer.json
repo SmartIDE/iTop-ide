@@ -25,7 +25,8 @@
   },
   "require-dev": {
     "symfony/stopwatch": "3.4.*",
-    "symfony/web-profiler-bundle": "3.4.*"
+    "symfony/web-profiler-bundle": "3.4.*",
+    "codeception/aspect-mock": "*"
   },
   "suggest": {
     "ext-libsodium": "Required to use the AttributeEncryptedString.",
