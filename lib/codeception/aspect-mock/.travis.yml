@@ -1,0 +1,12 @@
+language: php
+
+php:
+  - 7.0
+  - 7.1
+  - 7.2
+
+before_script:
+  - stty cols 160
+  - composer install -n --prefer-source
+
+script: "php vendor/bin/codecept run"

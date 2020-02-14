@@ -7,7 +7,9 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Twig_' => array($vendorDir . '/twig/twig/lib'),
+    'Dissect' => array($vendorDir . '/jakubledl/dissect/src'),
     'Console' => array($vendorDir . '/pear/console_getopt'),
+    'AspectMock' => array($vendorDir . '/codeception/aspect-mock/src'),
     'Archive_Tar' => array($vendorDir . '/pear/archive_tar'),
     '' => array($vendorDir . '/pear/pear-core-minimal/src'),
 );
