@@ -5,6 +5,7 @@ set -x
 # create target dirs
 mkdir -p var
 mkdir -p toolkit
+mkdir -p data/test/_aspectmock/
 
 # cleanup target dirs
 rm -rf toolkit/*
