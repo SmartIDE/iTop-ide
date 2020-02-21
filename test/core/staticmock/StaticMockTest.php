@@ -1,8 +1,6 @@
 <?php
 
-namespace Combodo\iTop\Config\Test\Validator;
-
-namespace Combodo\iTop\Test\UnitTest;
+namespace Combodo\iTop\core\staticmock;
 use PHPUnit\Framework\TestCase;
 use AspectMock\Test as test;
 
@@ -23,24 +21,38 @@ class StaticMockTest extends TestCase
 
 		$kernel = \AspectMock\Kernel::getInstance();
 		$kernel->init([
-			'debug' => true,
+			//'debug' => true,
+			'application' => APPROOT ,
 			'includePaths' => [APPROOT . '/core'],
 			'cacheDir'  => APPROOT . '/data/test/_aspectmock',
 			'excludePaths' => [APPROOT  . '/test/'] // tests dir should be excluded
 		]);
 	}
 
+	protected function tearDown()
+	{
+		//\AspectMock\Test::clean();
+	}
+
 
 	/**
 	 * @param $sConf
-	 *
+	 * @dataProvider GetClassNameProvider
 	 * @throws \Exception
 	 */
-	public function testGetClassName()
+	public function testGetClassName($returnedValue)
 	{
 		$this->assertEquals('toto',  \DBObject::GetClassName("toto"));
-		$DBObject = test::double('DBObject', ['GetClassName' => 'titi']);
-		$this->assertEquals('titi',  \DBObject::GetClassName("toto"));
+		$DBObject = test::double('DBObject', ['GetClassName' => $returnedValue]);
+		$this->assertEquals($returnedValue,  \DBObject::GetClassName("toto"));
 		$DBObject->verifyInvoked('GetClassName');
+	}
+
+	public function GetClassNameProvider()
+	{
+		return array(
+			"a" => array("a"),
+			"b" => array("b"),
+		);
 	}
 }
