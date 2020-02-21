@@ -1,20 +1,21 @@
 <?php
-// Copyright (C) 2014-2019 Combodo SARL
-//
-//   This file is part of iTop.
-//
-//   iTop is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Affero General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
-//
-//   iTop is distributed in the hope that it will be useful,
-//   but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU Affero General Public License for more details.
-//
-//   You should have received a copy of the GNU Affero General Public License
-//   along with iTop. If not, see <http://www.gnu.org/licenses/>
+/**
+ * Copyright (C) 2013-2020 Combodo SARL
+ *
+ * This file is part of iTop.
+ *
+ * iTop is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * iTop is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ */
 
 define('ITOP_DESIGN_LATEST_VERSION', '1.7'); // iTop >= 2.7.0
 
@@ -324,7 +325,7 @@ class iTopDesignFormat
 
 	/**
 	 * Upgrade the format from version 1.0 to 1.1
-	 * @param $oFactory
+	 * @param \ModelFactory $oFactory
 	 * @return void (Errors are logged)
 	 */
 	protected function From10To11($oFactory)
@@ -379,7 +380,7 @@ class iTopDesignFormat
 
 	/**
 	 * Downgrade the format from version 1.1 to 1.0
-	 * @param $oFactory
+	 * @param \ModelFactory $oFactory
 	 * @return void (Errors are logged)
 	 */
 	protected function From11To10($oFactory)
@@ -449,7 +450,7 @@ class iTopDesignFormat
 
 	/**
 	 * Upgrade the format from version 1.1 to 1.2
-	 * @param $oFactory
+	 * @param \ModelFactory $oFactory
 	 * @return void (Errors are logged)
 	 */
 	protected function From11To12($oFactory)
@@ -458,7 +459,7 @@ class iTopDesignFormat
 
 	/**
 	 * Downgrade the format from version 1.2 to 1.1
-	 * @param $oFactory
+	 * @param \ModelFactory $oFactory
 	 * @return void (Errors are logged)
 	 */
 	protected function From12To11($oFactory)
@@ -516,7 +517,7 @@ class iTopDesignFormat
 
 	/**
 	 * Upgrade the format from version 1.2 to 1.3
-	 * @param $oFactory
+	 * @param \ModelFactory $oFactory
 	 * @return void (Errors are logged)
 	 */
 	protected function From12To13($oFactory)
@@ -525,7 +526,7 @@ class iTopDesignFormat
 
 	/**
 	 * Downgrade the format from version 1.3 to 1.2
-	 * @param $oFactory
+	 * @param \ModelFactory $oFactory
 	 * @return void (Errors are logged)
 	 */
 	protected function From13To12($oFactory)
@@ -578,7 +579,7 @@ class iTopDesignFormat
 
 	/**
 	 * Upgrade the format from version 1.3 to 1.4
-	 * @param $oFactory
+	 * @param \ModelFactory $oFactory
 	 * @return void (Errors are logged)
 	 */
 	protected function From13To14($oFactory)
@@ -587,7 +588,7 @@ class iTopDesignFormat
 
 	/**
 	 * Downgrade the format from version 1.4 to 1.3
-	 * @param $oFactory
+	 * @param \ModelFactory $oFactory
 	 * @return void (Errors are logged)
 	 */
 	protected function From14To13($oFactory)
@@ -621,7 +622,7 @@ class iTopDesignFormat
 
 	/**
 	 * Downgrade the format from version 1.5 to 1.4
-	 * @param $oFactory
+	 * @param \ModelFactory $oFactory
 	 * @return void (Errors are logged)
 	 */
 	protected function From15To14($oFactory)
@@ -640,7 +641,7 @@ class iTopDesignFormat
 
 	/**
 	 * Upgrade the format from version 1.4 to 1.5
-	 * @param $oFactory
+	 * @param \ModelFactory $oFactory
 	 * @return void (Errors are logged)
 	 */
 	protected function From14To15($oFactory)
@@ -648,8 +649,8 @@ class iTopDesignFormat
 	}
 
 	/**
-	 * @param $oFactory
-	 *
+	 * Upgrade the format from version 1.5 to 1.6
+	 * @param \ModelFactory $oFactory
 	 * @return void (Errors are logged)
 	 */
 	protected function From15To16($oFactory)
@@ -658,8 +659,8 @@ class iTopDesignFormat
 	}
 
 	/**
-	 * @param $oFactory
-	 *
+	 * Downgrade the format from version 1.6 to 1.5
+	 * @param \ModelFactory $oFactory
 	 * @return void (Errors are logged)
 	 */
 	protected function From16To15($oFactory)
@@ -678,18 +679,23 @@ class iTopDesignFormat
 	}
 
 	/**
-	 * @param $oFactory
-	 *
+	 * Upgrade the format from version 1.6 to 1.7
+	 * @param \ModelFactory $oFactory
 	 * @return void (Errors are logged)
 	 */
 	protected function From16To17($oFactory)
 	{
-		// nothing changed !
+		// N°2275 Clean branding node (move "define" from collection to logos or theme, noe that any other nodes will be seen as "merge")
+		$this->CleanDefineOnCollectionNode('/itop_design/branding',
+			'*[self::main_logo or self::login_logo or self::portal_logo]|themes/theme');
+
+		// N°2275 Clean portal form properties node (move "define" from collection to each property)
+		$this->CleanDefineOnCollectionNode('/itop_design/module_designs/module_design[@id="itop-portal"]/forms/form/properties', '*');
 	}
 
 	/**
-	 * @param $oFactory
-	 *
+	 * Upgrade the format from version 1.4 to 1.5
+	 * @param \ModelFactory $oFactory
 	 * @return void (Errors are logged)
 	 */
 	protected function From17To16($oFactory)
@@ -699,12 +705,17 @@ class iTopDesignFormat
 		// -- 1283 : remove "in_new_window" option for WebPageMenuNode
 		$sPath = "/itop_design/menus/menu[@xsi:type='WebPageMenuNode']/in_new_window";
 		$this->RemoveNodeFromXPath($sPath);
-		
+
 		// -- 2314 : remove "themes" nodes
 		$sPath = "/itop_design/branding/themes";
 		$this->RemoveNodeFromXPath($sPath);
 	}
 
+	/**
+	 * @param string $sPath
+	 *
+	 * @return void
+	 */
 	private function RemoveNodeFromXPath($sPath)
 	{
 		$oXPath = new DOMXPath($this->oDocument);
@@ -717,15 +728,48 @@ class iTopDesignFormat
 		}
 	}
 
+	/**
+	 * Clean a collection node by removing the _delta="define" on it and moving it to the item nodes.
+	 *
+	 * @param string $sCollectionXPath Absolute XPath to the collection node
+	 * @param string $sItemsRelativeXPath *Relative* XPath to the item nodes from the collection node
+	 *
+	 * @return void
+	 * @since 2.7.0
+	 */
+	private function CleanDefineOnCollectionNode($sCollectionXPath, $sItemsRelativeXPath)
+	{
+		$oXPath = new DOMXPath($this->oDocument);
+
+		// Iterate over collections
+		$oCollectionNodeList = $oXPath->query($sCollectionXPath);
+		/** @var \DOMElement $oCollectionNode */
+		foreach ($oCollectionNodeList as $oCollectionNode)
+		{
+			// Move _delta="define" from collection to items
+			if (($oCollectionNode->hasAttribute('_delta')) && ($oCollectionNode->getAttribute('_delta') === "define"))
+			{
+				$oCollectionNode->removeAttribute('_delta');
+
+				$oItemNodeList = $oXPath->query($sItemsRelativeXPath, $oCollectionNode);
+				/** @var \DOMElement $oItemNode */
+				foreach ($oItemNodeList as $oItemNode)
+				{
+					$oItemNode->setAttribute('_delta', 'define');
+				}
+			}
+		}
+	}
 
 	/**
 	 * Delete a node from the DOM and make sure to also remove the immediately following line break (DOMText), if any.
 	 * This prevents generating empty lines in the middle of the XML
+	 *
 	 * @param DOMNode $oNode
 	 */
 	protected function DeleteNode($oNode)
 	{
-		if ( $oNode->nextSibling && ($oNode->nextSibling instanceof DOMText) && ($oNode->nextSibling->isWhitespaceInElementContent()) )
+		if ($oNode->nextSibling && ($oNode->nextSibling instanceof DOMText) && ($oNode->nextSibling->isWhitespaceInElementContent()))
 		{
 			$oNode->parentNode->removeChild($oNode->nextSibling);
 		}
