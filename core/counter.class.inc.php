@@ -67,6 +67,7 @@ final class ItopCounter
 
 		try
 		{
+			self::log("FromOQL ============ $sCounterName $sCounterName $sSelfClassName \n");
 			$oFilter = DBObjectSearch::FromOQL('SELECT KeyValueStore WHERE key_name=:key_name AND namespace=:namespace', array(
 				'key_name'  => $sCounterName,
 				'namespace' => $sSelfClassName,
@@ -74,11 +75,11 @@ final class ItopCounter
 			$oAttDef = MetaModel::GetAttributeDef('KeyValueStore', 'value');
 			$aAttToLoad = array('KeyValueStore' => array('value' => $oAttDef));
 			$sSql = $oFilter->MakeSelectQuery(array(), array(), $aAttToLoad);
-			$hResult = mysqli_query($hDBLink, $sSql);
-			$aCounter = mysqli_fetch_array($hResult, MYSQLI_NUM);
-			mysqli_free_result($hResult);
+			$aCounter = self::fetch_mysql_result_counter(self::call_mysql($hDBLink, $sSql));
 
-			//Rebuild the filter, as the MakeSelectQuery polluted the orignal and it cannot be reused
+			//Rebuild the filter, as the MakeSelectQuery polluted the original and it cannot be reused
+
+			self::log("FromOQL ============ $sCounterName $sCounterName $sSelfClassName \n");
 			$oFilter = DBObjectSearch::FromOQL('SELECT KeyValueStore WHERE key_name=:key_name AND namespace=:namespace', array(
 				'key_name'  => $sCounterName,
 				'namespace' => $sSelfClassName,
@@ -103,6 +104,8 @@ final class ItopCounter
 					'namespace' => $sSelfClassName,
 				);
 
+				self::log("TOTO ============ $sCounterName $iCurrentValue $sSelfClassName \n");
+
 				$sSql = $oFilter->MakeInsertQuery($aQueryParams);
 			}
 			else
@@ -116,8 +119,7 @@ final class ItopCounter
 				$sSql = $oFilter->MakeUpdateQuery($aQueryParams);
 			}
 
-			$hResult = mysqli_query($hDBLink, $sSql);
-
+			self::call_mysql($hDBLink, $sSql);
 		}
 		catch(Exception $e)
 		{
@@ -134,6 +136,30 @@ final class ItopCounter
 		}
 
 		return $iCurrentValue;
+	}
+
+	public static function log($text, $level='d', $file="/home/combodo/workspace/iTop/log/toto.log") {
+		$txt = date("[Y-m-d H:i:s]")."\t[".$level."]\t".$text."\n";
+		try
+		{
+			file_put_contents($file, $txt, FILE_APPEND);
+		}
+		catch(Exception $e)
+		{
+			echo "$e could not log \n";
+		}
+	}
+
+	protected static function call_mysql($hDBLink, $sSql)
+	{
+		return mysqli_query($hDBLink, $sSql);
+	}
+
+	protected static function fetch_mysql_result_counter($hResult)
+	{
+		$aCounter = mysqli_fetch_array($hResult, MYSQLI_NUM);
+		mysqli_free_result($hResult);
+		return $aCounter;
 	}
 
 	/**

@@ -20,7 +20,7 @@
 
 $bUseLegacyDBSearch = utils::GetConfig()->Get('use_legacy_dbsearch');
 
-if ($bUseLegacyDBSearch)
+/*if ($bUseLegacyDBSearch)
 {
 	// excluded from autoload
 	require_once (APPROOT.'core/legacy/querybuilderexpressionslegacy.class.inc.php');
@@ -28,12 +28,12 @@ if ($bUseLegacyDBSearch)
 	require_once(APPROOT.'core/legacy/dbobjectsearchlegacy.class.php');
 }
 else
-{
+{*/
 	// excluded from autoload
 	require_once (APPROOT.'core/querybuilderexpressions.class.inc.php');
 	require_once (APPROOT.'core/querybuildercontext.class.inc.php');
 	require_once(APPROOT.'core/dbobjectsearch.class.php');
-}
+/*}*/
 
 /**
  * An object search

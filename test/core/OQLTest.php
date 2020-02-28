@@ -425,4 +425,14 @@ class OQLTest extends ItopDataTestCase
 		);
 	}
 
+	/**
+	 * @param $sConf
+	 * @throws \Exception
+	 */
+	public function testIncClassRealCall()
+	{
+		$iNewId = \ItopCounter::IncClass("UserRequest");
+		$this->assertEquals("1", $iNewId);
+	}
+
 }
