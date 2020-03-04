@@ -272,6 +272,198 @@ function MakeDataToPost($sTargetRoute)
 	return $aDataToPost;
 }
 
+function AddPublishableExtensions()
+{
+	$sTargetRoute = utils::ReadParam('target', ''); // ||browse_extensions|deploy_extensions|
+	$sHubUrlStateless = MetaModel::GetModuleSetting('itop-hub-connector', 'url').MetaModel::GetModuleSetting('itop-hub-connector', 'route_landing_stateless');
+	$sHubUrl = MetaModel::GetModuleSetting('itop-hub-connector', 'url').MetaModel::GetModuleSetting('itop-hub-connector', 'route_publish');
+
+	$sLogoUrl = utils::GetAbsoluteUrlModulesRoot().'/itop-hub-connector/images/itophub-logo.svg';
+	$sArrowUrl = utils::GetAbsoluteUrlModulesRoot().'/itop-hub-connector/images/white-arrow-right.svg';
+	$sCloseUrl = utils::GetAbsoluteUrlModulesRoot().'/itop-hub-connector/images/black-close.svg';
+
+	$sTitle = Dict::S('Menu:iTopHub:PublishExtensions');
+	$sLabel = Dict::S('Menu:iTopHub:PublishExtensions+');
+	$sText = Dict::S('Menu:iTopHub:PublishExtensions:Description');
+
+
+	$oPage = new HubConnectorPage(Dict::S('iTopHub:Connect'));
+	$oPage->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'itop-hub-connector/js/hub.js');
+	$oPage->add_linked_stylesheet('../css/font-combodo/font-combodo.css');
+	$oPage->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'itop-hub-connector/css/hub.css');
+
+	$aDataToPost =array(
+		"uuidBdd"       => (string) trim(DBProperty::GetProperty('database_uuid', ''), '{}'),
+		"uuidFile"      => (string) trim(@file_get_contents(APPROOT."data/instance.txt"), "{} \n"),
+		'instance_host' => (string) utils::GetAbsoluteUrlAppRoot(),
+	);
+
+	if (MetaModel::GetConfig()->Get('demo_mode'))
+	{
+		$oPage->add("<div class=\"header_message message_info\">Sorry, iTop is in <b>demonstration mode</b>: the connection to iTop Hub is disabled.</div>");
+	}
+
+	$oPage->add('<div id="hub_top_banner"></div>');
+	$oPage->add('<div id="hub_launch_content">');
+	$oPage->add('<div id="hub_launch_container">');
+	$oPage->add('<div id="hub_launch_image">');
+	$oPage->add(file_get_contents(__DIR__.'/images/rocket.svg'));
+	$oPage->add('</div>');
+	$oPage->add('<h1><img src="'.$sLogoUrl.'"><span>'.$sTitle.'</span></h1>');
+	$oPage->add($sText);
+
+	$oPage->add('<form  id="hub_launch_form" action="'.$sHubUrl.'" method="post">');
+	$oPage->add('<div class="module-selection-body">');
+	// Now scan the extensions and display a report of the extensions not brought by the hub
+	$oExtensionsMap = new iTopExtensionsMap('production', true);
+	$oExtensionsMap->LoadChoicesFromDatabase(MetaModel::GetConfig());
+
+	foreach($oExtensionsMap->GetAllExtensions() as $oExtension)
+	{
+		if ($oExtension->sSource == iTopExtension::SOURCE_MANUAL)
+		{
+			if ($oExtension->sInstalledVersion === '')
+			{
+				continue;
+			}
+
+			if (preg_match('/^(itop|combodo)-/', $oExtension->sCode))
+			{
+				continue;
+			}
+
+			$oPage->add('<div class="choice">');
+			$sCode = $oExtension->sCode;
+			$sDir = basename($oExtension->sSourceDir);
+			$sBase64Zip = compressExtensionDir($oExtension);
+
+			$oPage->add('<input type="radio" name="publish_code['.$sCode.']" value="'.$sBase64Zip.'" data-role="publish_code">&nbsp;');
+			$sInstallation = Dict::Format('iTopHub:InstallationStatus:Installed_Version', '', $oExtension->sInstalledVersion);
+			$oPage->add('<label><b>'.htmlentities($oExtension->sLabel, ENT_QUOTES, 'UTF-8').'</b> '.$sInstallation.'</label>');
+			$oPage->add('<div class="description">');
+			$oPage->add('<p>');
+			if ($oExtension->sDescription != '')
+			{
+				$oPage->add(htmlentities($oExtension->sDescription, ENT_QUOTES, 'UTF-8').'</br>');
+			}
+			$oPage->add('</p>');
+			$oPage->add('</div>');
+			$oPage->add('</div>');
+		}
+	}
+
+
+
+	$oPage->add('<p><button type="button" id="CancelBtn" title="Go back to iTop"><img src="'.$sCloseUrl.'"><span>'.Dict::S('iTopHub:CloseBtn').'</span></button><span class="horiz-spacer"> </span><button class="positive" type="button" id="GoToHubBtn" title="'.Dict::S('iTopHub:GoBtn:Tooltip').'"><span>'.Dict::S('iTopHub:PublishBtn').'</span><img src="'.$sArrowUrl.'"></button></p>');
+
+	$oPage->add('<input type="hidden" name="json" value="'.htmlentities(json_encode($aDataToPost), ENT_QUOTES, 'UTF-8').'">');
+
+	$oPage->add('<input type="checkbox" id="publish_accept_conditions" ><label for="publish_accept_conditions">'.Dict::S('iTopHub:Publish:AcceptConditions').'</label></p>');
+	$oPage->add('</form>');
+	$oPage->add('<div style="clear:both"></div>');
+	$oPage->add('</div>');
+	$oPage->add('</div>');
+
+	$oPage->add('</div>');
+	$oPage->add('<div style="text-align:center"><button onclick="window.location.href=\'./UI.php\';">'.Dict::S('iTopHub:GoBackToITopBtn').'</button></div>');
+
+	if (utils::ReadParam('show-json', false))
+	{
+		$oPage->add('<h1>DEBUG : json</h1>');
+		$oPage->add('<pre class="wizContainer">'.json_encode($aDataToPost, JSON_PRETTY_PRINT).'</pre>');
+	}
+
+
+	if (MetaModel::GetConfig()->Get('demo_mode'))
+	{
+		$oPage->add_ready_script(
+			<<<EOF
+			$("#GoToHubBtn").prop('disabled', true);
+			$("#itophub_auto_submit").prop('disabled', true).prop('checked', false);
+			$("#CancelBtn").on("click", function() {
+			    window.history.back();
+			});
+EOF
+		);
+	}
+	else
+	{
+		$oPage->add_ready_script(
+			<<<EOF
+$('#publish_accept_conditions').prop("checked", false);
+$("#GoToHubBtn").on("click", function() {
+	if (!$('#publish_accept_conditions').prop("checked"))
+	{
+		alert('please accept the conditions!');
+		return false;
+	}
+	
+	if ($('input[data-role="publish_code"]:checked').length == 0)
+	{
+		alert('please select the extension you wish to publish!');
+		return false;
+	}
+	
+	$(this).prop('disabled', true);
+	$("#hub_launch_image").addClass("animate");
+	window.setTimeout(function () {
+		$('#hub_launch_form').submit();
+		window.setTimeout(function () {
+			$("#GoToHubBtn").prop('disabled', false);
+			$("#hub_launch_image").removeClass("animate");
+		}, 8000);
+	}, 1000);
+});
+$("#CancelBtn").on("click", function() {
+    window.history.back();
+});
+EOF
+		);
+	}
+
+
+
+	return $oPage;
+}
+
+function compressExtensionDir(iTopExtension $oExtension)
+{
+	try {
+		$rootPath = realpath($oExtension->sSourceDir);
+
+		$sTmpZipArchive = tempnam(sys_get_temp_dir(), $oExtension->sCode).'.zip';
+		$zip = new ZipArchive();
+		$zip->open($sTmpZipArchive, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+		/** @var SplFileInfo[] $files */
+		$files = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($rootPath),
+			RecursiveIteratorIterator::LEAVES_ONLY
+		);
+
+		foreach ($files as $name => $file)
+		{
+			if ($file->isDir())
+			{
+				continue;
+			}
+
+			$sFilePathInArchive = str_replace($rootPath, '', $file->getRealPath());
+			$zip->addFile($file->getRealPath(), $sFilePathInArchive);
+		}
+
+		$zip->close();
+
+		$zipBase64 = base64_encode(file_get_contents($sTmpZipArchive));
+
+		return $zipBase64;
+	}
+	finally
+	{
+		unlink($sTmpZipArchive);
+	}
+}
+
 try
 {
 	require_once (APPROOT.'/application/application.inc.php');
@@ -305,7 +497,11 @@ try
 		$oPage->add('<input type="hidden" name="json" value="'.htmlentities(json_encode($aDataToPost), ENT_QUOTES, 'UTF-8').'">');
 		$oPage->add_ready_script('$("#hub_launch_form").submit();');
 		break;
-		
+
+		case 'publish_extension':
+			$oPage = AddPublishableExtensions();
+			break;
+
 		default:
 		// All other cases, special "Hub like" web page
 		if ($sTargetRoute == 'view_dashboard')
@@ -396,7 +592,8 @@ $("#CancelBtn").on("click", function() {
 EOF
 			);
 		}
-		
+
+
 		if (appUserPreferences::GetPref('itophub_auto_submit', 0) == 1)
 		{
 			$oPage->add_ready_script('$("#GoToHubBtn").trigger("click");');

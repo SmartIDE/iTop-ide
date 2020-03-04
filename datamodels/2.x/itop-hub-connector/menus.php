@@ -13,6 +13,7 @@ class ItopHubMenusHandler extends ModuleHandlerAPI
 			$fRank = 1;
 			new WebPageMenuNode('iTopHub:Register', $sRootUrl.'&target=view_dashboard', $oHubMenu->GetIndex(), $fRank++);
 			new WebPageMenuNode('iTopHub:MyExtensions', $sMyExtensionsUrl, $oHubMenu->GetIndex(), $fRank++);
+			new WebPageMenuNode('iTopHub:PublishExtensions', $sRootUrl.'&target=publish_extension', $oHubMenu->GetIndex(), $fRank++);
 			new WebPageMenuNode('iTopHub:BrowseExtensions', $sRootUrl.'&target=browse_extensions', $oHubMenu->GetIndex(), $fRank++);
  		}
 	}
