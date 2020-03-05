@@ -46,8 +46,7 @@ pipeline {
         stage('composer') {
           steps {
             sh './.jenkins/bin/tests//dependencies_outdated.sh'
-          }
-          steps {
+    
             sh './.jenkins/bin/tests//security_check.sh'
           }
         }
