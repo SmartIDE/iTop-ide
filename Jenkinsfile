@@ -52,15 +52,16 @@ pipeline {
         }
       }
     }
-
   }
 
   post {
     always {
       junit 'var/test/phpunit-log.junit.xml'
+                archiveArtifacts(artifacts: 'var/test/listOutdated.log', allowEmptyArchive: true)
     }
     failure {
       slackSend(channel: "#jenkins-itop", color: '#FF0000', message: "Ho no! Build failed! (${currentBuild.result}), Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+      archiveArtifacts(artifacts: 'var/test/security_check.log', allowEmptyArchive: true)
     }
     fixed {
       slackSend(channel: "#jenkins-itop", color: '#FFa500', message: "Yes! Build repaired! (${currentBuild.result}), Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")

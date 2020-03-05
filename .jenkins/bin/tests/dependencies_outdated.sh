@@ -1,1 +1,1 @@
-php .make/composer/listOutdated.php
+php .make/composer/listOutdated.php | tee ../var/test/listOutdated.log
