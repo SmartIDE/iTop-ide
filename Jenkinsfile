@@ -38,16 +38,16 @@ pipeline {
 
     stage('test') {
       parallel {
-        stage('phpunit') {
-          steps {
-            sh './.jenkins/bin/tests/phpunit.sh ${debugMode} ${runNonRegOQLTests}'
-          }
-        }
         stage('composer') {
           steps {
             sh './.jenkins/bin/tests//dependencies_outdated.sh'
-    
+
             sh './.jenkins/bin/tests//security_check.sh'
+          }
+        }
+        stage('phpunit') {
+          steps {
+            sh './.jenkins/bin/tests/phpunit.sh ${debugMode} ${runNonRegOQLTests}'
           }
         }
       }
