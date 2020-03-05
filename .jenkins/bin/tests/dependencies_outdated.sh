@@ -1,5 +1,3 @@
-DIR=$(dirname $0)
+mkdir "var/test" -p || true
 
-mkdir "$DIR/var/test" -p || true
-
-php .make/composer/listOutdated.php | tee $DIR/var/test/listOutdated.log
+php .make/composer/listOutdated.php | tee var/test/listOutdated.log
