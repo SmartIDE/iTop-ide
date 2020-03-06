@@ -77,8 +77,10 @@
     }
   },
   "scripts": {
-    "post-install-cmd": ["@rmDeniedTestDir"],
-    "post-update-cmd": ["@rmDeniedTestDir"],
-    "rmDeniedTestDir":  "@php .make/composer/rmDeniedTestDir.php"
+    "post-install-cmd": ["@rmDeniedTestDir", "@listOutdated"],
+    "post-update-cmd": ["@rmDeniedTestDir", "@listOutdated"],
+    "post-autoload-dump": ["@listOutdated"],
+    "rmDeniedTestDir":  "@php .make/composer/rmDeniedTestDir.php",
+    "listOutdated":  "@php .make/composer/listOutdated.php"
   }
 }

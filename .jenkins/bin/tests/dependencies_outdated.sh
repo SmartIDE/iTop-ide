@@ -1,3 +1,3 @@
 mkdir "var/test" -p || true
 
-php .make/composer/listOutdated.php | tee var/test/listOutdated.log
+php .make/composer/listOutdated.php --human-readable | tee var/test/listOutdated.log

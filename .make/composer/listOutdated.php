@@ -28,7 +28,20 @@ $aTrace = array();
 $aParamsConfig = array(
 	'composer-path' => array(
 		'default' => 'composer.phar',
-	)
+	),
+
+	'synthesis' => array(
+		'default' => '1',
+	),
+
+	'human-readable' => array(
+		'default' => '0',
+	),
+
+	'help' => array(
+		'default' => 0,
+	),
+
 );
 $aParamsConfigNotFound = array_flip(array_keys($aParamsConfig));
 $aGivenArgs = $argv;
@@ -60,6 +73,7 @@ foreach ($aParamsConfig as $sParam => $aConfig)
 	}
 }
 
+
 foreach ($aParamsConfigNotFound as $sParamsConfigNotFound => $void)
 {
 	if (isset($aParamsConfig[$sParamsConfigNotFound]['default']))
@@ -72,27 +86,85 @@ foreach ($aParamsConfigNotFound as $sParamsConfigNotFound => $void)
 	die("Missing '$sParamsConfigNotFound'");
 }
 
-echo "This command aims at helping you find upgradable dependencies\n";
-echo "\e[0;33mBeware of the version colored in orange, they probably introduce BC breaks!\e[0m\n";
 
-$sCommand = "{$aParams['composer-path']} show -loD --working-dir=$sApproot --ansi";
-$execCode = exec($sCommand, $output);
-$sOutput = implode("\n", $output)."\n";
-
-if (!$execCode)
+if ($aParams['help'] == true)
 {
-	echo  "\e[41mFailed to execute '$sCommand'\e[0m\n";
-	echo "Trace: \n".implode("\n", $aTrace);
-}
-else
-{
-	$iCountDepdendenciesFound = count($output);
-
-	$iCountBc =  substr_count($sOutput, '[33m');
-
-	echo sprintf("Found \033[44m%d\033[0m upgradable dependencies, including \e[41m%s  BC break\e[0m 😱 :\n\n", $iCountDepdendenciesFound, $iCountBc);
+	echo "This command aims at helping you find upgradable dependencies\n";
+	echo "parameters : \n";
+	foreach ($aParamsConfig as $sParam => $aConfig)
+	{
+		echo str_pad("[$sParam]", 20);
+		if (isset($aConfig['default']))
+		{
+			echo "\e[30;1mdefault: {$aConfig['default']}\e[0m";
+		}
+		echo "\n";
+	}
+	die();
 }
 
 
-echo $sOutput;
+if ($aParams['synthesis'] == true)
+{
 
+	$sCommandJson = "{$aParams['composer-path']} show -loD --working-dir=$sApproot --format=json";
+	$execCodeJson = exec($sCommandJson, $aOutputson);
+	$oJson = json_decode(implode('', $aOutputson));
+	$aOutdated = $oJson->installed;
+
+	if (!$execCodeJson)
+	{
+		echo  "\e[41mFailed to execute '$sCommandJson'\e[0m\n";
+		echo "Trace: \n".implode("\n", $aTrace);
+	}
+	else
+	{
+		$oOutdatedAndBcBreak = array_filter($aOutdated, function($dependency) {
+			return $dependency->{'latest-status'} != 'semver-safe-update';
+		});
+
+		$iCount   = count($aOutdated);
+		$iCountBc = count($oOutdatedAndBcBreak);
+
+		if ($iCount > 0)
+		{
+			echo sprintf(
+				"You have \033[44m%d\033[0m upgradable dependencies, including \e[41m%s  BC break\e[0m 😱\n",
+				$iCount,
+				$iCountBc
+			);
+		}
+		else {
+			echo "All your dependencies are up to date! 👍";
+		}
+
+
+
+		if (! $aParams['human-readable'] )
+		{
+			echo sprintf(
+				"Type '%s' for more details\n\n",
+				$argv[0].' --human-readable'
+			);
+		}
+
+	}
+}
+
+
+
+if ($aParams['human-readable'] == true)
+{
+	$sCommand = "{$aParams['composer-path']} show -loD --working-dir=$sApproot --ansi";
+	$execCode = exec($sCommand, $aOutput);
+	$sOutput = implode("\n", $aOutput)."\n";
+
+	if (!$execCode)
+	{
+		echo "\e[41mFailed to execute '$sCommand'\e[0m\n";
+		echo "Trace: \n".implode("\n", $aTrace);
+	}
+
+//	echo "\n\e[0;33mBeware of the version colored in orange, they probably introduce BC breaks!\e[0m\n";
+	echo $sOutput;
+}
