@@ -142,10 +142,7 @@ if ($aParams['synthesis'] == true)
 
 		if (! $aParams['human-readable'] )
 		{
-			echo sprintf(
-				"Type '%s' for more details\n\n",
-				$argv[0].' --human-readable'
-			);
+			echo "Type 'php {$argv[0]} --human-readable' for more details\n\n";
 		}
 
 	}
