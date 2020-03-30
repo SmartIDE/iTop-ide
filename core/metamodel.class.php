@@ -125,6 +125,12 @@ abstract class MetaModel
 	private static $m_aClassToFile = array();
 	/** @var string */
 	protected static $m_sEnvironment = 'production';
+	/** @var string[] */
+	private static $aAutoloadClassPath;
+	/** @var string[] */
+	private static $aClassHierarchy;
+
+	private static $m_aClassParamsComputedAndCached;
 
 	/**
 	 * @return array
@@ -181,6 +187,7 @@ abstract class MetaModel
 		// See also IsValidClass()... ???? #@#
 		// class is mandatory
 		// (it is not possible to guess it when called as myderived::...)
+		self::LoadClass($sClass);
 		if (!array_key_exists($sClass, self::$m_aClassParams))
 		{
 			throw new CoreException("Unknown class '$sClass'");
@@ -301,6 +308,7 @@ abstract class MetaModel
 	 */
 	static public function GetParentPersistentClass($sRefClass)
 	{
+		self::LoadClass($sRefClass);
 		$sClass = get_parent_class($sRefClass);
 		if (!$sClass)
 		{
@@ -313,6 +321,7 @@ abstract class MetaModel
 		} // Warning: __CLASS__ is lower case in my version of PHP
 
 		// Note: the UI/business model may implement pure PHP classes (intermediate layers)
+		self::LoadClass($sClass);
 		if (array_key_exists($sClass, self::$m_aClassParams))
 		{
 			return $sClass;
@@ -342,6 +351,7 @@ abstract class MetaModel
 	 */
 	final static public function GetName_Obsolete($sClass)
 	{
+		self::LoadClass($sClass);
 		// Written for compatibility with a data model written prior to version 0.9.1
 		self::_check_subclass($sClass);
 		if (array_key_exists('name', self::$m_aClassParams[$sClass]))
@@ -393,6 +403,7 @@ abstract class MetaModel
 	 */
 	final static public function GetCategory($sClass)
 	{
+		self::LoadClass($sClass);
 		self::_check_subclass($sClass);
 		return self::$m_aClassParams[$sClass]["category"];
 	}
@@ -406,6 +417,7 @@ abstract class MetaModel
 	 */
 	final static public function HasCategory($sClass, $sCategory)
 	{
+		self::LoadClass($sClass);
 		self::_check_subclass($sClass);
 		return (strpos(self::$m_aClassParams[$sClass]["category"], $sCategory) !== false);
 	}
@@ -432,6 +444,7 @@ abstract class MetaModel
 	 */
 	final static public function GetClassDescription_Obsolete($sClass)
 	{
+		self::LoadClass($sClass);
 		// Written for compatibility with a data model written prior to version 0.9.1
 		self::_check_subclass($sClass);
 		if (array_key_exists('description', self::$m_aClassParams[$sClass]))
@@ -454,6 +467,7 @@ abstract class MetaModel
 	 */
 	final static public function GetClassIcon($sClass, $bImgTag = true, $sMoreStyles = '')
 	{
+		self::LoadClass($sClass);
 		self::_check_subclass($sClass);
 
 		$sIcon = '';
@@ -486,6 +500,7 @@ abstract class MetaModel
 	 */
 	final static public function IsAutoIncrementKey($sClass)
 	{
+		self::LoadClass($sClass);
 		self::_check_subclass($sClass);
 		return (self::$m_aClassParams[$sClass]["key_type"] == "autoincrement");
 	}
@@ -548,6 +563,7 @@ abstract class MetaModel
 	 */
 	final public static function GetUniquenessRules($sClass, $bClassDefinitionOnly = false)
 	{
+		self::LoadClass($sClass);
 		if (!isset(self::$m_aClassParams[$sClass]))
 		{
 			return array();
@@ -623,6 +639,7 @@ abstract class MetaModel
 	final public static function GetRootClassForUniquenessRule($sRuleId, $sLeafClassName)
 	{
 		$sFirstClassWithRuleId = null;
+		self::LoadClass($sLeafClassName);
 		if (isset(self::$m_aClassParams[$sLeafClassName]['uniqueness_rules'][$sRuleId]))
 		{
 			$sFirstClassWithRuleId = $sLeafClassName;
@@ -652,6 +669,7 @@ abstract class MetaModel
 	 */
 	final public static function GetChildClassesWithDisabledUniquenessRule($sRootClass, $sRuleId)
 	{
+		self::LoadClass($sRootClass);
 		$aClassesWithDisabledRule = array();
 		foreach (self::EnumChildClasses($sRootClass, ENUM_CHILD_CLASSES_EXCLUDETOP) as $sChildClass)
 		{
@@ -709,6 +727,7 @@ abstract class MetaModel
 	 */
 	final static public function GetNameSpec($sClass)
 	{
+		self::LoadClass($sClass);
 		self::_check_subclass($sClass);
 		$nameRawSpec = self::$m_aClassParams[$sClass]["name_attcode"];
 		if (is_array($nameRawSpec))
@@ -2825,11 +2844,12 @@ abstract class MetaModel
 	 */
 	public static function InitClasses($sTablePrefix)
 	{
+
 		if (count(self::GetClasses()) > 0)
 		{
 			throw new CoreException("InitClasses should not be called more than once -skipped");
 		}
-
+		self::LoadAllClasses();
 		self::$m_sTablePrefix = $sTablePrefix;
 
 		// Build the list of available extensions
@@ -2889,12 +2909,21 @@ abstract class MetaModel
 							throw new Exception("$sPHPClass must be archivable (consistency throughout the whole class tree is a must)");
 						}
 						$bReallyArchivable = $bParentArchivable || $bArchivable;
-						self::$m_aClassParams[$sPHPClass]['archive'] = $bReallyArchivable;
+						self::$m_aClassParams[$sPHPClass]['archive'] =
+							self::$m_aClassParamsComputedAndCached[$sPHPClass]['archive'] =
+								$bReallyArchivable
+						;
 						$bArchiveRoot = $bReallyArchivable && !$bParentArchivable;
-						self::$m_aClassParams[$sPHPClass]['archive_root'] = $bArchiveRoot;
+						self::$m_aClassParams[$sPHPClass]['archive_root'] =
+							self::$m_aClassParamsComputedAndCached[$sPHPClass]['archive_root'] =
+								$bArchiveRoot
+						;
 						if ($bReallyArchivable)
 						{
-							self::$m_aClassParams[$sPHPClass]['archive_root_class'] = $bArchiveRoot ? $sPHPClass : self::$m_aClassParams[$sParent]['archive_root_class'];
+							self::$m_aClassParams[$sPHPClass]['archive_root_class'] =
+								self::$m_aClassParamsComputedAndCached[$sPHPClass]['archive_root_class'] =
+									$bArchiveRoot ? $sPHPClass : self::$m_aClassParams[$sParent]['archive_root_class']
+							;
 						}
 
 						// Inherit obsolescence expression
@@ -2910,7 +2939,10 @@ abstract class MetaModel
 							// Inherited
 							$sObsolescence = self::$m_aClassParams[$sParent]['obsolescence_expression'];
 						}
-						self::$m_aClassParams[$sPHPClass]['obsolescence_expression'] = $sObsolescence;
+						self::$m_aClassParams[$sPHPClass]['obsolescence_expression'] =
+							self::$m_aClassParamsComputedAndCached[$sPHPClass]['obsolescence_expression'] =
+								$sObsolescence
+						;
 
 						foreach(MetaModel::EnumPlugins('iOnClassInitialization') as $sPluginClass => $oClassInit)
 						{
@@ -2962,7 +2994,10 @@ abstract class MetaModel
 			if (strlen($sDbFinalClassField) == 0)
 			{
 				$sDbFinalClassField = 'finalclass';
-				self::$m_aClassParams[$sRootClass]["db_finalclass_field"] = 'finalclass';
+				self::$m_aClassParams[$sRootClass]["db_finalclass_field"] =
+					self::$m_aClassParamsComputedAndCached[$sRootClass]["db_finalclass_field"] =
+						'finalclass'
+				;
 			}
 			$oClassAtt = new AttributeFinalClass('finalclass', array(
 				"sql" => $sDbFinalClassField,
@@ -2975,7 +3010,10 @@ abstract class MetaModel
 			$bObsoletable = array_key_exists($sRootClass, $aObsoletableRootClasses);
 			if ($bObsoletable && is_null(self::$m_aClassParams[$sRootClass]['obsolescence_expression']))
 			{
-				self::$m_aClassParams[$sRootClass]['obsolescence_expression'] = '0';
+				self::$m_aClassParams[$sRootClass]['obsolescence_expression'] =
+					self::$m_aClassParamsComputedAndCached[$sRootClass]['obsolescence_expression'] =
+						'0'
+				;
 			}
 
 
@@ -2995,7 +3033,10 @@ abstract class MetaModel
 
 				if ($bObsoletable && is_null(self::$m_aClassParams[$sChildClass]['obsolescence_expression']))
 				{
-					self::$m_aClassParams[$sChildClass]['obsolescence_expression'] = '0';
+					self::$m_aClassParams[$sChildClass]['obsolescence_expression'] =
+						self::$m_aClassParamsComputedAndCached[$sRootClass]['obsolescence_expression']  =
+							'0'
+					;
 				}
 			}
 		}
@@ -6398,7 +6439,9 @@ abstract class MetaModel
 				self::$m_aRootClasses = $result['m_aRootClasses'];
 				self::$m_aParentClasses = $result['m_aParentClasses'];
 				self::$m_aChildClasses = $result['m_aChildClasses'];
-				self::$m_aClassParams = $result['m_aClassParams'];
+//				self::$m_aClassParams = $result['m_aClassParams'];
+				self::$m_aClassParams = array();
+				self::$m_aClassParamsComputedAndCached = $result['m_aClassParamsComputedAndCached'];
 				self::$m_aAttribDefs = $result['m_aAttribDefs'];
 				self::$m_aAttribOrigins = $result['m_aAttribOrigins'];
 				self::$m_aIgnoredAttributes = $result['m_aIgnoredAttributes'];
@@ -6435,7 +6478,8 @@ abstract class MetaModel
 				$aCache['m_aRootClasses'] = self::$m_aRootClasses; // array of "classname" => "rootclass"
 				$aCache['m_aParentClasses'] = self::$m_aParentClasses; // array of ("classname" => array of "parentclass") 
 				$aCache['m_aChildClasses'] = self::$m_aChildClasses; // array of ("classname" => array of "childclass")
-				$aCache['m_aClassParams'] = self::$m_aClassParams; // array of ("classname" => array of class information)
+//				$aCache['m_aClassParams'] = self::$m_aClassParams; // array of ("classname" => array of class information)
+				$aCache['m_aClassParamsComputedAndCached'] = self::$m_aClassParamsComputedAndCached;// array of ("classname" => array of class information computed during the InitClasses())
 				$aCache['m_aAttribDefs'] = self::$m_aAttribDefs; // array of ("classname" => array of attributes)
 				$aCache['m_aAttribOrigins'] = self::$m_aAttribOrigins; // array of ("classname" => array of ("attcode"=>"sourceclass"))
 				$aCache['m_aIgnoredAttributes'] = self::$m_aIgnoredAttributes; //array of ("classname" => array of ("attcode")
@@ -7584,6 +7628,49 @@ abstract class MetaModel
 
 		return $aRequests;
 	}
+
+	public static function SetAutoloadClassPath($aAutoloadClassPath)
+	{
+		self::$aAutoloadClassPath = $aAutoloadClassPath;
+	}
+
+	public static function SetClassHierarchy($aClassHierarchy)
+	{
+		self::$aClassHierarchy = $aClassHierarchy;
+	}
+
+	private static function LoadAllClasses()
+	{
+		$aMissingClass = array_diff_key((array)self::$aAutoloadClassPath, (array)self::$m_aClassParams);
+		foreach ($aMissingClass as $sClass => $sPath)
+		{
+			self::LoadClass($sClass);
+		}
+	}
+
+	private static function LoadClass($sClass)
+	{
+		if (self::CanLoadClass($sClass))
+		{
+			if (isset(self::$aClassHierarchy[$sClass]['extends']))
+			{
+				self::LoadClass(self::$aClassHierarchy[$sClass]['extends']);
+			}
+
+			require_once(self::$aAutoloadClassPath[$sClass]);
+			$sClass::Init();
+			if (isset(self::$m_aClassParamsComputedAndCached[$sClass]))
+			{
+				array_merge_recursive(self::$m_aClassParams[$sClass], self::$m_aClassParamsComputedAndCached[$sClass]);
+			}
+		}
+	}
+
+	private static function CanLoadClass($sClass)
+	{
+		return array_key_exists($sClass, (array)self::$aAutoloadClassPath) && !class_exists($sClass);
+	}
+
 }
 
 
