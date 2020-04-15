@@ -351,6 +351,11 @@ class utils
 
 					}
 				}
+			break;
+
+			// For XML / HTML node identifiers
+			case 'element_identifier':
+				$retValue = preg_replace('/[^a-zA-Z0-9_]/', '', $value);
 				break;
 
 			default:
@@ -1471,6 +1476,17 @@ class utils
 	static public function HtmlEntities($sValue)
 	{
 		return htmlentities($sValue, ENT_QUOTES, 'UTF-8');
+	}
+
+	/**
+	 * Helper to encapsulation iTop's html_entity_decode
+	 * @param string $sValue
+	 * @return string
+	 * @since 2.7.0
+	 */
+	public static function HtmlEntityDecode($sValue)
+	{
+		return html_entity_decode($sValue, ENT_QUOTES, 'UTF-8');
 	}
 
 	/**
