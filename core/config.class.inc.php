@@ -95,6 +95,14 @@ class Config
 	 * @since 2.5 db* variables
 	 */
 	protected $m_aSettings = array(
+        'log_level_min' => array(
+            'type' => 'array',
+            'description' => 'min log level',
+            'default' => 'Ok',
+            'value' => 'Ok',
+            'source_of_value' => '',
+            'show_in_conf_sample' => false,
+        ),
 		'app_env_label' => array(
 			'type' => 'string',
 			'description' => 'Label displayed to describe the current application environment, defaults to the environment name (e.g. "production")',
