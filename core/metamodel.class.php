@@ -6452,26 +6452,30 @@ abstract class MetaModel
 
 			if (is_array($result))
 			{
+				$sRootCacheDir = apcFile::GetCacheFileName($sOqlAPCCacheId.'-m_aAttribDefs');
+				include "$sRootCacheDir";
+
 				// todo - verifier que toutes les classes mentionnees ici sont chargees dans InitClasses()
-				self::$m_aExtensionClasses = $result['m_aExtensionClasses'];
-				self::$m_Category2Class = $result['m_Category2Class'];
-				self::$m_aRootClasses = $result['m_aRootClasses'];
-				self::$m_aParentClasses = $result['m_aParentClasses'];
-				self::$m_aChildClasses = $result['m_aChildClasses'];
-				self::$m_aClassParams = $result['m_aClassParams'];
-				self::$m_aAttribDefs = $result['m_aAttribDefs'];
-				self::$m_aAttribOrigins = $result['m_aAttribOrigins'];
-				self::$m_aIgnoredAttributes = $result['m_aIgnoredAttributes'];
-				self::$m_aFilterDefs = $result['m_aFilterDefs'];
-				self::$m_aFilterOrigins = $result['m_aFilterOrigins'];
-				self::$m_aListInfos = $result['m_aListInfos'];
-				self::$m_aListData = $result['m_aListData'];
-				self::$m_aRelationInfos = $result['m_aRelationInfos'];
-				self::$m_aStates = $result['m_aStates'];
-				self::$m_aStimuli = $result['m_aStimuli'];
-				self::$m_aTransitions = $result['m_aTransitions'];
-				self::$m_aHighlightScales = $result['m_aHighlightScales'];
+				//self::$m_Category2Class = $result['m_Category2Class'];
+				//self::$m_aRootClasses = $result['m_aRootClasses'];
+				//self::$m_aParentClasses = $result['m_aParentClasses'];
+				//self::$m_aChildClasses = $result['m_aChildClasses'];
+				//self::$m_aClassParams = $result['m_aClassParams'];
+				//self::$m_aAttribOrigins = $result['m_aAttribOrigins'];
+				//self::$m_aIgnoredAttributes = $result['m_aIgnoredAttributes'];
+				//self::$m_aFilterOrigins = $result['m_aFilterOrigins'];
+				//self::$m_aListInfos = $result['m_aListInfos'];
+//				self::$m_aListData = $result['m_aListData'];
+//				self::$m_aRelationInfos = $result['m_aRelationInfos'];
+//				self::$m_aStates = $result['m_aStates'];
+//				self::$m_aTransitions = $result['m_aTransitions'];
+//				self::$m_aHighlightScales = $result['m_aHighlightScales'];
+
 				self::$m_aEnumToMeta = $result['m_aEnumToMeta'];
+				self::$m_aExtensionClasses = $result['m_aExtensionClasses'];
+				self::$m_aAttribDefs = $result['m_aAttribDefs'];
+				self::$m_aFilterDefs = $result['m_aFilterDefs'];
+				self::$m_aStimuli = $result['m_aStimuli'];
 			}
 			$oKPI->ComputeAndReport('Metamodel APC (fetch + read)');
 		}
@@ -6489,26 +6493,47 @@ abstract class MetaModel
 			{
 				$oKPI = new ExecutionKPI();
 
+				$aVars = array('m_Category2Class', 'm_aRootClasses', 'm_aParentClasses', 'm_aChildClasses','m_aClassParams', 'm_aAttribOrigins', 'm_aIgnoredAttributes',
+					'm_aFilterOrigins', 'm_aListInfos',
+					'm_aListInfos',
+					'm_aListData',
+					'm_aRelationInfos',
+					'm_aStates',
+					'm_aTransitions',
+					'm_aHighlightScales',
+					);
+
+				$sRootCacheDir = apcFile::GetCacheFileName($sOqlAPCCacheId.'-m_aAttribDefs');
+				$sPath = dirname($sRootCacheDir);
+				@mkdir($sPath, 0777, true);
+				$sCacheAttribDefs = "<?php\n";
+				foreach ($aVars as $sVar)
+				{
+					$sCacheAttribDefs .= "self::\${$sVar} = ".var_export(self::${$sVar}, true).";\n";
+				}
+				file_put_contents($sRootCacheDir, $sCacheAttribDefs, LOCK_EX);
+
 				$aCache = array();
-				$aCache['m_aExtensionClasses'] = self::$m_aExtensionClasses;
-				$aCache['m_Category2Class'] = self::$m_Category2Class;
-				$aCache['m_aRootClasses'] = self::$m_aRootClasses; // array of "classname" => "rootclass"
-				$aCache['m_aParentClasses'] = self::$m_aParentClasses; // array of ("classname" => array of "parentclass") 
-				$aCache['m_aChildClasses'] = self::$m_aChildClasses; // array of ("classname" => array of "childclass")
-				$aCache['m_aClassParams'] = self::$m_aClassParams; // array of ("classname" => array of class information)
-				$aCache['m_aAttribDefs'] = self::$m_aAttribDefs; // array of ("classname" => array of attributes)
-				$aCache['m_aAttribOrigins'] = self::$m_aAttribOrigins; // array of ("classname" => array of ("attcode"=>"sourceclass"))
-				$aCache['m_aIgnoredAttributes'] = self::$m_aIgnoredAttributes; //array of ("classname" => array of ("attcode")
-				$aCache['m_aFilterDefs'] = self::$m_aFilterDefs; // array of ("classname" => array filterdef)
-				$aCache['m_aFilterOrigins'] = self::$m_aFilterOrigins; // array of ("classname" => array of ("attcode"=>"sourceclass"))
-				$aCache['m_aListInfos'] = self::$m_aListInfos; // array of ("listcode" => various info on the list, common to every classes)
-				$aCache['m_aListData'] = self::$m_aListData; // array of ("classname" => array of "listcode" => list)
-				$aCache['m_aRelationInfos'] = self::$m_aRelationInfos; // array of ("relcode" => various info on the list, common to every classes)
-				$aCache['m_aStates'] = self::$m_aStates; // array of ("classname" => array of "statecode"=>array('label'=>..., attribute_inherit=> attribute_list=>...))
-				$aCache['m_aStimuli'] = self::$m_aStimuli; // array of ("classname" => array of ("stimuluscode"=>array('label'=>...)))
-				$aCache['m_aTransitions'] = self::$m_aTransitions; // array of ("classname" => array of ("statcode_from"=>array of ("stimuluscode" => array('target_state'=>..., 'actions'=>array of handlers procs, 'user_restriction'=>TBD)))
-				$aCache['m_aHighlightScales'] = self::$m_aHighlightScales; // array of ("classname" => array of higlightcodes)))
+				//$aCache['m_Category2Class'] = self::$m_Category2Class;
+				//$aCache['m_aRootClasses'] = self::$m_aRootClasses; // array of "classname" => "rootclass"
+				//$aCache['m_aParentClasses'] = self::$m_aParentClasses; // array of ("classname" => array of "parentclass")
+				//$aCache['m_aChildClasses'] = self::$m_aChildClasses; // array of ("classname" => array of "childclass")
+				//$aCache['m_aClassParams'] = self::$m_aClassParams; // array of ("classname" => array of class information)
+				//$aCache['m_aAttribOrigins'] = self::$m_aAttribOrigins; // array of ("classname" => array of ("attcode"=>"sourceclass"))
+				//$aCache['m_aIgnoredAttributes'] = self::$m_aIgnoredAttributes; //array of ("classname" => array of ("attcode")
+				//$aCache['m_aFilterOrigins'] = self::$m_aFilterOrigins; // array of ("classname" => array of ("attcode"=>"sourceclass"))
+				//$aCache['m_aListInfos'] = self::$m_aListInfos; // array of ("listcode" => various info on the list, common to every classes)
+//				$aCache['m_aListData'] = self::$m_aListData; // array of ("classname" => array of "listcode" => list)
+//				$aCache['m_aRelationInfos'] = self::$m_aRelationInfos; // array of ("relcode" => various info on the list, common to every classes)
+//				$aCache['m_aStates'] = self::$m_aStates; // array of ("classname" => array of "statecode"=>array('label'=>..., attribute_inherit=> attribute_list=>...))
+//				$aCache['m_aTransitions'] = self::$m_aTransitions; // array of ("classname" => array of ("statcode_from"=>array of ("stimuluscode" => array('target_state'=>..., 'actions'=>array of handlers procs, 'user_restriction'=>TBD)))
+//				$aCache['m_aHighlightScales'] = self::$m_aHighlightScales; // array of ("classname" => array of higlightcodes)))
+
 				$aCache['m_aEnumToMeta'] = self::$m_aEnumToMeta;
+				$aCache['m_aExtensionClasses'] = self::$m_aExtensionClasses;
+				$aCache['m_aAttribDefs'] = self::$m_aAttribDefs; // array of ("classname" => array of attributes)
+				$aCache['m_aFilterDefs'] = self::$m_aFilterDefs; // array of ("classname" => array filterdef)
+				$aCache['m_aStimuli'] = self::$m_aStimuli; // array of ("classname" => array of ("stimuluscode"=>array('label'=>...)))
 				apc_store($sOqlAPCCacheId, $aCache);
 				$oKPI->ComputeAndReport('Metamodel APC (store)');
 			}
