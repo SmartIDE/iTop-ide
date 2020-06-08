@@ -38,6 +38,19 @@ interface iProcess
 }
 
 /**
+ * Have your iProcess implement this interface if the process must run exclusively of all other background processes
+ * For example: the backup of the database must run only when all other background processes are stopped
+ *
+ */
+interface iGloballyExclusiveProcess
+{
+	/**
+	 * @return int The maximum number of seconds to wait for the other tasks to complete before aborting the task
+	 */
+	public function MaxWaitDelay();
+}
+
+/**
  * interface iBackgroundProcess
  * Any extension that must be called regularly to be executed in the background 
  *
@@ -262,5 +275,13 @@ class ProcessInvalidConfigException extends ProcessException
  * A big error occurred, we have to stop the iProcess processing.
  */
 class ProcessFatalException extends CoreException
+{
+}
+
+/**
+ * This exception is thrown when we cannot stop all other tasks (to run a globally exclusive process)
+ * within the given MaxWaitDelay delay
+ */
+class ProcessExclusiveTaskException extends Exception
 {
 }

@@ -1249,6 +1249,14 @@ class Config
 			'source_of_value' => '',
 			'show_in_conf_sample' => false,
 		),
+		'cron_tasks_list' => array(
+			'type' => 'array',
+			'description' => 'Lists of background tasks to run in parallel',
+			'default' => array(),
+			'value' => array(),
+			'source_of_value' => '',
+			'show_in_conf_sample' => false,
+		),
 	);
 
 
