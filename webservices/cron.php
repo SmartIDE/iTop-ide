@@ -34,6 +34,8 @@ require_once(APPROOT.'/application/nicewebpage.class.inc.php');
 require_once(APPROOT.'/application/webpage.class.inc.php');
 require_once(APPROOT.'/application/clipage.class.inc.php');
 require_once(APPROOT.'/core/background.inc.php');
+require_once(APPROOT.'/webservices/crontask.class.inc.php');
+
 
 $sConfigFile = APPCONF.ITOP_DEFAULT_ENV.'/'.ITOP_CONFIG_FILE;
 if (!file_exists($sConfigFile))
@@ -65,7 +67,7 @@ function UsageAndExit($oP)
 	if ($bModeCLI)
 	{
 		$oP->p("USAGE:\n");
-		$oP->p("php cron.php --auth_user=<login> --auth_pwd=<password> [--param_file=<file>] [--verbose=1] [--debug=1] [--status_only=1]\n");
+		$oP->p("php cron.php --auth_user=<login> --auth_pwd=<password> [--tasks_list=<task_list_name>] [--param_file=<file>] [--verbose=1] [--debug=1] [--status_only=1]\n");
 	}
 	else
 	{
@@ -85,8 +87,27 @@ function UsageAndExit($oP)
  * @throws \ProcessFatalException
  * @throws MySQLHasGoneAwayException
  */
-function RunTask($oProcess, BackgroundTask $oTask, $oStartDate, $iTimeLimit)
+function RunTask(Page $oP, $oProcess, BackgroundTask $oTask, $oStartDate, $iTimeLimit)
 {
+	$oGloballyExclusiveMutex = new iTopMutex('cron-globally-exclusive-process');
+	$oGloballyExclusiveMutex->Lock();
+	if (!CronTask::IsGloballyExclusive($oProcess))
+	{
+		$oGloballyExclusiveMutex->Unlock();
+	}
+	else
+	{
+		$iMaxDelay = $oProcess->MaxWaitDelay();
+		$oP->p('Waiting (up to '.$iMaxDelay.' seconds) for all other tasks to complete before executing '.get_class($oProcess).'...');
+		$bAllStopped = CronTask::WaitForAllTasksToComplete($oTask, $iMaxDelay);
+		if (!$bAllStopped)
+		{
+			// Not all background tasks where stopped after the given delay, abort
+			$oP->p('WARNING: Some tasks were still marked as running after waiting '.$iMaxDelay.' seconds. Skipping '.get_class($oProcess).' for now.');
+			throw new ProcessExclusiveTaskException(get_class($oProcess));
+		}
+		$oP->p('Ok, all other tasks are stopped. Proceeding with '.get_class($oProcess).'...');
+	}
 	$oDateStarted = new DateTime();
 	$fStart = microtime(true);
 	$oCtx = new ContextTag('CRON:Task:'.$oTask->Get('class_name'));
@@ -99,6 +120,7 @@ function RunTask($oProcess, BackgroundTask $oTask, $oStartDate, $iTimeLimit)
 		$oTask->Set('latest_run_date', $oDateStarted->format('Y-m-d H:i:s'));
 		// Record the current user running the cron
 		$oTask->Set('system_user', utils::GetCurrentUserName());
+		$oTask->Set('running', true);
 		$oTask->DBUpdate();
 		$sMessage = $oProcess->Process($iTimeLimit);
 	}
@@ -114,6 +136,15 @@ function RunTask($oProcess, BackgroundTask $oTask, $oStartDate, $iTimeLimit)
 	{
 		$sMessage = 'Processing failed with message: '.$e->getMessage();
 	}
+	finally
+	{
+		if (CronTask::IsGloballyExclusive($oProcess))
+		{
+			$oP->p('End of execution of '.get_class($oProcess).', releasing the mutex...');
+			$oGloballyExclusiveMutex->Unlock();
+		}
+	}
+	
 	$fDuration = microtime(true) - $fStart;
 	if ($oTask->Get('total_exec_count') == 0)
 	{
@@ -148,6 +179,7 @@ function RunTask($oProcess, BackgroundTask $oTask, $oStartDate, $iTimeLimit)
 	}
 
 	$oTask->Set('next_run_date', $oPlannedStart->format('Y-m-d H:i:s'));
+	$oTask->Set('running', false);
 	$oTask->DBUpdate();
 
 	if ($oExceptionToThrow)
@@ -184,39 +216,42 @@ function CronExec($oP, $aProcesses, $bVerbose)
 	while ($oTask = $oTasks->Fetch())
 	{
 		$sTaskClass = $oTask->Get('class_name');
-		// The BackgroundTask can point to a non existing class : this could happen for example if an extension has been removed
-		// we could also try/catch when instanciating ReflectionClass, but sometimes old recipes are good too ;)
-		if (!class_exists($sTaskClass))
+		if (array_key_exists($sTaskClass, $aProcesses)) // Process only the specified tasks
 		{
-			if ($oTask->Get('status') == 'active')
+			// The BackgroundTask can point to a non existing class : this could happen for example if an extension has been removed
+			// we could also try/catch when instanciating ReflectionClass, but sometimes old recipes are good too ;)
+			if (!class_exists($sTaskClass))
 			{
-				$oP->p("ERROR : the background task was paused because it references the non existing class '$sTaskClass'");
-
-				$oTask->Set('status', 'paused');
+				if ($oTask->Get('status') == 'active')
+				{
+					$oP->p("ERROR : the background task was paused because it references the non existing class '$sTaskClass'");
+	
+					$oTask->Set('status', 'paused');
+					$oTask->DBUpdate();
+				}
+	
+				continue;
+			}
+	
+			$oRefClass = new ReflectionClass($sTaskClass);
+			if (!$oRefClass->implementsInterface('iScheduledProcess'))
+			{
+				continue;
+			}
+	
+			$oNow = new DateTime();
+			if (($oTask->Get('status') != 'active')
+				|| ($oTask->Get('next_run_date') > $oNow->format('Y-m-d H:i:s')))
+			{
+				if ($bVerbose)
+				{
+					$oP->p("Resetting the next run date for $sTaskClass");
+				}
+				$oProcess = $aProcesses[$sTaskClass];
+				$oNextOcc = $oProcess->GetNextOccurrence();
+				$oTask->Set('next_run_date', $oNextOcc->format('Y-m-d H:i:s'));
 				$oTask->DBUpdate();
 			}
-
-			continue;
-		}
-
-		$oRefClass = new ReflectionClass($sTaskClass);
-		if (!$oRefClass->implementsInterface('iScheduledProcess'))
-		{
-			continue;
-		}
-
-		$oNow = new DateTime();
-		if (($oTask->Get('status') != 'active')
-			|| ($oTask->Get('next_run_date') > $oNow->format('Y-m-d H:i:s')))
-		{
-			if ($bVerbose)
-			{
-				$oP->p("Resetting the next run date for $sTaskClass");
-			}
-			$oProcess = $aProcesses[$sTaskClass];
-			$oNextOcc = $oProcess->GetNextOccurrence();
-			$oTask->Set('next_run_date', $oNextOcc->format('Y-m-d H:i:s'));
-			$oTask->DBUpdate();
 		}
 	}
 
@@ -284,12 +319,14 @@ function CronExec($oP, $aProcesses, $bVerbose)
 				}
 				try
 				{
-					$sMessage = RunTask($oProcess, $aTasks[$sTaskClass], $oNow, $iTimeLimit);
-				} catch (MySQLHasGoneAwayException $e)
+					$sMessage = RunTask($oP, $oProcess, $aTasks[$sTaskClass], $oNow, $iTimeLimit);
+				}
+				catch (MySQLHasGoneAwayException $e)
 				{
 					$oP->p("ERROR : 'MySQL has gone away' thrown when processing $sTaskClass  (error_code=".$e->getCode().")");
 					exit(EXIT_CODE_FATAL);
-				} catch (ProcessFatalException $e)
+				}
+				catch (ProcessFatalException $e)
 				{
 					$oP->p("ERROR : an exception was thrown when processing '$sTaskClass' (".$e->getInfoLog().")");
 					IssueLog::Error("Cron.php error : an exception was thrown when processing '$sTaskClass' (".$e->getInfoLog().')');
@@ -470,6 +507,62 @@ function ReorderProcesses(&$aProcesses, $aTasks, $oNow, $bVerbose, &$oP)
 	$aProcesses = $aReorderedProcesses;
 }
 
+/**
+ * Extract the list (as an array) from te comma separated list (trimming optional spaces)
+ * @param string $sTasksList Comma separated list of background process classes
+ * @return string[]
+ */
+function GetTasksFromTasksList($sTasksList)
+{
+	$aTasks = explode(',', $sTasksList);
+	foreach($aTasks as $idx => $sTaskName)
+	{
+		$aTasks[$idx] = trim($sTaskName);
+	}
+	return $aTasks;
+}
+
+/**
+ * Filter the list of processes, retaining only the ones listed in the supplied "tasks list"
+ * @param iBackgroundProcess[] $aProcesses
+ * @param string $sTasksList
+ * @return iBackgroundProcess[]
+ */
+function GetProcessesList($aProcesses, $sTasksList)
+{
+	$aTasks = GetTasksFromTasksList($sTasksList);
+	foreach($aProcesses as $sProcessName => $void)
+	{
+		if (!in_array($sProcessName, $aTasks))
+		{
+			unset($aProcesses[$sProcessName]);
+		}
+	}
+	return $aProcesses;
+}
+
+/**
+ * Filter the list of processes, retaining only the ones NOT listed in any supplied "tasks list"
+ * @param iBackgroundProcess[] $aProcesses
+ * @param CronTask[] $aAllTask
+ * @return iBackgroundProcess[]
+ */
+function GetRemainingProcessesList($aProcesses, $aAllTask)
+{
+	foreach($aAllTask as $oTask)
+	{
+		$aBackgroundProcesses = $oTask->GetProcessNames();
+		foreach($aBackgroundProcesses as $sBackgroundProcessClass)
+		{
+			if (array_key_exists($sBackgroundProcessClass, $aProcesses))
+			{
+				unset($aProcesses[$sBackgroundProcessClass]);
+			}
+		}
+	}
+	return $aProcesses;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Main
@@ -552,6 +645,44 @@ foreach (get_declared_classes() as $sPHPClass)
 
 $bVerbose = utils::ReadParam('verbose', false, true /* Allow CLI */);
 $bDebug = utils::ReadParam('debug', false, true /* Allow CLI */);
+$sTaskName = utils::ReadParam('task_name', '', true /* Allow CLI */);
+$aAllTask = CronTask::LoadAllTasks();
+$sMutexName = 'cron';
+if ($sTaskName != '')
+{
+	if (!array_key_exists($sTaskName, $aAllTask))
+	{
+		$oP->p("ERROR: '".$sTaskName."' is not a valid entry in the configuration array 'cron_tasks_lists'.");
+		exit -1;
+	}
+	$sMutexName = 'cron-'.$sTaskName;
+	$aProcesses = $aAllTask[$sTaskName]->GetProcessList($aProcesses);
+}
+else
+{
+	// Cleanup in case of dirty stop or crash
+	CronTask::MarkAllActiveTasksAsStopped();
+
+	// Launch one separate instance of cron.php for each "tasks list"
+	foreach($aAllTask as $sTaskName => $oTask)
+	{
+		$oP->p("Info: starting another cron instance for task_list '$sTaskName'.");
+
+		// TODO properly handle the (optional) param file instead of hard-coding the user/pwd here !!
+		$aInheritedParams = array(
+			'auth_user' => $sAuthUser,
+			'auth_pwd' => $sAuthPwd,
+			'verbose' => $bVerbose,
+			'debug' => $bDebug,
+		);
+		$sCmd = $oTask->GetCommandLine($aInheritedParams);
+		$oP->p("Info: the command line is: '$sCmd'.");
+
+		$oTask->Start($aInheritedParams); // Here we go
+	}
+	// The main cron process handles all the tasks not handled by the sub processes
+	$aProcesses = GetRemainingProcessesList($aProcesses, $aAllTask);
+}
 
 if ($bVerbose)
 {
@@ -576,15 +707,17 @@ $oP->p("Starting: ".time().' ('.date('Y-m-d H:i:s').')');
 try
 {
 	$oConfig = utils::GetConfig();
-	$oMutex = new iTopMutex('cron');
+	$oP->p("About to check the mutex $sMutexName");
 	if (!MetaModel::DBHasAccess(ACCESS_ADMIN_WRITE))
 	{
 		$oP->p("A maintenance is ongoing");
 	}
 	else
 	{
+		$oMutex = new iTopMutex($sMutexName);
 		if ($oMutex->TryLock())
 		{
+			$oP->p("Ok, inside the $sMutexName");
 			CronExec($oP, $aProcesses, $bVerbose);
 		}
 		else
