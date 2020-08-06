@@ -506,7 +506,7 @@ EOF
 	}
 
 	/**
-	 * @param \WebPage $oPage
+	 * @param \iTopWebPage $oPage
 	 * @param bool $bEditMode
 	 *
 	 * @throws \CoreException
@@ -686,6 +686,8 @@ EOF
 					$aAttCodesToDisplay = array_merge($aLnkAttCodesToDisplay, $aRemoteAttCodesToDisplay);
 					$sAttCodesToDisplay = implode(',', $aAttCodesToDisplay);
 
+					//FIXME add JS script to handle button clicks
+					//FIXME add something for the "+" icon !
 					$aParams = array(
 						'link_attr' => $oAttDef->GetExtKeyToMe(),
 						'object_id' => $this->GetKey(),
@@ -699,6 +701,7 @@ EOF
 						// N°2334 specify fields to display for n:n relations
 						'zlist' => false,
 						'extra_fields' => $sAttCodesToDisplay,
+						'select_mode' => 'popup', // N°3136 edit relation using popups
 					);
 				}
 				$oPage->p(MetaModel::GetClassIcon($sTargetClass)."&nbsp;".$oAttDef->GetDescription());
@@ -1302,6 +1305,7 @@ HTML
 	 *          <li>display_aliases : list of query aliases that will be printed, defaults to [] (displays all)
 	 *          <li>zlist : name of the zlist to use, false to disable zlist lookup, default to 'list'
 	 *          <li>extra_fields : list of <alias>.<attcode> to add to the result, separator ',', defaults to empty string
+	 *          <li>select_mode : parameter for DataTable::Display
 	 *      </ul>
 	 *
 	 * @return string
@@ -1330,12 +1334,13 @@ HTML
 		$aDisplayAliases = isset($aExtraParams['display_aliases']) ? explode(',',
 			$aExtraParams['display_aliases']) : array();
 		$sZListName = isset($aExtraParams['zlist']) ? ($aExtraParams['zlist']) : 'list';
+		$sSelectMode = isset($aExtraParams['select_mode']) ? ($aExtraParams['select_mode']) : 'none';
 
 		$aExtraFieldsRaw = isset($aExtraParams['extra_fields']) ? explode(',',
 			trim($aExtraParams['extra_fields'])) : array();
 		$aExtraFields = array();
 		$sAttCode = '';
-		foreach($aExtraFieldsRaw as $sFieldName)
+		foreach ($aExtraFieldsRaw as $sFieldName)
 		{
 			// Ignore attributes not of the main queried class
 			if (preg_match('/^(.*)\.(.*)$/', $sFieldName, $aMatches))
@@ -1396,8 +1401,6 @@ HTML
 				unset($aList[$sAlias], $aAuthorizedClasses[$sAlias]);
 			}
 		}
-
-		$sSelectMode = 'none';
 
 		$oDataTable = new DataTable($iListId, $oSet, $aAuthorizedClasses);
 

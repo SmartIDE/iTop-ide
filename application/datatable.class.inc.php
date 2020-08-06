@@ -141,10 +141,10 @@ class DataTable
 	 * @param $iDefaultPageSize
 	 * @param $iPageIndex
 	 * @param $aColumns
-	 * @param $bActionsMenu
-	 * @param $bToolkitMenu
-	 * @param $sSelectMode
-	 * @param $bViewLink
+	 * @param boolean $bActionsMenu
+	 * @param boolean $bToolkitMenu
+	 * @param string $sSelectMode
+	 * @param boolean $bViewLink
 	 * @param $aExtraParams
 	 *
 	 * @return string
@@ -167,7 +167,7 @@ class DataTable
 		}
 		$sDataTable = $this->GetHTMLTable($oPage, $aColumns, $sSelectMode, $iPageSize, $bViewLink, $aExtraParams);
 		$sConfigDlg = $this->GetTableConfigDlg($oPage, $aColumns, $bViewLink, $iDefaultPageSize);
-		
+
 		$sHtml = "<table id=\"{$this->sDatatableContainerId}\" class=\"datatable\">";
 		$sHtml .= "<tr><td>";
 		$sHtml .= "<table style=\"width:100%;\">";
@@ -458,7 +458,7 @@ EOF;
 	protected function GetHTMLTableConfig($aColumns, $sSelectMode, $bViewLink)
 	{
 		$aAttribs = array();
-		if ($sSelectMode == 'multiple')
+		if ($sSelectMode === 'multiple')
 		{
 			$aAttribs['form::select'] = array(
 				'label' => "<input type=\"checkbox\" onClick=\"CheckAll('.selectList{$this->iListId}:not(:disabled)', this.checked);\" class=\"checkAll\"></input>",
@@ -466,9 +466,12 @@ EOF;
 				'metadata' => array(),
 			);
 		}
-		else if ($sSelectMode == 'single')
+		else
 		{
-			$aAttribs['form::select'] = array('label' => '', 'description' => '', 'metadata' => array());
+			if (in_array($sSelectMode, ['single', 'popup']))
+			{
+				$aAttribs['form::select'] = array('label' => '', 'description' => '', 'metadata' => array());
+			}
 		}
 
 		foreach($this->aClassAliases as $sAlias => $sClassName)
@@ -518,7 +521,11 @@ EOF;
 	 * @param $sSelectMode
 	 * @param $iPageSize
 	 * @param $bViewLink
-	 * @param $aExtraParams
+	 * @param $aExtraParams possible values :
+	 *    <ul>
+	 *       <li>localize_values : bool passed to GetAsHTML</li>
+	 *       <li>selection_enabled : value [$aObjects[$sAlias] => key</li>
+	 *    </ul>
 	 *
 	 * @return array
 	 * @throws \CoreException
@@ -551,28 +558,36 @@ EOF;
 					$sHilightClass = $aObjects[$sAlias]->GetHilightClass();
 					if ($sHilightClass != '')
 					{
-						$aRow['@class'] = $sHilightClass;	
+						$aRow['@class'] = $sHilightClass;
 					}
-					if ((($sSelectMode == 'single') || ($sSelectMode == 'multiple')) && $bFirstObject)
+					if ($bFirstObject)
 					{
-						if (array_key_exists('selection_enabled', $aExtraParams) && isset($aExtraParams['selection_enabled'][$aObjects[$sAlias]->GetKey()]))
+						if ((($sSelectMode == 'single') || ($sSelectMode == 'multiple')))
 						{
-							$sDisabled = ($aExtraParams['selection_enabled'][$aObjects[$sAlias]->GetKey()]) ? '' : ' disabled="disabled"';
+							if (array_key_exists('selection_enabled', $aExtraParams)
+								&& isset($aExtraParams['selection_enabled'][$aObjects[$sAlias]->GetKey()]))
+							{
+								$sDisabled = ($aExtraParams['selection_enabled'][$aObjects[$sAlias]->GetKey()]) ? '' : ' disabled="disabled"';
+							}
+							else
+							{
+								$sDisabled = '';
+							}
+							if ($sSelectMode == 'single')
+							{
+								$aRow['form::select'] = "<input type=\"radio\" $sDisabled class=\"selectList{$this->iListId}\" name=\"selectObject\" value=\"".$aObjects[$sAlias]->GetKey()."\"></input>";
+							}
+							else
+							{
+								$aRow['form::select'] = "<input type=\"checkbox\" $sDisabled class=\"selectList{$this->iListId}\" name=\"selectObject[]\" value=\"".$aObjects[$sAlias]->GetKey()."\"></input>";
+							}
 						}
-						else
+						if ($sSelectMode === 'popup')
 						{
-							$sDisabled = '';
-						}
-						if ($sSelectMode == 'single')
-						{
-							$aRow['form::select'] = "<input type=\"radio\" $sDisabled class=\"selectList{$this->iListId}\" name=\"selectObject\" value=\"".$aObjects[$sAlias]->GetKey()."\"></input>";
-						}
-						else
-						{
-							$aRow['form::select'] = "<input type=\"checkbox\" $sDisabled class=\"selectList{$this->iListId}\" name=\"selectObject[]\" value=\"".$aObjects[$sAlias]->GetKey()."\"></input>";
+							$aRow['form::select'] = 'WAZAAAAAAAAA';
 						}
 					}
-					foreach($aColumns[$sAlias] as $sAttCode => $aData)
+					foreach ($aColumns[$sAlias] as $sAttCode => $aData)
 					{
 						if ($aData['checked'])
 						{
@@ -645,7 +660,13 @@ EOF;
 	/**
 	 * @param \WebPage $oPage
 	 * @param $aColumns
-	 * @param $sSelectMode
+	 * @param string $sSelectMode possible values :
+	 *     <ul>
+	 *       <li>none : nothing done</li>
+	 *       <li>single : add radio buttons in first column</li>
+	 *       <li>multiple : add checkboxes in first column</li>
+	 *       <li>popup N°3136 buttons for relations popup mode
+	 *     </ul>
 	 * @param $iPageSize
 	 * @param $bViewLink
 	 * @param $aExtraParams
@@ -686,20 +707,24 @@ EOF;
 		$iCount = $this->iNbObjects;
 
 		$aArgs = $this->oSet->GetArgs();
-		$sExtraParams = addslashes(str_replace('"', "'", json_encode(array_merge($aExtraParams, $aArgs)))); // JSON encode, change the style of the quotes and escape them
+		$sExtraParams = addslashes(str_replace('"', "'",
+			json_encode(array_merge($aExtraParams, $aArgs)))); // JSON encode, change the style of the quotes and escape them
 		$sSelectModeJS = '';
 		$sHeaders = '';
-		if (($sSelectMode == 'single') || ($sSelectMode == 'multiple'))
+		if (in_array($sSelectMode, ['single', 'multiple']))
 		{
 			$sSelectModeJS = $sSelectMode;
+		}
+		if (in_array($sSelectMode, ['single', 'multiple', 'popup']))
+		{
 			$sHeaders = 'headers: { 0: {sorter: false}},';
 		}
 		$sDisplayKey = ($bViewLink) ? 'true' : 'false';
 		// Protect against duplicate elements in the Zlist
 		$aUniqueOrderedList = array();
-		foreach($this->aClassAliases as $sAlias => $sClassName)
+		foreach ($this->aClassAliases as $sAlias => $sClassName)
 		{
-			foreach($aColumns[$sAlias] as $sAttCode => $aData)
+			foreach ($aColumns[$sAlias] as $sAttCode => $aData)
 			{
 				if ($aData['checked'])
 				{
@@ -716,7 +741,7 @@ EOF;
 		$aRealSortOrder = $this->oSet->GetRealSortOrder();
 		$aDefaultSort = array();
 		$iColOffset = 0;
-		if (($sSelectMode == 'single') || ($sSelectMode == 'multiple'))
+		if (in_array($sSelectMode, ['single', 'multiple', 'popup']))
 		{
 			$iColOffset += 1;
 		}
@@ -724,17 +749,17 @@ EOF;
 		{
 //			$iColOffset += 1;
 		}
-		foreach($aRealSortOrder as $sColCode => $bAscending)
+		foreach ($aRealSortOrder as $sColCode => $bAscending)
 		{
 			$iPos = array_search($sColCode, $aUniqueOrderedList);
 			if ($iPos !== false)
 			{
-				$aDefaultSort[] = "[".($iColOffset+$iPos).",".($bAscending ? '0' : '1')."]";
+				$aDefaultSort[] = "[".($iColOffset + $iPos).",".($bAscending ? '0' : '1')."]";
 			}
 			else if (($iPos = array_search(preg_replace('/_friendlyname$/', '', $sColCode), $aUniqueOrderedList)) !== false)
 			{
 				// if sorted on the friendly name of an external key, then consider it sorted on the column that shows the links
-				$aDefaultSort[] = "[".($iColOffset+$iPos).",".($bAscending ? '0' : '1')."]";
+				$aDefaultSort[] = "[".($iColOffset + $iPos).",".($bAscending ? '0' : '1')."]";
 			}
 			else if($sColCode == 'friendlyname' && $bViewLink)
 			{
