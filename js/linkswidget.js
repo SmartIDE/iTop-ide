@@ -1,23 +1,23 @@
-// Copyright (C) 2010-2018 Combodo SARL
-//
-//   This file is part of iTop.
-//
-//   iTop is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Affero General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
-//
-//   iTop is distributed in the hope that it will be useful,
-//   but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU Affero General Public License for more details.
-//
-//   You should have received a copy of the GNU Affero General Public License
-//   along with iTop. If not, see <http://www.gnu.org/licenses/>
+/*
+ * Copyright (C) 2010-2020 Combodo SARL
+ *
+ * This file is part of iTop.
+ *
+ * iTop is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * iTop is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ */
 
-// JavaScript Document
-function LinksWidget(id, sClass, sAttCode, iInputId, sSuffix, bDuplicates, oWizHelper, sExtKeyToRemote, bDoSearch)
-{
+
+function LinksWidget(id, sClass, sAttCode, iInputId, sSuffix, bDuplicates, oWizHelper, sExtKeyToRemote, bDoSearch) {
 	this.id = id;
 	this.iInputId = iInputId;
 	this.sClass = sClass;
@@ -370,13 +370,20 @@ function LinksWidget(id, sClass, sAttCode, iInputId, sSuffix, bDuplicates, oWizH
 				var iUniqueId = oCheckbox.attr('data-unique-id');
 				var sAttCode = $(this).closest('.attribute-edit').attr('data-attcode');
 				var value = $(this).val();
-				return me.OnValueChange(iLink, iUniqueId, sAttCode, value);
+				return me.OnValueChange(iLink, iUniqueId, sAttCode, value, this);
 			}
 			return true;
 		});
 	};
 
-	this.OnValueChange = function (iLink, iUniqueId, sAttCode, value) {
+	/**
+	 * @param int iLink id contained in the data-link-id attribute of the .selection widget
+	 * @param int iUniqueId id contained in the data-unique-id attribute of the .selection widget
+	 * @param string sAttCode
+	 * @param string value new value of the autocomplete
+	 * @param jQuery $oSourceObject object which fires the event
+	 */
+	this.OnValueChange = function (iLink, iUniqueId, sAttCode, value, $oSourceObject) {
 		var sFormPrefix = me.iInputId;
 		if (iLink > 0)
 		{

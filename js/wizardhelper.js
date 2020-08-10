@@ -175,16 +175,12 @@ function WizardHelper(sClass, sFormPrefix, sState, sInitialState, sStimulus)
 		//console.log('data sent:', this.ToJSON());
 		//console.log('oWizard:', this);
 		$.post(GetAbsoluteUrlAppRoot()+'pages/ajax.render.php',
-		   { operation: 'wizard_helper', json_obj: this.ToJSON() },
-			function(html){
+			{operation: 'wizard_helper', json_obj: this.ToJSON()},
+			function (html) {
 				$('#ajax_content').html(html);
 				$('.blockUI').parent().unblock();
-				//console.log('data received:', oWizardHelper);
-				//oWizardHelper.FromJSON(json_data);
-				//oWizardHelper.UpdateFields(); // Is done directly in the html provided by ajax.render.php
-				//console.log(oWizardHelper);
-				//$('#wizStep'+ G_iCurrentStep).unblock( {fadeOut: 0} );
-			});
+			}
+		);
 	};
 	
 	this.Preview = function (divId)
@@ -212,16 +208,22 @@ function WizardHelper(sClass, sFormPrefix, sState, sInitialState, sStimulus)
 
 	this.UpdateDependentFields = function(aFieldNames)
 	{
-		index = 0;
+		var index = 0,
+			nbOfFieldsToUpdate = 0,
+			sAttCode,
+			sFieldId;
+
 		this.ResetQuery();
 		this.UpdateWizard();
-		while(index < aFieldNames.length )
+		while (index < aFieldNames.length)
 		{
 			sAttCode = aFieldNames[index];
 			sFieldId = this.GetFieldId(sAttCode);
-			if (sFieldId !== undefined) {
-				$('#fstatus_' + sFieldId).html('<img src="../images/indicator.gif" />');
-				$('#field_' + sFieldId).find('div').block({
+			if (sFieldId !== undefined)
+			{
+				nbOfFieldsToUpdate++;
+				$('#fstatus_'+sFieldId).html('<img src="../images/indicator.gif" />');
+				$('#field_'+sFieldId).find('div').block({
 					message: '',
 					overlayCSS: {backgroundColor: '#f1f1f1', opacity: 0.3}
 				});
@@ -229,7 +231,11 @@ function WizardHelper(sClass, sFormPrefix, sState, sInitialState, sStimulus)
 			}
 			index++;
 		}
-		this.AjaxQueryServer();
+
+		if (nbOfFieldsToUpdate > 0)
+		{
+			this.AjaxQueryServer();
+		}
 	};
 	
 	this.ReloadObjectCreationForm = function(sFormId, sTargetState)
