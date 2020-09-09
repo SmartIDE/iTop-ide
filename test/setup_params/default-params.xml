@@ -28,7 +28,8 @@
         <language>EN US</language>
     </admin_account>
     <language>EN US</language>
-    <selected_modules type="array">
+    <selected_modules type="array">           
+      <module>itop-structure</module>
       <item>authent-external</item>
       <item>authent-local</item>
       <item>itop-backup</item>
