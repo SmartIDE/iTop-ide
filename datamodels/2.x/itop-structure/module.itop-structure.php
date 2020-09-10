@@ -29,6 +29,7 @@ SetupWebPage::AddModule(
 		'data.sample' => array(
 			'data.sample.organizations.xml',
 			'data.sample.persons.xml',
+			'data.sample.locations.xml',
 			'data.sample.teams.xml',
 			'data.sample.contactteam.xml',
 

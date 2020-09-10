@@ -69,7 +69,7 @@
 		<item>itop-ticket-mgmt-simple-ticket-enhanced-portal</item>
 		<item>itop-change-mgmt-simple</item>
 	</selected_extensions>
-	<sample_data>0</sample_data>
+	<sample_data>1</sample_data>
 	<old_addon></old_addon>
 	<options>
 		<generate_config>1</generate_config>
