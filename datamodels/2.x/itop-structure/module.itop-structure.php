@@ -32,7 +32,7 @@ SetupWebPage::AddModule(
 			'data.sample.persons.xml',
 			'data.sample.teams.xml',
 			'data.sample.contactteam.xml',
-
+			'data.sample.contacttype.xml',
 		),
 		
 		// Documentation

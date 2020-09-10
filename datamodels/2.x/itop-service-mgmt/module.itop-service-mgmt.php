@@ -39,7 +39,6 @@ SetupWebPage::AddModule(
 	//		'data.sample.coveragewindows.xml',
 			'data.sample.contractservice.xml',
 	//		'data.sample.deliverymodel.xml',
-			'data.sample.contacttype.xml',
 			'data.sample.deliverymodelcontact.xml',
 		),
 		
