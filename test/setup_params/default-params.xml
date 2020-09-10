@@ -57,6 +57,7 @@
 		<item>itop-request-mgmt</item>
 		<item>itop-portal</item>
 		<item>itop-change-mgmt</item>
+		<item>itop-knownerror-mgmt</item>
 	</selected_modules>
 	<selected_extensions type="array">
 		<item>itop-config-mgmt-core</item>
@@ -68,6 +69,7 @@
 		<item>itop-ticket-mgmt-simple-ticket</item>
 		<item>itop-ticket-mgmt-simple-ticket-enhanced-portal</item>
 		<item>itop-change-mgmt-simple</item>
+		<item>itop-kown-error-mgmt</item>
 	</selected_extensions>
 	<sample_data>1</sample_data>
 	<old_addon></old_addon>
