@@ -70,3 +70,37 @@ Dict::Add('DE DE', 'German', 'Deutsch', array(
 	'Class:lnkFunctionalCIToTicket/Attribute:impact_code/Value:computed' => 'Berechnet',
 	'Class:lnkFunctionalCIToTicket/Attribute:impact_code/Value:not_impacted' => 'Nicht betroffen',
 ));
+
+//
+// Class: lnkFunctionalCIToProviderContract
+//
+
+Dict::Add('DE DE', 'German', 'Deutsch', array(
+	'Class:lnkFunctionalCIToProviderContract' => 'Verknüpfung FunctionalCI/Provider-Vertrag',
+	'Class:lnkFunctionalCIToProviderContract+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_id' => 'Provider-Vertrag',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_id+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_name' => 'Providervertrags-Name',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_name+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_id' => 'CI',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_id+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_name' => 'CI-Name',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_name+' => '',
+));
+
+//
+// Class: lnkFunctionalCIToService
+//
+
+Dict::Add('DE DE', 'German', 'Deutsch', array(
+	'Class:lnkFunctionalCIToService' => 'Verknüpfung FunctionalCI/Service',
+	'Class:lnkFunctionalCIToService+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:service_id' => 'Service',
+	'Class:lnkFunctionalCIToService/Attribute:service_id+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:service_name' => 'Service-Name',
+	'Class:lnkFunctionalCIToService/Attribute:service_name+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_id' => 'CI',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_id+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => 'CI-Name',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => '',
+));

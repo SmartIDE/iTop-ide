@@ -70,3 +70,37 @@ Dict::Add('NL NL', 'Dutch', 'Nederlands', array(
 	'Class:lnkFunctionalCIToTicket/Attribute:impact_code/Value:computed' => 'Automatisch afgeleid',
 	'Class:lnkFunctionalCIToTicket/Attribute:impact_code/Value:not_impacted' => 'Niet geïmpacteerd',
 ));
+
+//
+// Class: lnkFunctionalCIToProviderContract
+//
+
+Dict::Add('NL NL', 'Dutch', 'Nederlands', array(
+	'Class:lnkFunctionalCIToProviderContract' => 'Link Functioneel CI / Leverancierscontract',
+	'Class:lnkFunctionalCIToProviderContract+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_id' => 'Leverancierscontract',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_id+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_name' => 'Naam leverancierscontract',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_name+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_id' => 'CI',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_id+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_name' => 'Naam CI',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_name+' => '',
+));
+
+//
+// Class: lnkFunctionalCIToService
+//
+
+Dict::Add('NL NL', 'Dutch', 'Nederlands', array(
+	'Class:lnkFunctionalCIToService' => 'Link Functioneel CI / Service',
+	'Class:lnkFunctionalCIToService+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:service_id' => 'Service',
+	'Class:lnkFunctionalCIToService/Attribute:service_id+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:service_name' => 'Naam service',
+	'Class:lnkFunctionalCIToService/Attribute:service_name+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_id' => 'CI',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_id+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => 'Naam CI',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => '',
+));

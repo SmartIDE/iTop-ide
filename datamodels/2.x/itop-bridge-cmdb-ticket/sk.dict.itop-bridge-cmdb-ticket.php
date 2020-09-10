@@ -70,3 +70,37 @@ Dict::Add('SK SK', 'Slovak', 'Slovenčina', array(
 	'Class:lnkFunctionalCIToTicket/Attribute:impact_code/Value:computed' => 'Computed~~',
 	'Class:lnkFunctionalCIToTicket/Attribute:impact_code/Value:not_impacted' => 'Not impacted~~',
 ));
+
+//
+// Class: lnkFunctionalCIToProviderContract
+//
+
+Dict::Add('SK SK', 'Slovak', 'Slovenčina', array(
+	'Class:lnkFunctionalCIToProviderContract' => 'väzba - Komponent / Poskytovateľská zmluva',
+	'Class:lnkFunctionalCIToProviderContract+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_id' => 'Poskytovateľská zmluva',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_id+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_name' => 'Názov poskytovateľského zmluvy',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_name+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_id' => 'Zariadenie',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_id+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_name' => 'Názov CI',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_name+' => '',
+));
+
+//
+// Class: lnkFunctionalCIToService
+//
+
+Dict::Add('SK SK', 'Slovak', 'Slovenčina', array(
+	'Class:lnkFunctionalCIToService' => 'väzba - Komponent / Služba',
+	'Class:lnkFunctionalCIToService+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:service_id' => 'Služba',
+	'Class:lnkFunctionalCIToService/Attribute:service_id+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:service_name' => 'Názov služby',
+	'Class:lnkFunctionalCIToService/Attribute:service_name+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_id' => 'Zariadenie',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_id+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => 'Názov CI',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => '',
+));

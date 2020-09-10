@@ -70,3 +70,37 @@ Dict::Add('ES CR', 'Spanish', 'Español, Castellaño', array(
 	'Class:lnkFunctionalCIToTicket/Attribute:impact_code/Value:computed' => 'Calculado',
 	'Class:lnkFunctionalCIToTicket/Attribute:impact_code/Value:not_impacted' => 'No impactado',
 ));
+
+//
+// Class: lnkFunctionalCIToProviderContract
+//
+
+Dict::Add('ES CR', 'Spanish', 'Español, Castellaño', array(
+	'Class:lnkFunctionalCIToProviderContract' => 'Relación EC Funcional y Contrato con Proveedor',
+	'Class:lnkFunctionalCIToProviderContract+' => 'Relación EC Funcional y Contrato con Proveedor',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_id' => 'Contrato con Proveedor',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_id+' => 'Contrato con Proveedor',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_name' => 'Contrato con Proveedor',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_name+' => 'Contrato con Proveedor',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_id' => 'EC',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_id+' => 'Elemento de Configuración',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_name' => 'Elemento de Configuración',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_name+' => 'Elemento de Configuración',
+));
+
+//
+// Class: lnkFunctionalCIToService
+//
+
+Dict::Add('ES CR', 'Spanish', 'Español, Castellaño', array(
+	'Class:lnkFunctionalCIToService' => 'Relación EC Funcional y Servicio',
+	'Class:lnkFunctionalCIToService+' => 'Relación EC Funcional y Servicio',
+	'Class:lnkFunctionalCIToService/Attribute:service_id' => 'Servicio',
+	'Class:lnkFunctionalCIToService/Attribute:service_id+' => 'Servicio',
+	'Class:lnkFunctionalCIToService/Attribute:service_name' => 'Servicio',
+	'Class:lnkFunctionalCIToService/Attribute:service_name+' => 'Servicio',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_id' => 'EC',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_id+' => 'Elemento de Configuración',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => 'EC',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => 'Elemento de Configuración',
+));

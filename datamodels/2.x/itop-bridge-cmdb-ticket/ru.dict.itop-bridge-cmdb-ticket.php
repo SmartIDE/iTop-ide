@@ -70,3 +70,38 @@ Dict::Add('RU RU', 'Russian', 'Русский', array(
 	'Class:lnkFunctionalCIToTicket/Attribute:impact_code/Value:computed' => 'Вычислено',
 	'Class:lnkFunctionalCIToTicket/Attribute:impact_code/Value:not_impacted' => 'Не влияет',
 ));
+
+//
+// Class: lnkFunctionalCIToProviderContract
+//
+
+Dict::Add('RU RU', 'Russian', 'Русский', array(
+	'Class:lnkFunctionalCIToProviderContract' => 'Связь Функциональная КЕ/Договор с поставщиком',
+	'Class:lnkFunctionalCIToProviderContract+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_id' => 'Договор с поставщиком',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_id+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_name' => 'Договор с поставщиком',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:providercontract_name+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_id' => 'КЕ',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_id+' => '',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_name' => 'КЕ',
+	'Class:lnkFunctionalCIToProviderContract/Attribute:functionalci_name+' => '',
+));
+
+//
+// Class: lnkFunctionalCIToService
+//
+
+Dict::Add('RU RU', 'Russian', 'Русский', array(
+	'Class:lnkFunctionalCIToService' => 'Связь Функциональная КЕ/Услуга',
+	'Class:lnkFunctionalCIToService+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:service_id' => 'Услуга',
+	'Class:lnkFunctionalCIToService/Attribute:service_id+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:service_name' => 'Услуга',
+	'Class:lnkFunctionalCIToService/Attribute:service_name+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_id' => 'КЕ',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_id+' => '',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => 'КЕ',
+	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => '',
+));
+
