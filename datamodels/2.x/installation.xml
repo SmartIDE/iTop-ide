@@ -196,10 +196,26 @@
 			<options type="array">
 				<choice>
 					<extension_code>itop-kown-error-mgmt</extension_code>
-					<title>Known Errors Management</title>
+					<title>Known Errors Management and FAQ</title>
 					<description>Select this option to track "Known Errors" and FAQs in iTop.</description>
 					<modules type="array">
 						<module>itop-knownerror-mgmt</module>
+					</modules>
+				</choice>
+				<choice>
+					<extension_code>itop-kown-error-light</extension_code>
+					<title>Known Errors Management only</title>
+					<description>Select this option to track "Known Errors".</description>
+					<modules type="array">
+						<module>itop-knownerror-light</module>
+					</modules>
+				</choice>
+				<choice>
+					<extension_code>itop-faq-light</extension_code>
+					<title>FAQ only</title>
+					<description>Select this option to add FAQs in iTop.</description>
+					<modules type="array">
+						<module>itop-faq-light</module>
 					</modules>
 				</choice>
 				<choice>
