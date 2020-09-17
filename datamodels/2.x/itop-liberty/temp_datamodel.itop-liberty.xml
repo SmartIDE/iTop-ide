@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.7">
+  <classes>
+    <class id="Ticket" _created_in="itop-tickets" _delta="must_exist">
+      <fields>
+        <field id="org_id" xsi:type="AttributeExternalKey" _delta="redefine">
+	  <sql>org_id</sql>
+          <filter>
+            <![CDATA[
+            SELECT Organization AS o JOIN Person AS p ON p.org_id=o.id WHERE p.id= :this->caller_id
+	    ]]>
+	  </filter>
+          <dependencies>
+            <attribute id="caller_id"/>
+          </dependencies>
+        </field>
+        <field id="caller_id" xsi:type="AttributeExternalKey" _delta="redefine">
+          <sql>caller_id</sql>
+          <target_class>Person</target_class>
+          <is_null_allowed>true</is_null_allowed>
+          <on_target_delete>DEL_AUTO</on_target_delete>
+        </field>
+      </fields>
+    </class>
+    <class id="UserRequest" _created_in="itop-request-mgmt" _delta="must_exist">
+      <fields>
+	<field id="service_id" xsi:type="AttributeExternalKey">
+          <filter _delta="redefine">
+            <![CDATA[SELECT Service AS s JOIN lnkCustomerContractToService AS l1 ON l1.service_id=s.id 
+      	    JOIN CustomerContract AS cc ON l1.customercontract_id=cc.id 
+      	    JOIN Organization AS root ON cc.org_id = root.id 
+      	    JOIN Organization AS child ON child.parent_id BELOW root.id 
+      	    WHERE child.id = :this->org_id AND s.status != 'obsolete'
+	    ]]>
+	  </filter>
+	</field>
+      </fields>
+      <presentation>
+        <details _delta="redefine">
+          <items>
+            <item id="col:col0">
+              <items>
+                <item id="fieldset:Ticket:baseinfo">
+                  <items>
+                    <item id="caller_id">
+                      <rank>10</rank>
+                    </item>
+                    <item id="org_id">
+                      <rank>20</rank>
+                    </item>
+                    <item id="status">
+                      <rank>50</rank>
+                    </item>
+                    <item id="origin">
+                      <rank>60</rank>
+                    </item>
+                    <item id="title">
+                      <rank>70</rank>
+                    </item>
+                    <item id="description">
+                      <rank>80</rank>
+                    </item>
+                  </items>
+                  <rank>10</rank>
+                </item>
+                <item id="fieldset:Ticket:contact">
+                  <items>
+                    <item id="team_id">
+                      <rank>10</rank>
+                    </item>
+                    <item id="agent_id">
+                      <rank>20</rank>
+                    </item>
+                  </items>
+                  <rank>20</rank>
+                </item>
+              </items>
+              <rank>10</rank>
+            </item>
+            <item id="col:col1">
+              <items>
+                <item id="fieldset:Ticket:moreinfo">
+                  <items>
+                    <item id="priority">
+                      <rank>20</rank>
+                    </item>
+                    <item id="service_id">
+                      <rank>40</rank>
+                    </item>
+                    <item id="servicesubcategory_id">
+                      <rank>50</rank>
+                    </item>
+                    <item id="escalation_flag">
+                      <rank>70</rank>
+                    </item>
+                    <item id="escalation_reason">
+                      <rank>80</rank>
+                    </item>
+                  </items>
+                  <rank>10</rank>
+                </item>
+                <item id="fieldset:Ticket:SLA">
+                  <items>
+                    <item id="sla_tto_passed">
+                      <rank>10</rank>
+                    </item>
+                    <item id="sla_tto_over">
+                      <rank>20</rank>
+                    </item>
+                    <item id="sla_ttr_passed">
+                      <rank>30</rank>
+                    </item>
+                    <item id="sla_ttr_over">
+                      <rank>40</rank>
+                    </item>
+                  </items>
+                  <rank>20</rank>
+                </item>
+              </items>
+              <rank>20</rank>
+            </item>
+            <item id="col:col2">
+              <items>
+                <item id="fieldset:Ticket:relation">
+                  <items>
+                    <item id="parent_request_id">
+                      <rank>10</rank>
+                    </item>
+                  </items>
+                  <rank>10</rank>
+                </item>
+                <item id="fieldset:Ticket:resolution">
+                  <items>
+                    <item id="solution">
+                      <rank>10</rank>
+                    </item>
+                    <item id="user_satisfaction">
+                      <rank>20</rank>
+                    </item>
+                    <item id="user_comment">
+                      <rank>30</rank>
+                    </item>
+                    <item id="time_spent">
+                      <rank>40</rank>
+                    </item>
+                  </items>
+                  <rank>20</rank>
+                </item>
+                <item id="fieldset:Ticket:date">
+                  <items>
+                    <item id="start_date">
+                      <rank>10</rank>
+                    </item>
+                    <item id="last_update">
+                      <rank>20</rank>
+                    </item>
+                    <item id="assignment_date">
+                      <rank>30</rank>
+                    </item>
+                    <item id="tto_escalation_deadline">
+                      <rank>50</rank>
+                    </item>
+                    <item id="ttr_escalation_deadline">
+                      <rank>60</rank>
+                    </item>
+                    <item id="last_pending_date">
+                      <rank>70</rank>
+                    </item>
+                    <item id="resolution_date">
+                      <rank>80</rank>
+                    </item>
+                    <item id="close_date">
+                      <rank>90</rank>
+                    </item>
+                  </items>
+                  <rank>30</rank>
+                </item>
+              </items>
+              <rank>30</rank>
+            </item>
+            <item id="functionalcis_list">
+              <rank>40</rank>
+            </item>
+            <item id="contacts_list">
+              <rank>50</rank>
+            </item>
+            <item id="related_request_list">
+              <rank>60</rank>
+            </item>
+            <item id="workorders_list">
+              <rank>70</rank>
+            </item>
+          </items>
+        </details>
+      </presentation>
+    </class>
+    <class id="ServiceFamily" _delta="redefine">
+      <scopes>
+        <scope id="all">
+          <oql_view><![CDATA[SELECT ServiceFamily AS sf
+          JOIN Service AS s ON s.servicefamily_id = sf.id
+          JOIN lnkCustomerContractToService AS l1 ON l1.service_id=s.id
+          JOIN CustomerContract AS cc ON l1.customercontract_id=cc.id
+          JOIN Organization AS root ON cc.org_id = root.id
+          JOIN Organization AS child ON child.parent_id BELOW root.id
+          WHERE child.id = :current_contact->org_id AND s.status != 'obsolete']]></oql_view>
+          <ignore_silos>true</ignore_silos>
+        </scope>
+      </scopes>
+    </class>
+    <class id="Service" _delta="redefine">
+      <scopes>
+        <scope id="all">
+          <oql_view><![CDATA[SELECT Service AS s
+          JOIN lnkCustomerContractToService AS l1 ON l1.service_id=s.id
+          JOIN CustomerContract AS cc ON l1.customercontract_id=cc.id
+          JOIN Organization AS root ON cc.org_id = root.id
+          JOIN Organization AS child ON child.parent_id BELOW root.id
+          WHERE child.id = :current_contact->org_id AND s.status != 'obsolete']]></oql_view>
+          <ignore_silos>true</ignore_silos>
+        </scope>
+      </scopes>
+    </class>
+    <class id="ServiceSubcategory" _delta="must_exist">
+      <scopes>
+        <scope id="all" _delta="must_exist">
+          <oql_view _delta="redefine"><![CDATA[SELECT ServiceSubcategory AS ss
+          JOIN Service AS s ON ss.service_id=s.id
+          JOIN lnkCustomerContractToService AS l1 ON l1.service_id=s.id
+          JOIN CustomerContract AS cc ON l1.customercontract_id=cc.id
+          JOIN Organization AS root ON cc.org_id = root.id
+          JOIN Organization AS child ON child.parent_id BELOW root.id
+          WHERE child.id = :current_contact->org_id  AND s.status != 'obsolete']]></oql_view>
+        </scope>
+      </scopes>
+    </class>
+  </classes>
+  <constants>
+    <constant id="RESPONSE_TICKET_SLT_QUERY" xsi:type="string" _delta="redefine"><![CDATA[
+    SELECT SLT AS slt 
+    JOIN lnkSLAToSLT AS l1 ON l1.slt_id=slt.id 
+    JOIN SLA AS sla ON l1.sla_id=sla.id 
+    JOIN lnkCustomerContractToService AS l2 ON l2.sla_id=sla.id 
+    JOIN CustomerContract AS sc ON l2.customercontract_id=sc.id 
+    JOIN Organization AS root ON sc.org_id = root.id 
+    JOIN Organization AS child ON child.parent_id BELOW root.id 
+    WHERE slt.metric = :metric AND l2.service_id = :this->service_id 
+    AND child.id = :this->org_id AND slt.request_type = :request_type 
+    AND slt.priority = :this->priority
+    ]]></constant>
+  </constants>
+</itop_design>
+
