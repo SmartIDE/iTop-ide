@@ -23,17 +23,7 @@
 //
 // Class: Organization
 //
-Dict::Add('FR FR', 'French', 'Français', array(
-	'Relation:impacts/Description' => 'Eléments impactés par',
-	'Relation:impacts/DownStream' => 'Impacte...',
-	'Relation:impacts/DownStream+' => 'Eléments impactés par',
-	'Relation:impacts/UpStream' => 'Dépend de...',
-	'Relation:impacts/UpStream+' => 'Eléments dont dépend',
-	// Legacy entries
-	'Relation:depends on/Description' => 'Eléments dont dépend',
-	'Relation:depends on/DownStream' => 'Dépend de...',
-	'Relation:depends on/UpStream' => 'Impacte...',
-));
+
 
 
 // Dictionnay conventions

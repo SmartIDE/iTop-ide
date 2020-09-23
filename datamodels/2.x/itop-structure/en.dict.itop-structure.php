@@ -21,22 +21,7 @@
  * along with iTop. If not, see <http://www.gnu.org/licenses/>
  */
 
-//////////////////////////////////////////////////////////////////////
-// Relations
-//////////////////////////////////////////////////////////////////////
-//
 
-Dict::Add('EN US', 'English', 'English', array(
-	'Relation:impacts/Description' => 'Elements impacted by',
-	'Relation:impacts/DownStream' => 'Impacts...',
-	'Relation:impacts/DownStream+' => 'Elements impacted by',
-	'Relation:impacts/UpStream' => 'Depends on......',
-	'Relation:impacts/UpStream+' => 'Elements impacting',
-	// Legacy entries
-	'Relation:depends on/Description' => 'Elements impacting',
-	'Relation:depends on/DownStream' => 'Depends on...',
-	'Relation:depends on/UpStream' => 'Impacts...',
-));
 
 
 // Dictionnay conventions
