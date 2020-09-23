@@ -104,3 +104,12 @@ Dict::Add('DA DA', 'Danish', 'Dansk', array(
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => 'CI navn',
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => '',
 ));
+
+Dict::Add('DA DA', 'Danish', 'Dansk', array(
+	'Class:FunctionalCI/Attribute:providercontracts_list' => 'Leverandør kontrakter',
+	'Class:FunctionalCI/Attribute:providercontracts_list+' => '',
+	'Class:FunctionalCI/Attribute:services_list' => 'Ydelser',
+	'Class:FunctionalCI/Attribute:services_list+' => '',
+	'Class:FunctionalCI/Attribute:tickets_list' => 'Tickets',
+	'Class:FunctionalCI/Attribute:tickets_list+' => '',
+));

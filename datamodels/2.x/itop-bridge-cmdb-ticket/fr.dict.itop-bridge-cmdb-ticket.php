@@ -104,3 +104,16 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => 'Nom CI',
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => '',
 ));
+
+//
+// Class: FunctionalCI
+//
+
+Dict::Add('FR FR', 'French', 'Français', array(
+	'Class:FunctionalCI/Attribute:providercontracts_list' => 'Contrats fournisseur',
+	'Class:FunctionalCI/Attribute:providercontracts_list+' => '',
+	'Class:FunctionalCI/Attribute:services_list' => 'Services',
+	'Class:FunctionalCI/Attribute:services_list+' => '',
+	'Class:FunctionalCI/Attribute:tickets_list' => 'Tickets',
+	'Class:FunctionalCI/Attribute:tickets_list+' => '',
+));

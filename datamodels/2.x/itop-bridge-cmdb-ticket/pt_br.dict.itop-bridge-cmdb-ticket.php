@@ -104,3 +104,16 @@ Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => 'Nome CI',
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => '',
 ));
+
+//
+// Class: FunctionalCI
+//
+
+Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
+	'Class:FunctionalCI/Attribute:providercontracts_list' => 'Contrato provedor(a)',
+	'Class:FunctionalCI/Attribute:providercontracts_list+' => 'Todos os contratos para esse item de configuração',
+	'Class:FunctionalCI/Attribute:services_list' => 'Serviços',
+	'Class:FunctionalCI/Attribute:services_list+' => 'Todos os serviços impactados por esse item de configuração',
+	'Class:FunctionalCI/Attribute:tickets_list' => 'Solicitações',
+	'Class:FunctionalCI/Attribute:tickets_list+' => 'Todos as solicitações para este item de configuração',
+));

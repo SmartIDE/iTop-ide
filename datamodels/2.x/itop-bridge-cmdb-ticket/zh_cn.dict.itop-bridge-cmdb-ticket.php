@@ -105,3 +105,16 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => '配置项名称',
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => '',
 ));
+
+//
+// Class: FunctionalCI
+//
+
+Dict::Add('ZH CN', 'Chinese', '简体中文', array(
+	'Class:FunctionalCI/Attribute:providercontracts_list' => '供应商合同',
+	'Class:FunctionalCI/Attribute:providercontracts_list+' => '该配置项的所有供应商合同',
+	'Class:FunctionalCI/Attribute:services_list' => '服务',
+	'Class:FunctionalCI/Attribute:services_list+' => '该配置项影响的所有服务',
+	'Class:FunctionalCI/Attribute:tickets_list' => '工单',
+	'Class:FunctionalCI/Attribute:tickets_list+' => '该配置项包含的所有工单',
+));

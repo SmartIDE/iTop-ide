@@ -105,3 +105,16 @@ Dict::Add('RU RU', 'Russian', 'Русский', array(
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => '',
 ));
 
+//
+// Class: FunctionalCI
+//
+
+Dict::Add('RU RU', 'Russian', 'Русский', array(
+	'Class:FunctionalCI/Attribute:providercontracts_list' => 'Договоры',
+	'Class:FunctionalCI/Attribute:providercontracts_list+' => 'Связанные договоры',
+	'Class:FunctionalCI/Attribute:services_list' => 'Услуги',
+	'Class:FunctionalCI/Attribute:services_list+' => 'Связанные услуги',
+	'Class:FunctionalCI/Attribute:tickets_list' => 'Тикеты',
+	'Class:FunctionalCI/Attribute:tickets_list+' => 'Связанные тикеты',
+));
+

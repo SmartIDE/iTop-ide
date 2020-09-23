@@ -104,3 +104,16 @@ Dict::Add('ES CR', 'Spanish', 'Español, Castellaño', array(
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => 'EC',
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => 'Elemento de Configuración',
 ));
+
+//
+// Class: FunctionalCI
+//
+
+Dict::Add('ES CR', 'Spanish', 'Español, Castellaño', array(
+	'Class:FunctionalCI/Attribute:providercontracts_list' => 'Contratos',
+	'Class:FunctionalCI/Attribute:providercontracts_list+' => 'Contratos',
+	'Class:FunctionalCI/Attribute:services_list' => 'Servicios',
+	'Class:FunctionalCI/Attribute:services_list+' => 'Servicios',
+	'Class:FunctionalCI/Attribute:tickets_list' => 'Tickets',
+	'Class:FunctionalCI/Attribute:tickets_list+' => 'Tickets relacionados con este EC',
+));

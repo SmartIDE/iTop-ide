@@ -104,3 +104,16 @@ Dict::Add('HU HU', 'Hungarian', 'Magyar', array(
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => 'CI Name~~',
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => '~~',
 ));
+
+//
+// Class: FunctionalCI
+//
+
+Dict::Add('HU HU', 'Hungarian', 'Magyar', array(
+	'Class:FunctionalCI/Attribute:providercontracts_list' => 'Provider contracts~~',
+	'Class:FunctionalCI/Attribute:providercontracts_list+' => 'All the provider contracts for this configuration item~~',
+	'Class:FunctionalCI/Attribute:services_list' => 'Services~~',
+	'Class:FunctionalCI/Attribute:services_list+' => 'All the services impacted by this configuration item~~',
+	'Class:FunctionalCI/Attribute:tickets_list' => 'Tickets~~',
+	'Class:FunctionalCI/Attribute:tickets_list+' => 'All the tickets for this configuration item~~',
+));

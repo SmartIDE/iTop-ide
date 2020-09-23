@@ -104,3 +104,16 @@ Dict::Add('SK SK', 'Slovak', 'Slovenčina', array(
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => 'Názov CI',
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => '',
 ));
+
+//
+// Class: FunctionalCI
+//
+
+Dict::Add('SK SK', 'Slovak', 'Slovenčina', array(
+	'Class:FunctionalCI/Attribute:providercontracts_list' => 'Poskytovateľské zmluvy',
+	'Class:FunctionalCI/Attribute:providercontracts_list+' => '',
+	'Class:FunctionalCI/Attribute:services_list' => 'Služby',
+	'Class:FunctionalCI/Attribute:services_list+' => '',
+	'Class:FunctionalCI/Attribute:tickets_list' => 'Tickety',
+	'Class:FunctionalCI/Attribute:tickets_list+' => '',
+));

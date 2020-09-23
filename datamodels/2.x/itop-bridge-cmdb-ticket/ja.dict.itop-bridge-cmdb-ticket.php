@@ -104,3 +104,16 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => 'CI名',
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => '',
 ));
+
+//
+// Class: FunctionalCI
+//
+
+Dict::Add('JA JP', 'Japanese', '日本語', array(
+	'Class:FunctionalCI/Attribute:providercontracts_list' => 'プロバイダー契約',
+	'Class:FunctionalCI/Attribute:providercontracts_list+' => '',
+	'Class:FunctionalCI/Attribute:services_list' => 'サービス',
+	'Class:FunctionalCI/Attribute:services_list+' => '',
+	'Class:FunctionalCI/Attribute:tickets_list' => 'チケット',
+	'Class:FunctionalCI/Attribute:tickets_list+' => '',
+));

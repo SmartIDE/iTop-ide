@@ -104,3 +104,16 @@ Dict::Add('NL NL', 'Dutch', 'Nederlands', array(
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => 'Naam CI',
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => '',
 ));
+
+//
+// Class: FunctionalCI
+//
+
+Dict::Add('NL NL', 'Dutch', 'Nederlands', array(
+	'Class:FunctionalCI/Attribute:providercontracts_list' => 'Leverancierscontracten',
+	'Class:FunctionalCI/Attribute:providercontracts_list+' => 'Alle leverancierscontracten voor dit configuratie-item',
+	'Class:FunctionalCI/Attribute:services_list' => 'Services',
+	'Class:FunctionalCI/Attribute:services_list+' => 'Alle services die impact hebben op dit configuratie-item',
+	'Class:FunctionalCI/Attribute:tickets_list' => 'Tickets',
+	'Class:FunctionalCI/Attribute:tickets_list+' => 'Alle tickets voor dit configuratie-item',
+));

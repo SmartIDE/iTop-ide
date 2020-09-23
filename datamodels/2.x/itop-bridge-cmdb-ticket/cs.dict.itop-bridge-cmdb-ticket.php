@@ -105,3 +105,16 @@ Dict::Add('CS CZ', 'Czech', 'Čeština', array(
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name' => 'Název konfigurační položky',
 	'Class:lnkFunctionalCIToService/Attribute:functionalci_name+' => '',
 ));
+
+//
+// Class: FunctionalCI
+//
+
+Dict::Add('CS CZ', 'Czech', 'Čeština', array(
+	'Class:FunctionalCI/Attribute:providercontracts_list' => 'Smlouvy s poskytovateli',
+	'Class:FunctionalCI/Attribute:providercontracts_list+' => '',
+	'Class:FunctionalCI/Attribute:services_list' => 'Služby',
+	'Class:FunctionalCI/Attribute:services_list+' => '',
+	'Class:FunctionalCI/Attribute:tickets_list' => 'Tikety',
+	'Class:FunctionalCI/Attribute:tickets_list+' => '',
+));
