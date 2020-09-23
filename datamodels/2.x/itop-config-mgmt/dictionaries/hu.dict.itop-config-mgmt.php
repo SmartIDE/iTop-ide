@@ -1034,24 +1034,6 @@ Dict::Add('HU HU', 'Hungarian', 'Magyar', array(
 ));
 
 //
-// Class: DocumentType
-//
-
-Dict::Add('HU HU', 'Hungarian', 'Magyar', array(
-	'Class:DocumentType' => 'Document Type~~',
-	'Class:DocumentType+' => '~~',
-));
-
-//
-// Class: ContactType
-//
-
-Dict::Add('HU HU', 'Hungarian', 'Magyar', array(
-	'Class:ContactType' => 'Contact Type~~',
-	'Class:ContactType+' => '~~',
-));
-
-//
 // Class: Brand
 //
 

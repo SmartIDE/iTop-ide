@@ -270,6 +270,24 @@ Dict::Add('HU HU', 'Hungarian', 'Magyar', array(
 ));
 
 //
+// Class: DocumentType
+//
+
+Dict::Add('HU HU', 'Hungarian', 'Magyar', array(
+	'Class:DocumentType' => 'Document Type~~',
+	'Class:DocumentType+' => '~~',
+));
+
+//
+// Class: ContactType
+//
+
+Dict::Add('HU HU', 'Hungarian', 'Magyar', array(
+	'Class:ContactType' => 'Contact Type~~',
+	'Class:ContactType+' => '~~',
+));
+
+//
 // Class: lnkPersonToTeam
 //
 
@@ -331,5 +349,4 @@ Dict::Add('HU HU', 'Hungarian', 'Magyar', array(
 	'UI_WelcomeMenu_AllConfigItems' => 'Summary~~',
 	'Menu:ConfigManagement:Typology' => 'Typology configuration~~',
 ));
-
 ?>
