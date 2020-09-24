@@ -59,7 +59,6 @@
 		<item>itop-change-mgmt</item>
 		<item>itop-knownerror-light</item>
 		<item>itop-faq-light</item>
-		<item>itop-knownerror-mgmt</item>
 	</selected_modules>
 	<selected_extensions type="array">
 		<item>itop-config-mgmt-core</item>
