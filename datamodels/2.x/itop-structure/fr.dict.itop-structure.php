@@ -249,10 +249,6 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'Class:Document/Attribute:status/Value:published+' => '',
 	'Class:Document/Attribute:cis_list' => 'CIs',
 	'Class:Document/Attribute:cis_list+' => '',
-	'Class:Document/Attribute:contracts_list' => 'Contrats',
-	'Class:Document/Attribute:contracts_list+' => '',
-	'Class:Document/Attribute:services_list' => 'Services',
-	'Class:Document/Attribute:services_list+' => '',
 	'Class:Document/Attribute:finalclass' => 'Sous-classe de Document',
 	'Class:Document/Attribute:finalclass+' => 'Nom de la classe instanciable',
 ));

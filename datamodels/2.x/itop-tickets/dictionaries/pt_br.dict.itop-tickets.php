@@ -213,3 +213,14 @@ Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
 	'Class:ResponseTicketTTR/Interface:iMetricComputer' => 'Time To Resolve',
 	'Class:ResponseTicketTTR/Interface:iMetricComputer+' => 'Objetivo baseado em um SLT do tipo TTR',
 ));
+
+//
+// Class: Document
+//
+
+Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
+	'Class:Document/Attribute:contracts_list' => 'Contratos',
+	'Class:Document/Attribute:contracts_list+' => 'Todos os contratos vinculados com esse documento',
+	'Class:Document/Attribute:services_list' => 'Services',
+	'Class:Document/Attribute:services_list+' => 'Todos os serviços vinculados a esse documento',
+));
