@@ -30,23 +30,6 @@
 //
 
 //
-// Class: lnkContactToFunctionalCI
-//
-
-Dict::Add('FR FR', 'French', 'Français', array(
-	'Class:lnkContactToFunctionalCI' => 'Lien Contact / CI Fonctionel',
-	'Class:lnkContactToFunctionalCI+' => '',
-	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id' => 'CI',
-	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id+' => '',
-	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name' => 'Nom CI',
-	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name+' => '',
-	'Class:lnkContactToFunctionalCI/Attribute:contact_id' => 'Contact',
-	'Class:lnkContactToFunctionalCI/Attribute:contact_id+' => '',
-	'Class:lnkContactToFunctionalCI/Attribute:contact_name' => 'Nom contact',
-	'Class:lnkContactToFunctionalCI/Attribute:contact_name+' => '',
-));
-
-//
 // Class: lnkFunctionalCIToTicket
 //
 

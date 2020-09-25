@@ -75,6 +75,23 @@ Dict::Add('SK SK', 'Slovak', 'Slovenčina', array(
 //
 
 //
+// Class: lnkContactToFunctionalCI
+//
+
+Dict::Add('SK SK', 'Slovak', 'Slovenčina', array(
+	'Class:lnkContactToFunctionalCI' => 'väzba - Kontakt / Komponent',
+	'Class:lnkContactToFunctionalCI+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id' => 'Komponent',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name' => 'Názov funkčných CI',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_id' => 'Kontakt',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_id+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_name' => 'Názov kontaktu',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_name+' => '',
+));
+
+//
 // Class: FunctionalCI
 //
 

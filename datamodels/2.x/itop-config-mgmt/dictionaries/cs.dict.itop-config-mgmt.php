@@ -78,6 +78,23 @@ Dict::Add('CS CZ', 'Czech', 'Čeština', array(
 //
 
 //
+// Class: lnkContactToFunctionalCI
+//
+
+Dict::Add('CS CZ', 'Czech', 'Čeština', array(
+	'Class:lnkContactToFunctionalCI' => 'Spojení (Kontakt / Funkční konfigurační položka)',
+	'Class:lnkContactToFunctionalCI+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id' => 'Funkční konfigurační položka',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name' => 'Název funkční konfigurační položky',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_id' => 'Kontakt',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_id+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_name' => 'Název kontaktu',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_name+' => '',
+));
+
+//
 // Class: FunctionalCI
 //
 

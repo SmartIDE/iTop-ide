@@ -70,6 +70,22 @@ Dict::Add('DA DA', 'Danish', 'Dansk', array(
 //////////////////////////////////////////////////////////////////////
 //
 
+//
+// Class: lnkContactToFunctionalCI
+//
+
+Dict::Add('DA DA', 'Danish', 'Dansk', array(
+	'Class:lnkContactToFunctionalCI' => 'Sammenhæng Kontakt/FunctionalCI',
+	'Class:lnkContactToFunctionalCI+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id' => 'FunctionalCI',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name' => 'FunctionalCI navn',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_id' => 'Kontakt',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_id+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_name' => 'Kontakt navn',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_name+' => '',
+));
 
 //
 // Class: FunctionalCI

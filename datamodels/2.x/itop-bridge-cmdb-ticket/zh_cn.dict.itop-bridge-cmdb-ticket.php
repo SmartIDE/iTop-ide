@@ -30,24 +30,6 @@
 //
 
 //
-// Class: lnkContactToFunctionalCI
-//
-
-Dict::Add('ZH CN', 'Chinese', '简体中文', array(
-	'Class:lnkContactToFunctionalCI' => '链接 联系人 / 功能项',
-	'Class:lnkContactToFunctionalCI+' => '',
-	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id' => '功能项',
-	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id+' => '',
-	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name' => '功能项名称',
-	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name+' => '',
-	'Class:lnkContactToFunctionalCI/Attribute:contact_id' => '联系人',
-	'Class:lnkContactToFunctionalCI/Attribute:contact_id+' => '',
-	'Class:lnkContactToFunctionalCI/Attribute:contact_name' => '联系人名称',
-	'Class:lnkContactToFunctionalCI/Attribute:contact_name+' => '',
-));
-
-
-//
 // Class: lnkFunctionalCIToTicket
 //
 

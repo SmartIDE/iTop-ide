@@ -76,6 +76,23 @@ Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
 //
 
 //
+// Class: lnkContactToFunctionalCI
+//
+
+Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
+	'Class:lnkContactToFunctionalCI' => 'Link Contato / CI',
+	'Class:lnkContactToFunctionalCI+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id' => 'CIs',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name' => 'Nome CI',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_id' => 'Contato',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_id+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_name' => 'Nome contato',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_name+' => '',
+));
+
+//
 // Class: FunctionalCI
 //
 

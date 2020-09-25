@@ -63,6 +63,23 @@ Dict::Add('RU RU', 'Russian', 'Русский', array(
 //
 
 //
+// Class: lnkContactToFunctionalCI
+//
+
+Dict::Add('RU RU', 'Russian', 'Русский', array(
+	'Class:lnkContactToFunctionalCI' => 'Связь Контакт/Функциональная КЕ',
+	'Class:lnkContactToFunctionalCI+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id' => 'Функциональная КЕ',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name' => 'Функциональная КЕ',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_id' => 'Контакт',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_id+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_name' => 'Контакт',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_name+' => '',
+));
+
+//
 // Class: FunctionalCI
 //
 

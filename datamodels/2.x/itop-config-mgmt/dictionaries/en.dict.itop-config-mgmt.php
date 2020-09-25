@@ -77,6 +77,23 @@ Dict::Add('EN US', 'English', 'English', array(
 //
 
 //
+// Class: lnkContactToFunctionalCI
+//
+
+Dict::Add('EN US', 'English', 'English', array(
+	'Class:lnkContactToFunctionalCI' => 'Link Contact / FunctionalCI',
+	'Class:lnkContactToFunctionalCI+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id' => 'Functionalci',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name' => 'Functionalci name',
+	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_id' => 'Contact',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_id+' => '',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_name' => 'Contact name',
+	'Class:lnkContactToFunctionalCI/Attribute:contact_name+' => '',
+));
+
+//
 // Class: FunctionalCI
 //
 

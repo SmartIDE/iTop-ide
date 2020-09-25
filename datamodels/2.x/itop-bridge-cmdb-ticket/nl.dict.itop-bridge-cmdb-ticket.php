@@ -30,23 +30,6 @@
 //
 
 //
-// Class: lnkContactToFunctionalCI
-//
-
-Dict::Add('NL NL', 'Dutch', 'Nederlands', array(
-	'Class:lnkContactToFunctionalCI' => 'Link Contact / Functioneel CI',
-	'Class:lnkContactToFunctionalCI+' => '',
-	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id' => 'Functioneel CI',
-	'Class:lnkContactToFunctionalCI/Attribute:functionalci_id+' => '',
-	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name' => 'Naam functioneel CI',
-	'Class:lnkContactToFunctionalCI/Attribute:functionalci_name+' => '',
-	'Class:lnkContactToFunctionalCI/Attribute:contact_id' => 'Contact',
-	'Class:lnkContactToFunctionalCI/Attribute:contact_id+' => '',
-	'Class:lnkContactToFunctionalCI/Attribute:contact_name' => 'Naam contact',
-	'Class:lnkContactToFunctionalCI/Attribute:contact_name+' => '',
-));
-
-//
 // Class: lnkFunctionalCIToTicket
 //
 
