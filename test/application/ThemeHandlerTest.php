@@ -250,7 +250,7 @@ JSON;
 	 * @throws \CoreException
 	 * @dataProvider CompileThemesProviderWithoutCss
 	 */
-	public function testCompileThemeWithoutCssFile_FocusOnParamAttribute($readFromParamAttributeFromJson=false)
+	public function CompileThemeWithoutCssFile_FocusOnParamAttribute($readFromParamAttributeFromJson=false)
 	{
 		$sExpectJsonFilePath = APPROOT.'test/application/theme-handler/expected/themes/basque-red/theme-parameters.json';
 		$sExpectedThemeParamJson = file_get_contents($sExpectJsonFilePath);
@@ -298,7 +298,7 @@ JSON;
 	 * @throws \CoreException
 	 * @dataProvider CompileThemesProviderEmptyArray
 	 */
-	public function testCompileThemesEmptyArray($ThemeParametersJson, $CompileCount=0)
+	public function CompileThemesEmptyArray($ThemeParametersJson, $CompileCount=0)
 	{
 		$sCssPath = $this->sTmpDir . '/branding/themes/basque-red/main.css';
 		copy(APPROOT . 'test/application/theme-handler/expected/themes/basque-red/main.css', $sCssPath);
@@ -369,7 +369,7 @@ JSON;
 	 * @throws \CoreException
 	 * @dataProvider CompileThemesProvider
 	 */
-	public function testCompileThemes($ThemeParametersJson, $iCompileCSSFromSASSCount, $bMissingFile=false, $bFilesTouchedRecently=false, $bFileMd5sumModified=false, $sFileToTest=null, $sExpectedMainCssPath=null, $bSetup=true)
+	public function CompileThemes($ThemeParametersJson, $iCompileCSSFromSASSCount, $bMissingFile=false, $bFilesTouchedRecently=false, $bFileMd5sumModified=false, $sFileToTest=null, $sExpectedMainCssPath=null, $bSetup=true)
 	{
 		$sAfterReplacementCssVariableMd5sum='';
 		if (is_file($this->sTmpDir.'/'.$sFileToTest))
@@ -492,7 +492,7 @@ JSON;
 	 *
 	 * @dataProvider GetAllUrlFromScssProvider
 	 */
-	public function testGetAllUrlFromScss($sScssFile)
+	public function GetAllUrlFromScss($sScssFile)
 	{
 		$aIncludedUrls = ThemeHandler::GetAllUrlFromScss(['attr' => "123"],APPROOT.$sScssFile);
 		$this->assertEquals(['approot-relative', 'version', 'version1'], array_values($aIncludedUrls['aMissingVariables']));
@@ -562,7 +562,7 @@ SCSS;
 	 *
 	 * @dataProvider ResolveUrlProvider
 	 */
-	public function testResolveUrl($sUrlTemplate, $aFoundVariables, $sExpectedUrl)
+	public function ResolveUrl($sUrlTemplate, $aFoundVariables, $sExpectedUrl)
 	{
 		$this->assertEquals($sExpectedUrl, ThemeHandler::ResolveUrl($sUrlTemplate, $aFoundVariables));
 	}
@@ -608,7 +608,7 @@ SCSS;
 	 * @param $sExpectedCanonicalPath
 	 * @dataProvider CanonicalizePathProvider
 	 */
-	public function testCanonicalizePath($sExpectedCanonicalPath, $sPath)
+	public function CanonicalizePath($sExpectedCanonicalPath, $sPath)
 	{
 		$this->assertEquals($sExpectedCanonicalPath, ThemeHandler::CanonicalizePath($sPath), "Failed to reduce path $sPath");
 	}

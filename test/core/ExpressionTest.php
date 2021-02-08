@@ -16,7 +16,7 @@ class ExpressionTest extends ItopDataTestCase
 	 *
 	 * @throws \OQLException
 	 */
-	public function testListParameters($sOQL, $aExpected)
+	public function _testListParameters($sOQL, $aExpected)
 	{
 		$oExpression = Expression::FromOQL($sOQL);
 		$aParameters = $oExpression->ListParameters();

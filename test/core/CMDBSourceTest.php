@@ -33,7 +33,7 @@ class CMDBSourceTest extends ItopTestCase
 	 * @param string $sItopFieldType
 	 * @param string $sDbFieldType
 	 */
-	public function testCompareFieldTypes($bResult, $sItopFieldType, $sDbFieldType)
+	public function CompareFieldTypes($bResult, $sItopFieldType, $sDbFieldType)
 	{
 		$this->assertEquals($bResult, CMDBSource::IsSameFieldTypes($sItopFieldType, $sDbFieldType));
 	}

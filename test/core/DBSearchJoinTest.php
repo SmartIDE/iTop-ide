@@ -40,7 +40,7 @@ class DBSearchJoinTest extends ItopDataTestCase {
 	 * @throws \MySQLException
 	 * @throws \OQLException
 	 */
-	public function testJoin($sLeftSelect, $sRightSelect, $sParentAtt, $sResult)
+	public function Join($sLeftSelect, $sRightSelect, $sParentAtt, $sResult)
 	{
 		$oLeftSearch = DBSearch::FromOQL($sLeftSelect);
 		$oRightSearch = DBSearch::FromOQL($sRightSelect);

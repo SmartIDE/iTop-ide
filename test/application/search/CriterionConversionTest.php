@@ -71,7 +71,7 @@ class CriterionConversionTest extends ItopDataTestCase
 	 *
 	 * @throws \Exception
 	 */
-	public function testToOql($sClass, $sJSONCriterion, $sExpectedOQL)
+	public function ToOql($sClass, $sJSONCriterion, $sExpectedOQL)
 	{
 		$oSearch = new DBObjectSearch($sClass);
 		$sOql = CriterionToOQL::Convert(
@@ -278,7 +278,7 @@ class CriterionConversionTest extends ItopDataTestCase
 	 * @throws \CoreException
 	 * @throws \OQLException
 	 */
-	function testToSearchForm($aCriterion, $sExpectedOperator)
+	function ToSearchForm($aCriterion, $sExpectedOperator)
 	{
 		$oSearchForm = new SearchForm();
 		/** @var \DBObjectSearch $oSearch */
@@ -608,7 +608,7 @@ class CriterionConversionTest extends ItopDataTestCase
 	 * @throws \OQLException
 	 * @throws \CoreException
 	 */
-    function testOqlToForSearchToOqlAltLanguageFR($sOQL, $sExpectedOQL, $aExpectedCriterion)
+    function OqlToForSearchToOqlAltLanguageFR($sOQL, $sExpectedOQL, $aExpectedCriterion)
     {
         $this->OqlToSearchToOqlAltLanguage($sOQL, $sExpectedOQL, $aExpectedCriterion, "FR FR");
     }
@@ -628,7 +628,7 @@ class CriterionConversionTest extends ItopDataTestCase
 	 * @throws \OQLException
 	 * @throws \CoreException
 	 */
-    function testOqlToForSearchToOqlAltLanguageEN($sOQL, $sExpectedOQL, $aExpectedCriterion)
+    function OqlToForSearchToOqlAltLanguageEN($sOQL, $sExpectedOQL, $aExpectedCriterion)
     {
         $this->OqlToSearchToOqlAltLanguage($sOQL, $sExpectedOQL, $aExpectedCriterion, "EN US");
     }

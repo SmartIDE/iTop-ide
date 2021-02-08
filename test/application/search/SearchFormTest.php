@@ -52,7 +52,7 @@ class SearchFormTest extends ItopDataTestCase
 	 * @throws \OQLException
 	 * @throws \CoreException
 	 */
-	public function testGetFields($sOQL)
+	public function GetFields($sOQL)
 	{
 		$oSearchForm = new SearchForm();
 		$oSearch = \DBSearch::FromOQL($sOQL);
@@ -85,7 +85,7 @@ class SearchFormTest extends ItopDataTestCase
 	 * @throws \CoreException
 	 * @throws \MissingQueryArgument
 	 */
-	public function testGetCriterion($sOQL, $iOrCount)
+	public function GetCriterion($sOQL, $iOrCount)
 	{
 		$oSearchForm = new SearchForm();
 		try

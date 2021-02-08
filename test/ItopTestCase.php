@@ -26,6 +26,7 @@ namespace Combodo\iTop\Test\UnitTest;
  */
 
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use SetupUtils;
 
 define('DEBUG_UNIT_TEST', true);
@@ -33,6 +34,7 @@ define('DEBUG_UNIT_TEST', true);
 class ItopTestCase extends TestCase
 {
 	const TEST_LOG_DIR = 'test';
+	protected $sSubTestName;
 
     protected function setUp()
 	{
@@ -46,6 +48,11 @@ class ItopTestCase extends TestCase
 		@include_once '../../../../../../../../approot.inc.php';
 
         $this->debug("\n----------\n---------- ".$this->getName()."\n----------\n");
+		$this->sSubTestName = '';
+	}
+
+	protected function tearDown()
+	{
 	}
 
 	protected function debug($sMsg)
@@ -95,4 +102,83 @@ class ItopTestCase extends TestCase
 		return $sId;
 	}
 
+	/**
+	 * helper to test if a string starts with another
+	 * @param $haystack
+	 * @param $needle
+	 *
+	 * @return bool
+	 */
+	final public static function StartsWith($haystack, $needle)
+	{
+		if (strlen($needle) > strlen($haystack))
+		{
+			return false;
+		}
+
+		return substr_compare($haystack, $needle, 0, strlen($needle)) === 0;
+	}
+
+	/**
+	 * Run all the tests having provider
+	 */
+	public function testAll()
+	{
+		$oRClass = new ReflectionClass($this);
+		$aRMethods = $oRClass->getMethods();
+
+		$aTestsToRun = [];
+		$iNumberOfTests = 0;
+
+		// Gather all tests to run
+		foreach ($aRMethods as $oRMethod) {
+			$sName = $oRMethod->getName();
+			if (static::StartsWith($sName, "test")) {
+				// Ignore real tests
+				continue;
+			}
+
+			$sComment = $oRMethod->getDocComment();
+			if ($sComment !== false) {
+				if (preg_match('# @dataProvider\s+(?<provider>\w+)#', $sComment, $aMatches)) {
+					$sProvider = $aMatches['provider'];
+					$sDepends = '';
+					if (preg_match('# @depends\s+(?<depends>\w+)#', $sComment, $aMatches)) {
+						$sDepends = $aMatches['depends'];
+					}
+					$aTestsToRun[$sDepends][$sName] = $sProvider;
+					$iNumberOfTests++;
+				}
+			}
+		}
+
+		$iNumberOfTestsDone = 0;
+
+		// Run the tests
+		foreach ($aTestsToRun as $sDepends => $aTests) {
+			if (strlen($sDepends) > 0) {
+				$this->debug("\n---------- $sDepends ----------\n");
+				call_user_func([$this, $sDepends]);
+			}
+
+
+			foreach ($aTests as $sName => $sProvider) {
+				$this->debug("\n---------- $sName ----------\n");
+				$aAllData = call_user_func([$this, $sProvider]);
+				foreach ($aAllData as $sSubTest => $aData) {
+					call_user_func([$this, 'setUp']);
+					$this->debug("\n--- $sSubTest ---\n");
+					$this->sSubTestName = "$sName with data set $sSubTest";
+					call_user_func_array([$this, $sName], $aData);
+					$iNumberOfTestsDone++;
+					call_user_func([$this, 'tearDown']);
+				}
+			}
+		}
+
+		$this->debug("\nDone $iNumberOfTestsDone tests\n");
+
+		// if no test found
+		static::assertTrue(true);
+	}
 }

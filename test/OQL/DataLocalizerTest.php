@@ -5,7 +5,9 @@
 
 define('NUM_PRECISION', 2);
 
-use Combodo\iTop\Test\UnitTest\ItopDataTestCase;
+use Combodo\iTop\Test\UnitTest\Core\OQLTestWithLegacy;
+
+require_once 'OQLTestWithLegacy.php';
 
 /**
  * @group itopRequestMgmt
@@ -15,7 +17,7 @@ use Combodo\iTop\Test\UnitTest\ItopDataTestCase;
  * @preserveGlobalState disabled
  * @backupGlobals disabled
  */
-class DataLocalizerTest extends ItopDataTestCase
+class DataLocalizerTest extends OQLTestWithLegacy
 {
 	const USE_TRANSACTION = false;
 	const TEST_CSV_RESULT = 'DataLocalizerTest.csv';
@@ -23,10 +25,7 @@ class DataLocalizerTest extends ItopDataTestCase
 	public function setUp()
 	{
 		parent::setUp();
-		require_once(APPROOT.'application/startup.inc.php');
 		ApplicationContext::SetPluginProperty('QueryLocalizerPlugin', 'language_code', 'FR FR');
-
-		SetupUtils::builddir(APPROOT.'log/test/OQLToSQL');
 	}
 
 	private function GetPreviousTestResult($sTestId)
@@ -57,7 +56,7 @@ class DataLocalizerTest extends ItopDataTestCase
 	 * @throws \ConfigException
 	 * @throws \CoreException
 	 */
-	public function testOQLLegacySetup()
+	public function OQLLegacySetup()
 	{
 		utils::GetConfig()->Set('use_legacy_dbsearch', true, 'Test');
 		utils::GetConfig()->Set('apc_cache.enabled', false, 'Test');
@@ -73,7 +72,7 @@ class DataLocalizerTest extends ItopDataTestCase
 
 	/**
 	 * @dataProvider OQLGroupByProvider
-	 * @depends      testOQLLegacySetup
+	 * @depends      OQLLegacySetup
 	 *
 	 * @param $sOQL
 	 * @param $aArgs
@@ -89,7 +88,7 @@ class DataLocalizerTest extends ItopDataTestCase
 	 * @throws \MySQLHasGoneAwayException
 	 * @throws \OQLException
 	 */
-	public function testOQLGroupByLegacy($sOQL, $aArgs, $aGroupByExpr, $bExcludeNullValues = false, $aSelectExpr = array(), $aOrderBy = array(), $iLimitCount = 0, $iLimitStart = 0)
+	public function OQLGroupByLegacy($sOQL, $aArgs, $aGroupByExpr, $bExcludeNullValues = false, $aSelectExpr = array(), $aOrderBy = array(), $iLimitCount = 0, $iLimitStart = 0)
 	{
 		$this->assertTrue(utils::GetConfig()->Get('use_legacy_dbsearch'));
 		$this->assertFalse(utils::GetConfig()->Get('apc_cache.enabled'));
@@ -109,7 +108,7 @@ class DataLocalizerTest extends ItopDataTestCase
 
 	/**
 	 * @dataProvider OQLSelectProvider
-	 * @depends testOQLLegacySetup
+	 * @depends OQLLegacySetup
 	 *
 	 * @param $sOQL
 	 *
@@ -124,7 +123,7 @@ class DataLocalizerTest extends ItopDataTestCase
 	 * @throws \MissingQueryArgument
 	 * @throws \OQLException
 	 */
-	public function testOQLLegacySelect($sOQL, $aOrderBy = array(), $aArgs = array(), $aAttToLoad = null, $aExtendedDataSpec = null, $iLimitCount = 20, $iLimitStart = 0)
+	public function OQLLegacySelect($sOQL, $aOrderBy = array(), $aArgs = array(), $aAttToLoad = null, $aExtendedDataSpec = null, $iLimitCount = 20, $iLimitStart = 0)
 	{
 		$this->assertTrue(utils::GetConfig()->Get('use_legacy_dbsearch'));
 		$this->assertFalse(utils::GetConfig()->Get('apc_cache.enabled'));
@@ -144,11 +143,12 @@ class DataLocalizerTest extends ItopDataTestCase
 
 	/**
 	 * @doesNotPerformAssertions
+	 * @depends OQLLegacySetup
 	 *
 	 * @throws \ConfigException
 	 * @throws \CoreException
 	 */
-	public function testOQLSetup()
+	public function OQLSetup()
 	{
 		utils::GetConfig()->Set('use_legacy_dbsearch', false, 'test');
 		utils::GetConfig()->Set('apc_cache.enabled', false, 'test');
@@ -172,7 +172,7 @@ class DataLocalizerTest extends ItopDataTestCase
 
 	/**
 	 * @dataProvider OQLGroupByProvider
-	 * @depends      testOQLSetup
+	 * @depends      OQLSetup
 	 *
 	 * @param $sOQL
 	 * @param $aArgs
@@ -188,7 +188,7 @@ class DataLocalizerTest extends ItopDataTestCase
 	 * @throws \MySQLHasGoneAwayException
 	 * @throws \OQLException
 	 */
-	public function testOQLGroupBy($sOQL, $aArgs, $aGroupByExpr, $bExcludeNullValues = false, $aSelectExpr = array(), $aOrderBy = array(), $iLimitCount = 0, $iLimitStart = 0)
+	public function OQLGroupBy($sOQL, $aArgs, $aGroupByExpr, $bExcludeNullValues = false, $aSelectExpr = array(), $aOrderBy = array(), $iLimitCount = 0, $iLimitStart = 0)
 	{
 		$this->assertFalse(utils::GetConfig()->Get('use_legacy_dbsearch'));
 		$this->assertFalse(utils::GetConfig()->Get('apc_cache.enabled'));
@@ -312,7 +312,7 @@ class DataLocalizerTest extends ItopDataTestCase
 
 	/**
 	 * @dataProvider OQLSelectProvider
-	 * @depends testOQLSetup
+	 * @depends OQLSetup
 	 *
 	 * @param $sOQL
 	 *
@@ -327,7 +327,7 @@ class DataLocalizerTest extends ItopDataTestCase
 	 * @throws \MissingQueryArgument
 	 * @throws \OQLException
 	 */
-	public function testOQLSelect($sOQL, $aOrderBy = array(), $aArgs = array(), $aAttToLoad = null, $aExtendedDataSpec = null, $iLimitCount = 20, $iLimitStart = 0)
+	public function OQLSelect($sOQL, $aOrderBy = array(), $aArgs = array(), $aAttToLoad = null, $aExtendedDataSpec = null, $iLimitCount = 20, $iLimitStart = 0)
 	{
 		$this->assertFalse(utils::GetConfig()->Get('use_legacy_dbsearch'));
 		$this->assertFalse(utils::GetConfig()->Get('apc_cache.enabled'));
@@ -1092,15 +1092,6 @@ class DataLocalizerTest extends ItopDataTestCase
 		@include ('oql_records.php');
 
 		return $aData;
-	}
-
-
-	private function GetId()
-	{
-		$sId = str_replace('"', '', $this->getName());
-		$sId = str_replace('Legacy', '', $sId);
-		$sId = str_replace(' ', '_', $sId);
-		return $sId;
 	}
 
 	/**

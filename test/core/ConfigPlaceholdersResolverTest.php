@@ -23,7 +23,6 @@ namespace Combodo\iTop\Test\UnitTest\Core;
 
 use Combodo\iTop\Test\UnitTest\ItopTestCase;
 use ConfigPlaceholdersResolver;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @runTestsInSeparateProcesses
@@ -40,7 +39,7 @@ class ConfigPlaceholdersResolverTest extends ItopTestCase
 	/**
 	 * @dataProvider providerResolve
 	 */
-	public function testResolve($aEnv, $aServer, $sValue, $sExpected, $sExpectedExceptionClass = null)
+	public function Resolve($aEnv, $aServer, $sValue, $sExpected, $sExpectedExceptionClass = null)
 	{
 		if ($sExpectedExceptionClass)
 		{

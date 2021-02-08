@@ -72,7 +72,7 @@ class DBSearchTest extends ItopDataTestCase
 	 * @param $aCountRes
 	 * @throws Exception
 	 */
-	public function testMakeGroupByQuery($iOrgNb, $iPersonNb, $aReq, $iLimit, $aCountRes)
+	public function MakeGroupByQuery($iOrgNb, $iPersonNb, $aReq, $iLimit, $aCountRes)
 	{
 		$sOrgs = $this->init_db($iOrgNb, $iPersonNb, $aReq);
 
@@ -540,7 +540,7 @@ class DBSearchTest extends ItopDataTestCase
 	 *
 	 * @covers       DBSearch::GetFirstResult()
 	 */
-	public function testGetFirstResult($sOql, $bMustHaveOneResultMax, $sReturn)
+	public function GetFirstResult($sOql, $bMustHaveOneResultMax, $sReturn)
 	{
 		$oSearch = DBSearch::FromOQL($sOql);
 

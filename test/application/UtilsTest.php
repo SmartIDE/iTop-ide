@@ -41,7 +41,7 @@ class UtilsTest extends \Combodo\iTop\Test\UnitTest\ItopTestCase
 	/**
 	 * @dataProvider memoryLimitDataProvider
 	 */
-	public function testIsMemoryLimit($expected, $memoryLimit, $requiredMemory)
+	public function IsMemoryLimit($expected, $memoryLimit, $requiredMemory)
 	{
 		$this->assertSame($expected, utils::IsMemoryLimitOk($memoryLimit, $requiredMemory));
 	}
@@ -66,7 +66,7 @@ class UtilsTest extends \Combodo\iTop\Test\UnitTest\ItopTestCase
 	 * @dataProvider realPathDataProvider
 	 * @covers       utils::RealPath()
 	 */
-	public function testRealPath($sPath, $sBasePath, $expected)
+	public function RealPath($sPath, $sBasePath, $expected)
 	{
 		$this->assertSame($expected, utils::RealPath($sPath, $sBasePath), "utils::RealPath($sPath, $sBasePath) does not match $expected");
 	}
@@ -114,7 +114,7 @@ class UtilsTest extends \Combodo\iTop\Test\UnitTest\ItopTestCase
 	 * @param $sAbsolutePath
 	 * @param $expected
 	 */
-	public function testLocalPath($sAbsolutePath, $expected)
+	public function LocalPath($sAbsolutePath, $expected)
 	{
 		$this->assertSame($expected, utils::LocalPath($sAbsolutePath));
 
@@ -154,7 +154,7 @@ class UtilsTest extends \Combodo\iTop\Test\UnitTest\ItopTestCase
 	 * @dataProvider appRootUrlProvider
 	 * @covers utils::GetAppRootUrl
 	 */
-	public function testGetAppRootUrl($sReturnValue, $sCurrentScript, $sAppRoot, $sAbsoluteUrl)
+	public function GetAppRootUrl($sReturnValue, $sCurrentScript, $sAppRoot, $sAbsoluteUrl)
 	{
 		$this->assertEquals($sReturnValue, utils::GetAppRootUrl($sCurrentScript, $sAppRoot, $sAbsoluteUrl));
 	}

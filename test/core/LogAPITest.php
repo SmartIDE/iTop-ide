@@ -32,10 +32,9 @@ class LogAPITest extends ItopTestCase
 
 	/**
 	 * @dataProvider LogApiProvider
-	 * @test
 	 * @backupGlobals disabled
 	 */
-	public function TestLogApi($oConfigObject, $sMessage, $Channel, $sExpectedLevel, $sExpectedMessage, $sExpectedChannel = '')
+	public function LogApi($oConfigObject, $sMessage, $Channel, $sExpectedLevel, $sExpectedMessage, $sExpectedChannel = '')
 	{
 		\IssueLog::MockStaticObjects($this->mockFileLog, $oConfigObject);
 
@@ -57,10 +56,9 @@ class LogAPITest extends ItopTestCase
 	
 	/**
 	 * @dataProvider LogWarningWithASpecificChannelProvider
-	 * @test
 	 * @backupGlobals disabled
 	 */
-	public function TestLogWarningWithASpecificChannel($expectedCallNb, $sExpectedLevel, $ConfigReturnedObject, $bExceptionRaised=false)
+	public function LogWarningWithASpecificChannel($expectedCallNb, $sExpectedLevel, $ConfigReturnedObject, $bExceptionRaised=false)
 	{
 		$this->oMetaModelConfig
 			->method("Get")
@@ -104,11 +102,10 @@ class LogAPITest extends ItopTestCase
 	}
 
 	/**
-	 * @dataProvider LogOkWithASpecificChannel
-	 * @test
+	 * @dataProvider LogOkWithASpecificChannelProvider
 	 * @backupGlobals disabled
 	 */
-	public function TestLogOkWithASpecificChannel($expectedCallNb, $sExpectedLevel, $ConfigReturnedObject, $bExceptionRaised=false)
+	public function LogOkWithASpecificChannel($expectedCallNb, $sExpectedLevel, $ConfigReturnedObject, $bExceptionRaised=false)
 	{
 		$this->oMetaModelConfig
 			->method("Get")
@@ -137,7 +134,7 @@ class LogAPITest extends ItopTestCase
 		}
 	}
 
-	public function LogOkWithASpecificChannel()
+	public function LogOkWithASpecificChannelProvider()
 	{
 		return [
 			"empty config" => [ 1, "Ok", ''],

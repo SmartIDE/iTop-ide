@@ -23,7 +23,6 @@ namespace Combodo\iTop\Test\UnitTest\Core;
 
 use Combodo\iTop\Test\UnitTest\ItopTestCase;
 use Config;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @runTestsInSeparateProcesses
@@ -46,7 +45,7 @@ class ConfigTest extends ItopTestCase
 	 * @throws \CoreException
 	 *
 	 */
-	public function testPreserveVarOnWriteToFile($sConfigFile, $sExpectedContains, $aChanges)
+	public function PreserveVarOnWriteToFile($sConfigFile, $sExpectedContains, $aChanges)
 	{
 		$sTmpFile = tempnam(sys_get_temp_dir(), "target");
 

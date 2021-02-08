@@ -20,7 +20,7 @@ class HTMLDOMSanitizerTest extends ItopTestCase
 	 *
 	 * @param string $sFileToTest filename
 	 */
-	public function testDoSanitize($sFileToTest)
+	public function _testDoSanitize($sFileToTest)
 	{
 		$sInputHtml = $this->ReadTestFile($sFileToTest, self::INPUT_DIRECTORY);
 		$sOutputHtml = $this->ReadTestFile($sFileToTest, self::OUTPUT_DIRECTORY);
@@ -74,7 +74,7 @@ class HTMLDOMSanitizerTest extends ItopTestCase
 	 *
 	 * @param string $sHtmlToTest HTML content
 	 */
-	public function testDoSanitizeWhiteList($sHtmlToTest)
+	public function _testDoSanitizeWhiteList($sHtmlToTest)
 	{
 		$oSanitizer = new HTMLDOMSanitizer();
 		$sRes = $oSanitizer->DoSanitize($sHtmlToTest);
@@ -206,7 +206,7 @@ class HTMLDOMSanitizerTest extends ItopTestCase
 	/**
 	 * @dataProvider RemoveBlackListedTagContentProvider
 	 */
-	public function testDoSanitizeRemoveBlackListedTagContent($html, $expected)
+	public function _testDoSanitizeRemoveBlackListedTagContent($html, $expected)
 	{
 		$oSanitizer = new HTMLDOMSanitizer();
 		$sSanitizedHtml = $oSanitizer->DoSanitize($html);

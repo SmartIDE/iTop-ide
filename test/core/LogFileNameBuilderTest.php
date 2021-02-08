@@ -49,7 +49,7 @@ class LogFileNameBuilderTest extends ItopTestCase
 		}
 	}
 
-	public function testCheckAndRotateLogFile()
+	public function _testCheckAndRotateLogFile()
 	{
 		$sLogFile = __DIR__.DIRECTORY_SEPARATOR.self::TEST_LOGFILE_PREFIX.'.'.self::TEST_LOGFILE_EXTENSION;
 		$oFileBuilder = new DailyRotatingLogFileNameBuilder($sLogFile);
@@ -120,7 +120,7 @@ class LogFileNameBuilderTest extends ItopTestCase
 	 *
 	 * @dataProvider ShouldRotateProvider
 	 */
-	public function testShouldRotate($sFileNameBuilderClass, $sDateModified, $sDateNow, $bExpected)
+	public function _testShouldRotate($sFileNameBuilderClass, $sDateModified, $sDateNow, $bExpected)
 	{
 		$oDateModified = DateTime::createFromFormat('Y-m-d H:i', $sDateModified);
 		$oDateNow = DateTime::createFromFormat('Y-m-d H:i', $sDateNow);
@@ -152,7 +152,7 @@ class LogFileNameBuilderTest extends ItopTestCase
 	 *
 	 * @dataProvider CronNextOccurrenceProvider
 	 */
-	public function testCronNextOccurrence($sFileNameBuilderClass, $sDateNow, $sExpectedOccurrence)
+	public function _testCronNextOccurrence($sFileNameBuilderClass, $sDateNow, $sExpectedOccurrence)
 	{
 		$oDateNow = DateTime::createFromFormat('Y-m-d H:i', $sDateNow);
 
