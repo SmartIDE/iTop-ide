@@ -38,7 +38,7 @@ class DBSearchIntersectTest extends ItopTestCase
 	 * @throws \MySQLException
 	 * @throws \OQLException
 	 */
-	public function Filter($sLeftSelect, $sRightSelect, $sClassAlias, $sResult)
+	public function GroupTestFilter($sLeftSelect, $sRightSelect, $sClassAlias, $sResult)
 	{
 		$oLeftSearch = DBSearch::FromOQL($sLeftSelect);
 		$oRightSearch = DBSearch::FromOQL($sRightSelect);
@@ -161,7 +161,7 @@ class DBSearchIntersectTest extends ItopTestCase
 	 * @throws \MySQLException
 	 * @throws \OQLException
 	 */
-	public function Intersect($sLeftSelect, $sRightSelect, $sResult)
+	public function GroupTestIntersect($sLeftSelect, $sRightSelect, $sResult)
 	{
 		$oLeftSearch = DBSearch::FromOQL($sLeftSelect);
 		$oRightSearch = DBSearch::FromOQL($sRightSelect);
@@ -347,7 +347,7 @@ class DBSearchIntersectTest extends ItopTestCase
 	 * @throws \MySQLException
 	 * @throws \OQLException
 	 */
-	public function IntersectOptimization($sBaseQuery, $sOQL, $sResult)
+	public function GroupTestIntersectOptimization($sBaseQuery, $sOQL, $sResult)
 	{
 		$oSearchA = DBSearch::FromOQL($sBaseQuery);
 		$oSearchB = DBSearch::FromOQL($sOQL);

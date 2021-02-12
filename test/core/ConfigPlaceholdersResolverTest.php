@@ -39,7 +39,7 @@ class ConfigPlaceholdersResolverTest extends ItopTestCase
 	/**
 	 * @dataProvider providerResolve
 	 */
-	public function Resolve($aEnv, $aServer, $sValue, $sExpected, $sExpectedExceptionClass = null)
+	public function GroupTestResolve($aEnv, $aServer, $sValue, $sExpected, $sExpectedExceptionClass = null)
 	{
 		if ($sExpectedExceptionClass)
 		{

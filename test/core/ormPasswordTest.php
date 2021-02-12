@@ -7,8 +7,8 @@
 namespace Combodo\iTop\Test\UnitTest\Core;
 
 use Combodo\iTop\Test\UnitTest\ItopDataTestCase;
-use Utils;
 use ormPassword;
+use Utils;
 
 /**
  * Tests of the ormPassword class
@@ -30,7 +30,7 @@ class ormPasswordTest extends ItopDataTestCase
 	 * @throws \CoreException
 	 * @dataProvider HashProvider
 	 */
-	public function testCheckHash($sToHashValues, $sToHashSalt, $sHashAlgo, $sExpectedHash)
+	public function GroupTestCheckHash($sToHashValues, $sToHashSalt, $sHashAlgo, $sExpectedHash)
 	{
 		utils::GetConfig()->SetPasswordHashAlgo($sHashAlgo);
 		$oPassword1 = new ormPassword($sExpectedHash, $sToHashSalt);

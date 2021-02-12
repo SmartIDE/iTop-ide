@@ -212,7 +212,7 @@ class ormTagSetTest extends ItopDataTestCase
 	 *
 	 * @dataProvider GetModifiedProvider
 	 */
-	public function testGetModified($aInitialTags, $aDiffAndExpectedTags)
+	public function GroupTestGetModified($aInitialTags, $aDiffAndExpectedTags)
 	{
 		$oTagSet1 = new ormTagSet(TAG_CLASS, TAG_ATTCODE, MAX_TAGS);
 		$oTagSet1->SetValues($aInitialTags);
@@ -264,7 +264,7 @@ class ormTagSetTest extends ItopDataTestCase
 	 * @throws \Exception
 	 * @dataProvider BulkModifyProvider
 	 */
-	public function testBulkModify($aInitialTags, $aDelta, $aExpectedTags)
+	public function GroupTestBulkModify($aInitialTags, $aDelta, $aExpectedTags)
 	{
 		$oTagSet1 = new ormTagSet(TAG_CLASS, TAG_ATTCODE, MAX_TAGS);
 		$oTagSet1->SetValues($aInitialTags);

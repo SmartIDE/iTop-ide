@@ -62,7 +62,7 @@ class DashboardLayoutTest extends ItopTestCase
 	 * @dataProvider GetDashletCoordinatesProvider
 	 * @since N°2735
 	 */
-	public function GetDashletCoordinates($sDashboardLayoutClass, $iCellIdx, $aExpectedCoordinates)
+	public function GroupTestGetDashletCoordinates($sDashboardLayoutClass, $iCellIdx, $aExpectedCoordinates)
 	{
 		$oDashboardLayout = new $sDashboardLayoutClass();
 		$aDashletCoordinates = $oDashboardLayout->GetDashletCoordinates($iCellIdx);

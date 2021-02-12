@@ -60,7 +60,7 @@ class DBObjectTest extends ItopDataTestCase
 	 * @param $key
 	 * @param $res
 	 */
-	public function IsValidPKeyOK($key, $res)
+	public function GroupTestIsValidPKeyOK($key, $res)
 	{
 		static::assertEquals(DBObject::IsValidPKey($key), $res);
 	}

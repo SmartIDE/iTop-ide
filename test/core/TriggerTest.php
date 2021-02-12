@@ -2,11 +2,9 @@
 
 namespace Combodo\iTop\Test\UnitTest\Core;
 
-use Combodo\iTop\Portal\Controller\ObjectController;
 use Combodo\iTop\Test\UnitTest\ItopDataTestCase;
 use ContextTag;
 use MetaModel;
-use PHPUnit\Exception;
 use TriggerOnObjectCreate;
 
 /**
@@ -76,7 +74,7 @@ class TriggerTest extends ItopDataTestCase
 	 * @param $oCmdbAbstract
 	 * @dataProvider NoEnrichmentProvider
 	 */
-	public function testEnrichRaisedException_NoEnrichment($oCmdbAbstract)
+	public function GroupTestEnrichRaisedException_NoEnrichment($oCmdbAbstract)
 	{
 		try
 		{

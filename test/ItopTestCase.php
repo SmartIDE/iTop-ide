@@ -47,7 +47,9 @@ class ItopTestCase extends TestCase
 		@include_once '../../../../../../../approot.inc.php';
 		@include_once '../../../../../../../../approot.inc.php';
 
-        $this->debug("\n----------\n---------- ".$this->getName()."\n----------\n");
+		if ($this->getName() != 'testAll') {
+			$this->debug("\n----------\n---------- ".$this->getName()."\n----------\n");
+		}
 		$this->sSubTestName = '';
 	}
 

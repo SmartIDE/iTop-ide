@@ -20,7 +20,7 @@ class HTMLDOMSanitizerTest extends ItopTestCase
 	 *
 	 * @param string $sFileToTest filename
 	 */
-	public function _testDoSanitize($sFileToTest)
+	public function GroupTestDoSanitize($sFileToTest)
 	{
 		$sInputHtml = $this->ReadTestFile($sFileToTest, self::INPUT_DIRECTORY);
 		$sOutputHtml = $this->ReadTestFile($sFileToTest, self::OUTPUT_DIRECTORY);
@@ -74,7 +74,7 @@ class HTMLDOMSanitizerTest extends ItopTestCase
 	 *
 	 * @param string $sHtmlToTest HTML content
 	 */
-	public function _testDoSanitizeWhiteList($sHtmlToTest)
+	public function GroupTestDoSanitizeWhiteList($sHtmlToTest)
 	{
 		$oSanitizer = new HTMLDOMSanitizer();
 		$sRes = $oSanitizer->DoSanitize($sHtmlToTest);
@@ -145,7 +145,7 @@ class HTMLDOMSanitizerTest extends ItopTestCase
 		);
 		$aTestCaseArray = array();
 
-		$sInputText = $this->ReadTestFile('whitelist_test.html', self::INPUT_DIRECTORY);
+		$sInputText = $this->ReadTestFile('whitelistGroupTest.html', self::INPUT_DIRECTORY);
 		foreach ($aTagsWhiteList as $sTag => $aTagAttributes)
 		{
 			$sTestCaseText = $sInputText;
@@ -206,7 +206,7 @@ class HTMLDOMSanitizerTest extends ItopTestCase
 	/**
 	 * @dataProvider RemoveBlackListedTagContentProvider
 	 */
-	public function _testDoSanitizeRemoveBlackListedTagContent($html, $expected)
+	public function GroupTestDoSanitizeRemoveBlackListedTagContent($html, $expected)
 	{
 		$oSanitizer = new HTMLDOMSanitizer();
 		$sSanitizedHtml = $oSanitizer->DoSanitize($html);

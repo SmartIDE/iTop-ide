@@ -32,7 +32,7 @@ class OQLParserTest extends ItopDataTestCase
 	 *
 	 * @throws \OQLException
 	 */
-	public function testGoodNestedQueryQueryParser($sQuery)
+	public function GroupTestGoodNestedQueryQueryParser($sQuery)
 	{
 		$this->debug($sQuery);
 		$oDbObjectSearch = DBObjectSearch::FromOQL($sQuery);

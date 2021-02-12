@@ -71,7 +71,7 @@ class CriterionConversionTest extends ItopDataTestCase
 	 *
 	 * @throws \Exception
 	 */
-	public function ToOql($sClass, $sJSONCriterion, $sExpectedOQL)
+	public function GroupTestToOql($sClass, $sJSONCriterion, $sExpectedOQL)
 	{
 		$oSearch = new DBObjectSearch($sClass);
 		$sOql = CriterionToOQL::Convert(
@@ -278,7 +278,7 @@ class CriterionConversionTest extends ItopDataTestCase
 	 * @throws \CoreException
 	 * @throws \OQLException
 	 */
-	function ToSearchForm($aCriterion, $sExpectedOperator)
+	function GroupTestToSearchForm($aCriterion, $sExpectedOperator)
 	{
 		$oSearchForm = new SearchForm();
 		/** @var \DBObjectSearch $oSearch */

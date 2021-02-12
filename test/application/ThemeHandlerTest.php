@@ -250,7 +250,7 @@ JSON;
 	 * @throws \CoreException
 	 * @dataProvider CompileThemesProviderWithoutCss
 	 */
-	public function CompileThemeWithoutCssFile_FocusOnParamAttribute($readFromParamAttributeFromJson=false)
+	public function GroupTestCompileThemeWithoutCssFile_FocusOnParamAttribute($readFromParamAttributeFromJson=false)
 	{
 		$sExpectJsonFilePath = APPROOT.'test/application/theme-handler/expected/themes/basque-red/theme-parameters.json';
 		$sExpectedThemeParamJson = file_get_contents($sExpectJsonFilePath);
@@ -298,7 +298,7 @@ JSON;
 	 * @throws \CoreException
 	 * @dataProvider CompileThemesProviderEmptyArray
 	 */
-	public function CompileThemesEmptyArray($ThemeParametersJson, $CompileCount=0)
+	public function GroupTestCompileThemesEmptyArray($ThemeParametersJson, $CompileCount=0)
 	{
 		$sCssPath = $this->sTmpDir . '/branding/themes/basque-red/main.css';
 		copy(APPROOT . 'test/application/theme-handler/expected/themes/basque-red/main.css', $sCssPath);
@@ -369,7 +369,7 @@ JSON;
 	 * @throws \CoreException
 	 * @dataProvider CompileThemesProvider
 	 */
-	public function CompileThemes($ThemeParametersJson, $iCompileCSSFromSASSCount, $bMissingFile=false, $bFilesTouchedRecently=false, $bFileMd5sumModified=false, $sFileToTest=null, $sExpectedMainCssPath=null, $bSetup=true)
+	public function GroupTestCompileThemes($ThemeParametersJson, $iCompileCSSFromSASSCount, $bMissingFile=false, $bFilesTouchedRecently=false, $bFileMd5sumModified=false, $sFileToTest=null, $sExpectedMainCssPath=null, $bSetup=true)
 	{
 		$sAfterReplacementCssVariableMd5sum='';
 		if (is_file($this->sTmpDir.'/'.$sFileToTest))
@@ -405,7 +405,7 @@ JSON;
 		}
 
 		//change cssvar md5sum + image absolute paths
-		$sMainCssContent = file_get_contents(APPROOT."test/application/theme-handler/expected/themes/basque-red/main_testcompilethemes.css");
+		$sMainCssContent = file_get_contents(APPROOT."test/application/theme-handler/expected/themes/basque-red/mainGroupTestcompilethemes.css");
 		$sMainCssContent = preg_replace('/MD5SUM/', $sAfterReplacementCssVariableMd5sum, $sMainCssContent);
 		$sReplacement = rtrim($sAbsoluteImagePath, '/');
 		$sReplacement=preg_replace('|\/|', '\/', $sReplacement);
@@ -492,7 +492,7 @@ JSON;
 	 *
 	 * @dataProvider GetAllUrlFromScssProvider
 	 */
-	public function GetAllUrlFromScss($sScssFile)
+	public function GroupTestGetAllUrlFromScss($sScssFile)
 	{
 		$aIncludedUrls = ThemeHandler::GetAllUrlFromScss(['attr' => "123"],APPROOT.$sScssFile);
 		$this->assertEquals(['approot-relative', 'version', 'version1'], array_values($aIncludedUrls['aMissingVariables']));
@@ -562,7 +562,7 @@ SCSS;
 	 *
 	 * @dataProvider ResolveUrlProvider
 	 */
-	public function ResolveUrl($sUrlTemplate, $aFoundVariables, $sExpectedUrl)
+	public function GroupTestResolveUrl($sUrlTemplate, $aFoundVariables, $sExpectedUrl)
 	{
 		$this->assertEquals($sExpectedUrl, ThemeHandler::ResolveUrl($sUrlTemplate, $aFoundVariables));
 	}

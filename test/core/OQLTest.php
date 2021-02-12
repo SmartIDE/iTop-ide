@@ -60,7 +60,7 @@ class OQLTest extends ItopDataTestCase
 	 *
 	 * @throws \OQLException
 	 */
-	public function testGoodNestedQueryQueryParser($sQuery)
+	public function GroupTestGoodNestedQueryQueryParser($sQuery)
 	{
 		$this->debug($sQuery);
 		$oOql = new OqlInterpreter($sQuery);
@@ -90,7 +90,7 @@ class OQLTest extends ItopDataTestCase
      *
      * @throws \OQLException
      */
-    public function testGoodQueryParser($sQuery)
+    public function GroupTestGoodQueryParser($sQuery)
     {
         $this->debug($sQuery);
         $oOql = new OqlInterpreter($sQuery);
@@ -188,7 +188,7 @@ class OQLTest extends ItopDataTestCase
      * @param $sExpectedExceptionClass
      *
      */
-    public function testBadQueryParser($sQuery, $sExpectedExceptionClass)
+    public function GroupTestBadQueryParser($sQuery, $sExpectedExceptionClass)
     {
         $this->debug($sQuery);
         $oOql = new OqlInterpreter($sQuery);
@@ -232,7 +232,7 @@ class OQLTest extends ItopDataTestCase
      * @param $sExpectedExceptionClass
      *
      */
-    public function testQueryNormalization($sQuery, $sExpectedExceptionClass)
+    public function GroupTestQueryNormalization($sQuery, $sExpectedExceptionClass)
     {
         $this->debug($sQuery);
         $sExceptionClass = '';
@@ -321,7 +321,7 @@ class OQLTest extends ItopDataTestCase
 	 * @throws \CoreException
 	 * @throws \OQLException
 	 */
-	public function testOQLIntersect($sOQL1, $sOQL2, $sOQLIntersect)
+	public function GroupTestOQLIntersect($sOQL1, $sOQL2, $sOQLIntersect)
 	{
 		// Check that legacy mode is not set
 		$this->assertFalse(utils::GetConfig()->Get('use_legacy_dbsearch'));
@@ -380,7 +380,7 @@ class OQLTest extends ItopDataTestCase
 	 * @param $sOQL
 	 * @param $sExpectedExceptionClass
 	 */
-	public function testMakeSelectQuery($sOQL, $sExpectedExceptionClass = '')
+	public function GroupTestMakeSelectQuery($sOQL, $sExpectedExceptionClass = '')
 	{
 		$sExceptionClass = '';
 		try
@@ -420,7 +420,7 @@ class OQLTest extends ItopDataTestCase
 	 * @param $sOQL
 	 * @param $sExpectedOQL
 	 */
-	public function testGetOQLClassTree($sOQL, $sExpectedOQL)
+	public function GroupTestGetOQLClassTree($sOQL, $sExpectedOQL)
 	{
 		$oFilter = DBSearch::FromOQL($sOQL);
 		$aCountAttToLoad = array();
@@ -471,7 +471,7 @@ class OQLTest extends ItopDataTestCase
 	 * @throws \MissingQueryArgument
 	 * @throws \OQLException
 	 */
-	public function testMakeSelectQueryForCount($sOQL, $sExpectedSQL)
+	public function GroupTestMakeSelectQueryForCount($sOQL, $sExpectedSQL)
 	{
 		$oFilter = DBSearch::FromOQL($sOQL);
 		// Avoid adding all the fields for counts or "group by" requests

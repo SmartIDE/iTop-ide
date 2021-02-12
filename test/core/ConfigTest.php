@@ -45,7 +45,7 @@ class ConfigTest extends ItopTestCase
 	 * @throws \CoreException
 	 *
 	 */
-	public function PreserveVarOnWriteToFile($sConfigFile, $sExpectedContains, $aChanges)
+	public function GroupTestPreserveVarOnWriteToFile($sConfigFile, $sExpectedContains, $aChanges)
 	{
 		$sTmpFile = tempnam(sys_get_temp_dir(), "target");
 

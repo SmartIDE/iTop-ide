@@ -31,7 +31,7 @@ class DBSearchUpdateRealiasingMapTest extends ItopDataTestCase
 	 * @param $aAliasTranslation
 	 * @param $aExpectedRealiasingMap
 	 */
-	public function UpdateRealiasingMap($aRealiasingMap, $aAliasTranslation, $aExpectedRealiasingMap)
+	public function GroupTestUpdateRealiasingMap($aRealiasingMap, $aAliasTranslation, $aExpectedRealiasingMap)
 	{
 		$oObject = new DBObjectSearch('Organization');
 		$aArgs = [&$aRealiasingMap, $aAliasTranslation];

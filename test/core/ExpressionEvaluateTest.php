@@ -27,7 +27,7 @@ class ExpressionEvaluateTest extends iTopDataTestCase
 	 *
 	 * @throws \OQLException
 	 */
-	public function _testGetParameters($sExpression, $sParentFilter, $aExpectedParameters)
+	public function GroupTestGetParameters($sExpression, $sParentFilter, $aExpectedParameters)
 	{
 		$oExpression = Expression::FromOQL($sExpression);
 		$aParameters = $oExpression->GetParameters($sParentFilter);
@@ -77,7 +77,7 @@ class ExpressionEvaluateTest extends iTopDataTestCase
 	 * @throws \OQLException
 	 * @throws \Exception
 	 */
-	public function _testVariousExpressions($sExpression, $expectedValue)
+	public function GroupTestVariousExpressions($sExpression, $expectedValue)
 	{
 		$oExpression = Expression::FromOQL($sExpression);
 		$value = $oExpression->Evaluate(array());
@@ -200,7 +200,7 @@ class ExpressionEvaluateTest extends iTopDataTestCase
 	 * @param string $sExpression
 	 * @param string $expectedValue
 	 */
-	public function _testNotYetParsableExpressions($sExpression, $expectedValue)
+	public function GroupTestNotYetParsableExpressions($sExpression, $expectedValue)
 	{
 		$sNewExpression = "return $sExpression;";
 		$oExpression = eval($sNewExpression);
@@ -283,7 +283,7 @@ class ExpressionEvaluateTest extends iTopDataTestCase
 	 * @throws \CoreException
 	 * @throws \OQLException
 	 */
-	public function _testExpressionsWithObjectFields($sClass, $aValues, $sExpression, $expected)
+	public function GroupTestExpressionsWithObjectFields($sClass, $aValues, $sExpression, $expected)
 	{
 		$oObject = MetaModel::NewObject($sClass, $aValues);
 		$oExpression = Expression::FromOQL($sExpression);
@@ -311,7 +311,7 @@ class ExpressionEvaluateTest extends iTopDataTestCase
 	 * @throws \OQLException
 	 * @throws \Exception
 	 */
-	public function _testExpressionWithParameters($sExpression, $aParameters, $expected)
+	public function GroupTestExpressionWithParameters($sExpression, $aParameters, $expected)
 	{
 		$oExpression = Expression::FromOQL($sExpression);
 		$res = $oExpression->Evaluate($aParameters);
@@ -337,7 +337,7 @@ class ExpressionEvaluateTest extends iTopDataTestCase
 	 *
 	 * @throws \OQLException
 	 */
-	public function _testTrueExpressions($sExpression, $bExpectTrue)
+	public function GroupTestTrueExpressions($sExpression, $bExpectTrue)
 	{
 		$oExpression = Expression::FromOQL($sExpression);
 
@@ -382,7 +382,7 @@ class ExpressionEvaluateTest extends iTopDataTestCase
 	 * @throws \MySQLQueryHasNoResultException
 	 * @throws \Exception
 	 */
-	public function _testTimeFormat($sFormat, $bProcessed, $sValueOrException)
+	public function GroupTestTimeFormat($sFormat, $bProcessed, $sValueOrException)
 	{
 		$sDate = '2009-06-04 21:23:24';
 		$oExpression = new FunctionExpression('DATE_FORMAT', array(new ScalarExpression($sDate), new ScalarExpression("%$sFormat")));
@@ -456,7 +456,7 @@ class ExpressionEvaluateTest extends iTopDataTestCase
 	 * @throws \MySQLException
 	 * @throws \Exception
 	 */
-	public function _testEveryTimeFormat($sDate)
+	public function GroupTestEveryTimeFormat($sDate)
 	{
 		$aFormats = $this->TimeFormatsProvider();
 		$aSelects = array();
@@ -511,7 +511,7 @@ class ExpressionEvaluateTest extends iTopDataTestCase
 	 * @throws \MySQLException
 	 * @throws \Exception
 	 */
-	public function _testEveryTimeFormatOnDateRange($sStartDate, $sInterval, $iRepeat)
+	public function GroupTestEveryTimeFormatOnDateRange($sStartDate, $sInterval, $iRepeat)
 	{
 		$oDate = new DateTime($sStartDate);
 		for ($i = 0 ; $i < $iRepeat ; $i++)

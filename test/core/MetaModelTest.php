@@ -41,7 +41,7 @@ class MetaModelTest extends ItopDataTestCase
      *
      * @throws \Exception
      */
-	public function testApplyParams($sInput, $aParams, $sExpectedOutput)
+	public function GroupTestApplyParams($sInput, $aParams, $sExpectedOutput)
 	{
         $oUserRequest = $this->createObject(
             'UserRequest',
@@ -95,7 +95,7 @@ class MetaModelTest extends ItopDataTestCase
 	 *
 	 * @throws \Exception
 	 */
-	public function testGetDependentAttributes($sClass, $sAttCode, array $aExpectedAttCodes)
+	public function GroupTestGetDependentAttributes($sClass, $sAttCode, array $aExpectedAttCodes)
 	{
 		$aRes = MetaModel::GetDependentAttributes($sClass, $sAttCode);
 		// The order doesn't matter
@@ -129,7 +129,7 @@ class MetaModelTest extends ItopDataTestCase
 	 *
 	 * @throws \Exception
 	 */
-	public function testGetPrerequisiteAttributes($sClass, $sAttCode, array $aExpectedAttCodes)
+	public function GroupTestGetPrerequisiteAttributes($sClass, $sAttCode, array $aExpectedAttCodes)
 	{
 		$aRes = MetaModel::GetPrerequisiteAttributes($sClass, $sAttCode);
 		// The order doesn't matter
@@ -281,7 +281,7 @@ class MetaModelTest extends ItopDataTestCase
 	 * @group itopRequestMgmt
 	 * @dataProvider GetEnumStyleProvider
 	 */
-	public function testGetEnumStyle($sClass, $sAttCode, $sValue, $sAwaitedCSSClass)
+	public function GroupTestGetEnumStyle($sClass, $sAttCode, $sValue, $sAwaitedCSSClass)
 	{
 		$oStyle = MetaModel::GetEnumStyle($sClass, $sAttCode, $sValue);
 
@@ -324,7 +324,7 @@ class MetaModelTest extends ItopDataTestCase
 	 * @param string $sClass Class to test
 	 * @param bool   $bExpectedIsLink Expected result
 	 */
-	public function testIsLinkClass(string $sClass, bool $bExpectedIsLink)
+	public function GroupTestIsLinkClass(string $sClass, bool $bExpectedIsLink)
 	{
 		$bIsLink = MetaModel::IsLinkClass($sClass);
 
