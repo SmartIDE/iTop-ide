@@ -399,18 +399,17 @@ JSON;
 			unlink($sFileToTest);
 		}
 
-		if (is_file($sCssVarPath))
-		{
+		if (is_file($sCssVarPath)) {
 			$sAfterReplacementCssVariableMd5sum = md5_file($sCssVarPath);
 		}
 
 		//change cssvar md5sum + image absolute paths
-		$sMainCssContent = file_get_contents(APPROOT."test/application/theme-handler/expected/themes/basque-red/mainGroupTestcompilethemes.css");
+		$sMainCssContent = file_get_contents(APPROOT."test/application/theme-handler/expected/themes/basque-red/main_testcompilethemes.css");
 		$sMainCssContent = preg_replace('/MD5SUM/', $sAfterReplacementCssVariableMd5sum, $sMainCssContent);
 		$sReplacement = rtrim($sAbsoluteImagePath, '/');
-		$sReplacement=preg_replace('|\/|', '\/', $sReplacement);
-		$sMainCssContent = preg_replace(static::PATTERN,  $sReplacement, $sMainCssContent);
-		$cssPath = $this->sTmpDir . '/branding/themes/basque-red/main.css';
+		$sReplacement = preg_replace('|\/|', '\/', $sReplacement);
+		$sMainCssContent = preg_replace(static::PATTERN, $sReplacement, $sMainCssContent);
+		$cssPath = $this->sTmpDir.'/branding/themes/basque-red/main.css';
 		echo 'PUT md5sum: '.$sAfterReplacementCssVariableMd5sum.' in '.$cssPath.' ';
 		file_put_contents($cssPath, $sMainCssContent);
 
