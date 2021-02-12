@@ -68,7 +68,7 @@ class OQLToSQLNestedSelectTest extends ItopDataTestCase
 	 * @throws \MissingQueryArgument
 	 * @throws \OQLException
 	 */
-	public function testOQLSelect($sOQL, $aOrderBy = array(), $aArgs = array(), $aAttToLoad = null, $aExtendedDataSpec = null, $iLimitCount = 20, $iLimitStart = 0)
+	public function GroupTestOQLSelect($sOQL, $aOrderBy = array(), $aArgs = array(), $aAttToLoad = null, $aExtendedDataSpec = null, $iLimitCount = 20, $iLimitStart = 0)
 	{
 		$this->assertFalse(utils::GetConfig()->Get('use_legacy_dbsearch'));
 		$this->assertFalse(utils::GetConfig()->Get('apc_cache.enabled'));

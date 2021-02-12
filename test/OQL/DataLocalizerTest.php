@@ -88,7 +88,7 @@ class DataLocalizerTest extends OQLTestWithLegacy
 	 * @throws \MySQLHasGoneAwayException
 	 * @throws \OQLException
 	 */
-	public function OQLGroupByLegacy($sOQL, $aArgs, $aGroupByExpr, $bExcludeNullValues = false, $aSelectExpr = array(), $aOrderBy = array(), $iLimitCount = 0, $iLimitStart = 0)
+	public function GroupTestOQLGroupByLegacy($sOQL, $aArgs, $aGroupByExpr, $bExcludeNullValues = false, $aSelectExpr = array(), $aOrderBy = array(), $iLimitCount = 0, $iLimitStart = 0)
 	{
 		$this->assertTrue(utils::GetConfig()->Get('use_legacy_dbsearch'));
 		$this->assertFalse(utils::GetConfig()->Get('apc_cache.enabled'));
@@ -123,7 +123,7 @@ class DataLocalizerTest extends OQLTestWithLegacy
 	 * @throws \MissingQueryArgument
 	 * @throws \OQLException
 	 */
-	public function OQLLegacySelect($sOQL, $aOrderBy = array(), $aArgs = array(), $aAttToLoad = null, $aExtendedDataSpec = null, $iLimitCount = 20, $iLimitStart = 0)
+	public function GroupTestOQLLegacySelect($sOQL, $aOrderBy = array(), $aArgs = array(), $aAttToLoad = null, $aExtendedDataSpec = null, $iLimitCount = 20, $iLimitStart = 0)
 	{
 		$this->assertTrue(utils::GetConfig()->Get('use_legacy_dbsearch'));
 		$this->assertFalse(utils::GetConfig()->Get('apc_cache.enabled'));
@@ -188,7 +188,7 @@ class DataLocalizerTest extends OQLTestWithLegacy
 	 * @throws \MySQLHasGoneAwayException
 	 * @throws \OQLException
 	 */
-	public function OQLGroupBy($sOQL, $aArgs, $aGroupByExpr, $bExcludeNullValues = false, $aSelectExpr = array(), $aOrderBy = array(), $iLimitCount = 0, $iLimitStart = 0)
+	public function GroupTestOQLGroupBy($sOQL, $aArgs, $aGroupByExpr, $bExcludeNullValues = false, $aSelectExpr = array(), $aOrderBy = array(), $iLimitCount = 0, $iLimitStart = 0)
 	{
 		$this->assertFalse(utils::GetConfig()->Get('use_legacy_dbsearch'));
 		$this->assertFalse(utils::GetConfig()->Get('apc_cache.enabled'));
@@ -327,7 +327,7 @@ class DataLocalizerTest extends OQLTestWithLegacy
 	 * @throws \MissingQueryArgument
 	 * @throws \OQLException
 	 */
-	public function OQLSelect($sOQL, $aOrderBy = array(), $aArgs = array(), $aAttToLoad = null, $aExtendedDataSpec = null, $iLimitCount = 20, $iLimitStart = 0)
+	public function GroupTestOQLSelect($sOQL, $aOrderBy = array(), $aArgs = array(), $aAttToLoad = null, $aExtendedDataSpec = null, $iLimitCount = 20, $iLimitStart = 0)
 	{
 		$this->assertFalse(utils::GetConfig()->Get('use_legacy_dbsearch'));
 		$this->assertFalse(utils::GetConfig()->Get('apc_cache.enabled'));
