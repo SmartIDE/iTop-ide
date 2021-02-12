@@ -34,10 +34,10 @@ class CaseLogEntryFormFactory
 {
 	public static function MakeForCaselogTab(DBObject $oObject, string $sCaseLogAttCode, string $sObjectMode = cmdbAbstractObject::DEFAULT_OBJECT_MODE)
 	{
-		$oCaseLogEntryForm = new CaseLogEntryForm();
+		$oCaseLogEntryForm = new CaseLogEntryForm($oObject, $sCaseLogAttCode);
 		$oCaseLogEntryForm->SetSubmitModeFromHostObjectMode($sObjectMode)
 			->AddMainActionButtons(static::PrepareCancelButton())
-			->AddMainActionButtons(static::PrepareSendButton()->SetLabel(Dict::S('UI:Button:AddEntryAndWithChoice')))
+			->AddMainActionButtons(static::PrepareSaveButton())
 			->SetSendButtonPopoverMenu(static::PrepareSendActionSelectionPopoverMenu($oObject, $sCaseLogAttCode));
 
 		return $oCaseLogEntryForm;
@@ -48,15 +48,15 @@ class CaseLogEntryFormFactory
 	 */
 	protected static function PrepareCancelButton(): Button
 	{
-		return ButtonUIBlockFactory::MakeForSecondaryAction(Dict::S('UI:Button:Cancel'), 'cancel', 'cancel');
+		return ButtonUIBlockFactory::MakeForCancel(Dict::S('UI:Button:Cancel'), 'cancel', 'cancel');
 	}
 
 	/**
 	 * @return \Combodo\iTop\Application\UI\Base\Component\Button\Button
 	 */
-	protected static function PrepareSendButton(): Button
+	protected static function PrepareSaveButton(): Button
 	{
-		$oButton = ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Send'), 'send', 'send');
+		$oButton = ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Send'), 'save', 'save');
 		$oButton->SetIconClass('fas fa-paper-plane');
 
 		return $oButton;

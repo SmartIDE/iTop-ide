@@ -22,20 +22,27 @@ Dict::Add('EN US', 'English', 'English', array(
 	'UI:Layout:ActivityPanel:SizeToggler:Expand:Tooltip' => 'Expand',
 	'UI:Layout:ActivityPanel:SizeToggler:Collapse:Tooltip' => 'Reduce',
 
-	// Activity tab
+	// Tabs
 	'UI:Layout:ActivityPanel:Tab:Activity:Title' => 'Activity',
-	'UI:Layout:ActivityPanel:Tab:Activity:Toolbar:CaselogsFilter:Title' => 'Case logs',
-	'UI:Layout:ActivityPanel:Tab:Activity:Toolbar:CaselogsFilter:Tooltip' => 'Show / hide case log entries',
-	'UI:Layout:ActivityPanel:Tab:Activity:Toolbar:TransitionsFilter:Title' => 'State changes',
-	'UI:Layout:ActivityPanel:Tab:Activity:Toolbar:TransitionsFilter:Tooltip' => 'Show / hide state changes',
-	'UI:Layout:ActivityPanel:Tab:Activity:Toolbar:EditsFilter:Title' => 'Edits',
-	'UI:Layout:ActivityPanel:Tab:Activity:Toolbar:EditsFilter:Tooltip' => 'Show / hide fields edits',
+	'UI:Layout:ActivityPanel:Tab:Caselog:DraftIndicator:Tooltip' => 'Draft entry',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Filter:Caselogs:Title' => 'Case logs',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Filter:Caselogs:Tooltip' => 'Show / hide case log entries on this tab',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Filter:Transitions:Title' => 'State changes',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Filter:Transitions:Tooltip' => 'Show / hide state changes on this tab',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Filter:Edits:Title' => 'Edits',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Filter:Edits:Tooltip' => 'Show / hide fields edits on this tab',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Action:OpenAll:Tooltip' => 'Open all messages',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Action:CloseAll:Tooltip' => 'Close all messages',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Info:AuthorsCount:Tooltip' => 'Number of persons interacting in the visible entries',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Info:MessagesCount:Tooltip' => 'Number of messages in the visible log(s)',
 
-	// Case log tab
-	'UI:Layout:ActivityPanel:Tab:Caselog:Toolbar:OpenAll:Tooltip' => 'Open all messages',
-	'UI:Layout:ActivityPanel:Tab:Caselog:Toolbar:CloseAll:Tooltip' => 'Close all messages',
-	'UI:Layout:ActivityPanel:Tab:Caselog:Toolbar:AuthorsCount:Tooltip' => 'Number of persons interacting in this log',
-	'UI:Layout:ActivityPanel:Tab:Caselog:Toolbar:MessagesCount:Tooltip' => 'Number of messages in this log',
+	// Compose button
+	'UI:Layout:ActivityPanel:ComposeButton:Tooltip' => 'Compose a new case log entry',
+
+	// Case log entry
+	'UI:Layout:ActivityPanel:MutltipleEntriesSaveConfirmation:Title' => 'Multiple case logs save',
+	'UI:Layout:ActivityPanel:MutltipleEntriesSaveConfirmation:Explanation' => 'By pressing the "save" button, you will submit entries for all the edited case logs at once.',
+	'UI:Layout:ActivityPanel:MutltipleEntriesSaveConfirmation:PrefLabel' => 'By pressing the "save" button, you will submit entries for all the edited case logs at once.',
 
 	// Placeholder
 	'UI:Layout:ActivityPanel:NoEntry:Placeholder:Hint' => 'It\'s calm up here, no activity yet',

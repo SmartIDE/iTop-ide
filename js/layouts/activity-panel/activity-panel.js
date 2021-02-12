@@ -23,43 +23,77 @@ $(function()
 		{
 			// default options
 			options:
-			{
-				datetime_format: null,
-				datetimes_reformat_limit: 14,   // In days
-			},
+				{
+					datetime_format: null,
+					datetimes_reformat_limit: 14,   // In days
+					transaction_id: null,           // Null until the user gets the lock on the object
+					show_multiple_entries_submit_confirmation: true,
+				},
 			css_classes:
-			{
-				is_expanded: 'ibo-is-expanded',
-				is_opened: 'ibo-is-opened',
-				is_closed: 'ibo-is-closed',
-				is_active: 'ibo-is-active',
-				is_visible: 'ibo-is-visible',
-				is_hidden: 'ibo-is-hidden',
-			},
+				{
+					is_expanded: 'ibo-is-expanded',
+					is_opened: 'ibo-is-opened',
+					is_closed: 'ibo-is-closed',
+					is_active: 'ibo-is-active',
+					is_visible: 'ibo-is-visible',
+					is_hidden: 'ibo-is-hidden',
+					is_draft: 'ibo-is-draft',
+					is_current_user: 'ibo-is-current-user',
+				},
 			js_selectors:
-			{
-				panel_size_toggler: '[data-role="ibo-activity-panel--size-toggler"]',
-				tab_toggler: '[data-role="ibo-activity-panel--tab-toggler"]',
-				tab_title: '[data-role="ibo-activity-panel--tab-title"]',
-				tab_toolbar: '[data-role="ibo-activity-panel--tab-toolbar"]',
-				activity_tab_filter: '[data-role="ibo-activity-panel--activity-filter"]',
-				caselog_tab_open_all: '[data-role="ibo-activity-panel--caselog-open-all"]',
-				caselog_tab_close_all: '[data-role="ibo-activity-panel--caselog-close-all"]',
-				entry_group: '[data-role="ibo-activity-panel--entry-group"]',
-				entry: '[data-role="ibo-activity-entry"]',
-				entry_medallion: '[data-role="ibo-activity-entry--medallion"]',
-				entry_main_information: '[data-role="ibo-activity-entry--main-information"]',
-				entry_datetime: '[data-role="ibo-activity-entry--datetime"]',
-				edits_entry_long_description: '[data-role="ibo-edits-entry--long-description"]',
-				edits_entry_long_description_toggler: '[data-role="ibo-edits-entry--long-description-toggler"]',
+				{
+					panel_size_toggler: '[data-role="ibo-activity-panel--size-toggler"]',
+					tab_toggler: '[data-role="ibo-activity-panel--tab-toggler"]',
+					tab_title: '[data-role="ibo-activity-panel--tab-title"]',
+					tabs_toolbars: '[data-role="ibo-activity-panel--tabs-toolbars"]',
+					tab_toolbar: '[data-role="ibo-activity-panel--tab-toolbar"]',
+					tab_toolbar_action: '[data-role="ibo-activity-panel--tab-toolbar-action"]',
+					caselog_tab_open_all: '[data-role="ibo-activity-panel--caselog-open-all"]',
+					caselog_tab_close_all: '[data-role="ibo-activity-panel--caselog-close-all"]',
+					activity_filter: '[data-role="ibo-activity-panel--filter"]',
+					activity_filter_options: '[data-role="ibo-activity-panel--filter-options"]',
+					activity_filter_options_toggler: '[data-role="ibo-activity-panel--filter-options-toggler"]',
+					activity_filter_option_input: '[data-role="ibo-activity-panel--filter-option-input"]',
+					authors_count: '[data-role="ibo-activity-panel--tab-toolbar-info-authors-count"]',
+					messages_count: '[data-role="ibo-activity-panel--tab-toolbar-info-messages-count"]',
+					compose_button: '[data-role="ibo-activity-panel--add-caselog-entry-button"]',
+					caselog_entry_form: '[data-role="ibo-caselog-entry-form"]',
+					caselog_entry_forms_confirmation_dialog: '[data-role="ibo-activity-panel--entry-forms-confirmation-dialog"]',
+					caselog_entry_forms_confirmation_preference_input: '[data-role="ibo-activity-panel--entry-forms-confirmation-preference-input"]',
+					body: '[data-role="ibo-activity-panel--body"]',
+					entry_group: '[data-role="ibo-activity-panel--entry-group"]',
+					entry: '[data-role="ibo-activity-entry"]',
+					entry_medallion: '[data-role="ibo-activity-entry--medallion"]',
+					entry_main_information: '[data-role="ibo-activity-entry--main-information"]',
+					entry_datetime: '[data-role="ibo-activity-entry--datetime"]',
+					edits_entry_long_description: '[data-role="ibo-edits-entry--long-description"]',
+					edits_entry_long_description_toggler: '[data-role="ibo-edits-entry--long-description-toggler"]',
+				},
+			enums: {
+				tab_types: {
+					caselog: 'caselog',
+					activity: 'activity',
+				},
+				entry_types: {
+					caselog: 'caselog',
+					transition: 'transition',
+					edits: 'edits',
+				}
 			},
 
 			// the constructor
-			_create: function()
-			{
+			_create: function () {
 				this.element.addClass('ibo-activity-panel');
+
 				this._bindEvents();
+				this._ApplyEntriesFilters();
+				this._UpdateMessagesCounters();
+				this._UpdateFiltersCheckboxesFromOptions();
 				this._ReformatDateTimes();
+				this._PrepareEntriesSubmitConfirmationDialog();
+
+				// TODO 3.0.0: Modify PopoverMenu so we can pass it the ID of the block triggering the open/close
+				//$(this.element).find(this.js_selectors.send_choices_picker).popover_menu({toggler: this.js_selectors.send_button});
 			},
 			// events bound via _bind are removed automatically
 			// revert other modifications here
@@ -72,34 +106,70 @@ $(function()
 				const me = this;
 				const oBodyElem = $('body');
 
-				// Click on collapse/expand toggler
+				// Tabs title
+				// - Click on the panel collapse/expand toggler
 				this.element.find(this.js_selectors.panel_size_toggler).on('click', function(oEvent){
-					me._onTogglerClick(oEvent);
+					me._onPanelSizeTogglerClick(oEvent);
 				});
-				// Click on tab title
+				// - Click on a tab title
 				this.element.find(this.js_selectors.tab_title).on('click', function(oEvent){
 					me._onTabTitleClick(oEvent, $(this));
 				});
-				// Change on activity filters
-				this.element.find(this.js_selectors.activity_tab_filter).on('change', function(){
-					me._onActivityFilterChange($(this));
+
+				// Tabs toolbar
+				// - Change on a filter
+				this.element.find(this.js_selectors.activity_filter).on('change', function(){
+					me._onFilterChange($(this));
 				});
-				// Click on open all case log messages
+				// - Click on a filter options toggler
+				this.element.find(this.js_selectors.activity_filter_options_toggler).on('click', function(oEvent){
+					me._onFilterOptionsTogglerClick(oEvent, $(this));
+				})
+				// - Change on a filter option
+				this.element.find(this.js_selectors.activity_filter_option_input).on('change', function(){
+					me._onFilterOptionChange($(this));
+				});
+				// - Click on open all case log messages
 				this.element.find(this.js_selectors.caselog_tab_open_all).on('click', function(){
 					me._onCaseLogOpenAllClick($(this));
 				});
-				// Click on close all case log messages
+				// - Click on close all case log messages
 				this.element.find(this.js_selectors.caselog_tab_close_all).on('click', function(){
 					me._onCaseLogCloseAllClick($(this));
 				});
-				// Click on a closed case log message
+
+				// Entry form
+				// - Click on the compose button
+				this.element.find(this.js_selectors.compose_button).on('click', function(oEvent){
+					me._onComposeButtonClick(oEvent);
+				});
+				// - Draft value ongoing
+				this.element.on('draft.caselog_entry_form.itop', function(oEvent, oData){
+					me._onDraftEntryForm(oData.attribute_code);
+				});
+				// - Empty value
+				this.element.on('emptied.caselog_entry_form.itop', function(oEvent, oData){
+					me._onEmptyEntryForm(oData.attribute_code);
+				});
+				// - Entry form cancelled
+				this.element.on('cancelled_form.caselog_entry_form.itop', function(){
+					me._onCancelledEntryForm();
+				});
+				// - Entry form submission request
+				this.element.on('request_submission.caselog_entry_form.itop', function(){
+					me._onRequestSubmission();
+				});
+
+				// Entries
+				// - Click on a closed case log message
 				this.element.find(this.js_selectors.entry_group).on('click', '.'+this.css_classes.is_closed + ' ' + this.js_selectors.entry_main_information, function(oEvent){
 					me._onCaseLogClosedMessageClick($(this).closest(me.js_selectors.entry));
 				});
-				// Click on an edits entry long description toggler
+				// - Click on an edits entry's long description toggler
 				this.element.find(this.js_selectors.edits_entry_long_description_toggler).on('click', function(oEvent){
-					me._onEditsTogglerClick(oEvent, $(this).closest(me.js_selectors.entry));
+					me._onEditsLongDescriptionTogglerClick(oEvent, $(this).closest(me.js_selectors.entry));
 				});
+
 				// Mostly for outside clicks that should close elements
 				oBodyElem.on('click', function(oEvent){
 					me._onBodyClick(oEvent);
@@ -111,7 +181,7 @@ $(function()
 			},
 
 			// Events callbacks
-			_onTogglerClick: function(oEvent)
+			_onPanelSizeTogglerClick: function(oEvent)
 			{
 				// Avoid anchor glitch
 				oEvent.preventDefault();
@@ -146,9 +216,41 @@ $(function()
 					this._ShowActivityTab();
 				}
 			},
-			_onActivityFilterChange: function(oInputElem)
+			/**
+			 * @param oInputElem {Object} jQuery object representing the filter's input
+			 * @private
+			 */
+			_onFilterChange: function(oInputElem)
 			{
-				this._ApplyEntryFilters();
+				// Propagate on filter options
+				if ('caselogs' === oInputElem.attr('name')) {
+					oInputElem.closest(this.js_selectors.tab_toolbar_action).find(this.js_selectors.activity_filter_option_input).prop('checked', oInputElem.prop('checked'));
+				}
+
+				this._ApplyEntriesFilters();
+			},
+			/**
+			 * @param oEvent {Object} jQuery event
+			 * @param oElem {Object} jQuery object representing the filter's options toggler
+			 * @private
+			 */
+			_onFilterOptionsTogglerClick: function(oEvent, oElem)
+			{
+				oEvent.preventDefault();
+
+				this._ToggleFilterOptions(oElem.closest(this.js_selectors.tab_toolbar_action).find(this.js_selectors.activity_filter));
+			},
+			/**
+			 * @param oInputElem {Object} jQuery object representing the filter option's input
+			 * @private
+			 */
+			_onFilterOptionChange: function(oInputElem)
+			{
+				const oFilterOptionsElem = oInputElem.closest(this.js_selectors.activity_filter_options);
+				const oFilterInputElem = oInputElem.closest(this.js_selectors.tab_toolbar_action).find(this.js_selectors.activity_filter);
+
+				this._UpdateFiltersCheckboxesFromOptions();
+				this._ApplyEntriesFilters();
 			},
 			_onCaseLogOpenAllClick: function(oIconElem)
 			{
@@ -160,24 +262,104 @@ $(function()
 				const sCaseLogAttCode = oIconElem.closest(this.js_selectors.tab_toggler).attr('data-caselog-attribute-code');
 				this._CloseAllMessages(sCaseLogAttCode);
 			},
+			/**
+			 * @param oEvent {Object}
+			 * @return {void}
+			 * @private
+			 */
+			_onComposeButtonClick: function(oEvent)
+			{
+				oEvent.preventDefault();
+
+				const oActiveTabData = this._GetActiveTabData();
+				// If on a caselog tab, open its form
+				if (this.enums.tab_types.caselog === oActiveTabData.type) {
+					this._ShowCaseLogTab(oActiveTabData.att_code);
+					this._ShowCaseLogsEntryForms();
+				}
+				// Else if on the activity tab, check which case log tab to go to
+				else {
+					// TODO 3.0.0: Make a tab popover menu selection
+					console.log('TO IMPLEMENT');
+
+					// If only 1 editbale case log, open this one
+					// Else, open a popover menu to choose one
+				}
+			},
+			/**
+			 * @param sCaseLogAttCode {string} Attribute code of the case log entry form being draft
+			 * @private
+			 */
+			_onDraftEntryForm: function(sCaseLogAttCode)
+			{
+				this.element.find(this.js_selectors.tab_toggler + '[data-tab-type="' + this.enums.tab_types.caselog + '"][data-caselog-attribute-code="' + sCaseLogAttCode + '"]').addClass(this.css_classes.is_draft);
+			},
+			/**
+			 * @param sCaseLogAttCode {string} Attribute code of the case log entry form being emptied
+			 * @private
+			 */
+			_onEmptyEntryForm: function(sCaseLogAttCode)
+			{
+				this.element.find(this.js_selectors.tab_toggler + '[data-tab-type="' + this.enums.tab_types.caselog + '"][data-caselog-attribute-code="' + sCaseLogAttCode + '"]').removeClass(this.css_classes.is_draft);
+			},
+			_onCancelledEntryForm: function()
+			{
+				this._HideCaseLogsEntryForms();
+			},
+			/**
+			 * Called on submission request from a case log entry form, will display a confirmation dialog if multiple case logs have
+			 * been edited and the user hasn't dismiss the dialog.
+			 * @private
+			 */
+			_onRequestSubmission: function()
+			{
+				// If several entry forms filled, show a confirmation message
+				if ((true === this.options.show_multiple_entries_submit_confirmation) && (Object.keys(this._GetEntriesFromAllForms()).length > 1)) {
+					this._ShowEntriesSubmitConfirmation();
+				}
+				// Else push data directly to the server
+				else {
+					this._SendEntriesToServer();
+				}
+			},
 			_onCaseLogClosedMessageClick: function(oEntryElem)
 			{
 				this._OpenMessage(oEntryElem);
 			},
-			_onEditsTogglerClick: function(oEvent, oEntryElem)
+			_onEditsLongDescriptionTogglerClick: function(oEvent, oEntryElem)
 			{
 				// Avoid anchor glitch
 				oEvent.preventDefault();
 
 				oEntryElem.toggleClass(this.css_classes.is_opened);
 			},
+			/**
+			 * Callback for mouse clicks that should interact with the activity panel (eg. Clic outside a dropdown should close it, ...)
+			 *
+			 * @param oEvent {Object} The jQuery event
+			 * @private
+			 */
 			_onBodyClick: function(oEvent)
 			{
-
+				// Hide all filters' options only if click wasn't on one of them
+				if(($(oEvent.target).closest(this.js_selectors.activity_filter_options_toggler).length === 0)
+				&& $(oEvent.target).closest(this.js_selectors.activity_filter_options).length === 0) {
+					this._HideAllFiltersOptions();
+				}
 			},
+			/**
+			 * Callback for key hits that should interact with the activity panel (eg. "Esc" to close all dropdowns, ...)
+			 *
+			 * @param oEvent {Object} The jQuery event
+			 * @private
+			 */
 			_onBodyKeyUp: function(oEvent)
 			{
-
+				// On "Esc" key
+				if(oEvent.key === 'Escape') {
+					// Hide all filters's options
+					this._HideAllFiltersOptions();
+				}
 			},
 
 			// Methods
@@ -190,6 +372,7 @@ $(function()
 			{
 				return this.element.attr('data-object-id');
 			},
+
 			// - Helpers on dates
 			/**
 			 * Reformat date times to be relative (only if they are not too far in the past)
@@ -200,32 +383,350 @@ $(function()
 				const me = this;
 
 				this.element.find(this.js_selectors.entry_datetime).each(function(){
-					const oEntryDateTime = moment($(this).text(), me.options.datetime_format);
+					const oEntryDateTime = moment($(this).attr('data-formatted-datetime'), me.options.datetime_format);
 					const oNowDateTime = moment();
 
 					// Reformat date time only if it is not too far in the past (eg. "2 years ago" is not easy to interpret)
 					const fDays = moment.duration(oNowDateTime.diff(oEntryDateTime)).asDays();
-					if(fDays < me.options.datetimes_reformat_limit)
-					{
-						$(this).text( moment($(this).text(), me.options.datetime_format).fromNow() );
+					if (fDays < me.options.datetimes_reformat_limit) {
+						$(this).text(moment($(this).attr('data-formatted-datetime'), me.options.datetime_format).fromNow());
 					}
 				});
 			},
+
 			// - Helpers on tabs
+			/**
+			 * @returns {Object} Data on the active tab:
+			 *
+			 * - Its type
+			 * - Optionally, its attribute code
+			 * - Optionally, its rank
+			 * @private
+			 */
+			_GetActiveTabData: function()
+			{
+				const oTabTogglerElem = this.element.find(this.js_selectors.tab_toggler + '.' + this.css_classes.is_active);
+
+				// Consistency check
+				if(oTabTogglerElem.length === 0) {
+					throw 'No active tab, this should not be possible.';
+				}
+
+				const sTabType = oTabTogglerElem.attr('data-tab-type');
+				let oTabData = {
+					type: sTabType,
+				};
+
+				// Additional data for caselog tab
+				if (this.enums.tab_types.caselog === sTabType) {
+					oTabData.att_code = oTabTogglerElem.attr('data-caselog-attribute-code');
+					oTabData.rank = oTabTogglerElem.attr('data-caselog-rank');
+				}
+
+				return oTabData;
+			},
+			/**
+			 * @returns {Object} Active tab toolbar jQuery element
+			 * @private
+			 */
+			_GetActiveTabToolbarElement: function()
+			{
+				const oActiveTabData = this._GetActiveTabData();
+				let sSelector = this.js_selectors.tab_toolbar + '[data-tab-type="' + oActiveTabData.type + '"]';
+
+				if (this.enums.tab_types.caselog === oActiveTabData.type) {
+					sSelector += '[data-caselog-attribute-code="' + oActiveTabData.att_code + '"]';
+				}
+
+				return this.element.find(sSelector);
+			},
 			_ShowCaseLogTab: function(sCaseLogAttCode)
 			{
 				// Show only entries from this case log
-				this._HideAllEntries();
-				this.element.find(this.js_selectors.entry+'[data-entry-caselog-attribute-code="'+sCaseLogAttCode+'"]').removeClass(this.css_classes.is_hidden);
-				this._UpdateEntryGroupsVisibility();
+				// this._HideAllEntries();
+				//this.element.find(this.js_selectors.entry+'[data-entry-caselog-attribute-code="'+sCaseLogAttCode+'"]').removeClass(this.css_classes.is_hidden);
+				this._ShowAllEntries();
+				this._ApplyEntriesFilters();
 			},
 			_ShowActivityTab: function()
 			{
 				// Show all entries but regarding the current filters
-				this._OpenAllMessages();
+				//this._OpenAllMessages();
 				this._ShowAllEntries();
-				this._ApplyEntryFilters();
+				this._ApplyEntriesFilters();
 			},
+			GetCaseLogRank: function(sCaseLog)
+			{
+				let iIdx = 0;
+				let oCaselogTab = this.element.find(this.js_selectors.tab_toggler +
+					'[data-tab-type="caselog"]' +
+					'[data-caselog-attribute-code="'+ sCaseLog +'"]'
+				);
+				if(oCaselogTab.length > 0 && oCaselogTab.attr('data-caselog-rank'))
+				{
+					iIdx = parseInt(oCaselogTab.attr('data-caselog-rank'));
+				}
+				return iIdx;
+			},
+
+			// - Helpers on toolbars
+			/**
+			 * Update the main filters checkboxes depending on the state of their filter's options.
+			 * The main goal is to have an "indeterminated" state.
+			 *
+			 * @return {void}
+			 * @private
+			 */
+			_UpdateFiltersCheckboxesFromOptions: function()
+			{
+				const me = this;
+
+				this.element.find(this.js_selectors.activity_filter_options).each(function(){
+					const oFilterOptionsElem = $(this);
+					const iTotalOptionsCount = oFilterOptionsElem.find(me.js_selectors.activity_filter_option_input).length;
+					const iCheckedOptionsCount = oFilterOptionsElem.find(me.js_selectors.activity_filter_option_input + ':checked').length;
+
+					let bChecked = false;
+					let bIndeterminate = false;
+					if (iCheckedOptionsCount === iTotalOptionsCount) {
+						bChecked = true;
+					}
+					else if ((0 < iCheckedOptionsCount) && (iCheckedOptionsCount < iTotalOptionsCount)) {
+						bIndeterminate = true;
+					}
+
+					oFilterOptionsElem.closest(me.js_selectors.tab_toolbar_action).find(me.js_selectors.activity_filter).prop({
+						indeterminate: bIndeterminate,
+						checked: bChecked
+					});
+				});
+			},
+			/**
+			 * Show the oFilterElem's options
+			 *
+			 * @param oFilterElem {Object}
+			 * @private
+			 */
+			_ShowFilterOptions: function(oFilterElem)
+			{
+				oFilterElem.parent().find(this.js_selectors.activity_filter_options_toggler).removeClass(this.css_classes.is_closed);
+			},
+			/**
+			 * Hide the oFilterElem's options
+			 *
+			 * @param oFilterElem {Object}
+			 * @private
+			 */
+			_HideFilterOptions: function(oFilterElem)
+			{
+				oFilterElem.parent().find(this.js_selectors.activity_filter_options_toggler).addClass(this.css_classes.is_closed);
+			},
+			/**
+			 * Toggle the visibility of the oFilterElem's options
+			 *
+			 * @param oFilterElem {Object}
+			 * @private
+			 */
+			_ToggleFilterOptions: function(oFilterElem)
+			{
+				oFilterElem.parent().find(this.js_selectors.activity_filter_options_toggler).toggleClass(this.css_classes.is_closed);
+			},
+			/**
+			 * Hide all the filters' options from all toolbars
+			 *
+			 * @private
+			 */
+			_HideAllFiltersOptions: function()
+			{
+				const me = this;
+				this.element.find(this.js_selectors.activity_filter_options_toggler).each(function(){
+					me._HideFilterOptions($(this));
+				});
+			},
+
+			// - Helpers on case logs entry forms
+			/**
+			 * Show all case logs entry forms.
+			 * Event is triggered on the corresponding elements.
+			 *
+			 * @return {void}
+			 * @private
+			 */
+			_ShowCaseLogsEntryForms: function()
+			{
+				this.element.find(this.js_selectors.caselog_entry_form).trigger('show_form.caselog_entry_form.itop');
+				this.element.find(this.js_selectors.compose_button).addClass(this.css_classes.is_hidden);
+			},
+			/**
+			 * Hide all case logs entry forms.
+			 * Event is triggered on the corresponding elements.
+			 *
+			 * @return {void}
+			 * @private
+			 */
+			_HideCaseLogsEntryForms: function () {
+				this.element.find(this.js_selectors.caselog_entry_form).trigger('hide_form.caselog_entry_form.itop');
+				this.element.find(this.js_selectors.compose_button).removeClass(this.css_classes.is_hidden);
+
+				// TODO 3.0.0: Release lock
+			},
+			_FreezeCaseLogsEntryForms: function () {
+				this.element.find(this.js_selectors.caselog_entry_form).trigger('enter_pending_submission_state.caselog_entry_form.itop');
+			},
+			_UnfreezeCaseLogsEntryForms: function () {
+				this.element.find(this.js_selectors.caselog_entry_form).trigger('leave_pending_submission_state.caselog_entry_form.itop');
+			},
+			/**
+			 * @returns {Object} The case logs having a new entry and their values, format is {<ATT_CODE_1>: <HTML_VALUE_1>, <ATT_CODE_2>: <HTML_VALUE_2>}
+			 * @private
+			 */
+			_GetEntriesFromAllForms: function () {
+				const me = this;
+
+				let oEntries = {};
+				this.element.find(this.js_selectors.caselog_entry_form).each(function () {
+					const oEntryFormElem = $(this);
+					const sEntryFormValue = oEntryFormElem.triggerHandler('get_entry.caselog_entry_form.itop');
+
+					if ('' !== sEntryFormValue) {
+						const sCaseLogAttCode = oEntryFormElem.attr('data-attribute-code');
+						oEntries[sCaseLogAttCode] = {
+							value: sEntryFormValue,
+							rank: me.element.find(me.js_selectors.tab_toggler+'[data-tab-type="caselog"][data-caselog-attribute-code="'+sCaseLogAttCode+'"]').attr('data-caselog-rank'),
+						};
+					}
+				});
+
+				return oEntries;
+			},
+			/**
+			 * Prepare the dialog for confirmation before submission when several case log entries have been edited.
+			 * @private
+			 */
+			_PrepareEntriesSubmitConfirmationDialog: function()
+			{
+				const me = this;
+
+				this.element.find(this.js_selectors.caselog_entry_forms_confirmation_dialog).dialog({
+					autoOpen: false,
+					minWidth: 400,
+					modal:true,
+					position: { my: "center center", at: "center center", of: this.js_selectors.tabs_toolbars },
+					buttons: [
+						{
+							text: Dict.S('UI:Button:Cancel'),
+							class: 'ibo-is-alternative',
+							click: function() {
+								me._HideEntriesSubmitConfirmation();
+							}
+						},
+						{
+							text: Dict.S('UI:Button:Send'),
+							class: 'ibo-is-primary',
+							click: function () {
+								const bDoNotShowAgain = $(this).find(me.js_selectors.caselog_entry_forms_confirmation_preference_input).prop('checked');
+								if (bDoNotShowAgain) {
+									me._SaveSubmitConfirmationPref();
+								}
+								me._HideEntriesSubmitConfirmation();
+								me._SendEntriesToServer();
+							}
+						},
+					],
+				});
+			},
+			/**
+			 * Show the confirmation dialog when multiple case log entries have been editied
+			 * @private
+			 */
+			_ShowEntriesSubmitConfirmation: function()
+			{
+				$(this.js_selectors.caselog_entry_forms_confirmation_dialog).dialog('open');
+			},
+			/**
+			 * Hide the confirmation dialog for multiple edited case log entries
+			 * @private
+			 */
+			_HideEntriesSubmitConfirmation: function()
+			{
+				$(this.js_selectors.caselog_entry_forms_confirmation_dialog).dialog('close');
+			},
+			/**
+			 * Save that the user don't want the confirmation dialog to be shown in the future
+			 * @private
+			 */
+			_SaveSubmitConfirmationPref: function()
+			{
+				// Note: We have to send the value as a string because of the API limitation
+				SetUserPreference('activity_panel.show_multiple_entries_submit_confirmation', 'false', true);
+			},
+			/**
+			 * Send the edited case logs entries to the server
+			 * @private
+			 */
+			_SendEntriesToServer: function () {
+				const me = this;
+				const oEntries = this._GetEntriesFromAllForms();
+
+				// Proceed only if entries to send
+				if (Object.keys(oEntries).length === 0) {
+					return false;
+				}
+
+				// Prepare parameters
+				let oParams = {
+					operation: 'add_caselog_entries',
+					object_class: this._GetHostObjectClass(),
+					object_id: this._GetHostObjectID(),
+					transaction_id: this.options.transaction_id,
+					entries: oEntries,
+				};
+
+				// Freeze case logs
+				this._FreezeCaseLogsEntryForms();
+
+				// Send request to server
+				$.post(
+					GetAbsoluteUrlAppRoot()+'pages/ajax.render.php',
+					oParams,
+					'json'
+					)
+					.fail(function (oXHR, sStatus, sErrorThrown) {
+						// TODO 3.0.0: Maybe we could have a centralized dialog to display error messages?
+						alert(sErrorThrown);
+					})
+					.done(function (oData) {
+						if (false === oData.success) {
+							// TODO 3.0.0: Same comment as the fail() callback
+							alert(oData.error_message);
+							return false;
+						}
+
+						// Update the feed
+						for (let sCaseLogAttCode in oData.entries) {
+							me._AddEntry(sCaseLogAttCode, oData.entries[sCaseLogAttCode]);
+						}
+						me._ApplyEntriesFilters();
+
+						// For now, we don't hide the forms as the user may want to add something else
+						me.element.find(me.js_selectors.caselog_entry_form).trigger('clear_entry.case_entry_form.itop');
+
+						// TODO 3.0.0: Redirect to transition page if necessary (buttons need to be added)
+						// // Redirect to stimulus
+						// if(sStimulusCode !== null){
+						// 	window.location.href = GetAbsoluteUrlAppRoot()+'pages/UI.php?operation=stimulus&class='+sObjClass+'&id='+sObjId+'&stimulus='+sStimulusCode;
+						// }
+
+						// TODO 3.0.0: If no stimulus
+						// On done, lock was release, remove message
+						// On done, renew transaction ID
+					})
+					.always(function () {
+						// Always, unfreeze case logs
+						me._UnfreezeCaseLogsEntryForms();
+					});
+			},
+
 			// - Helpers on messages
 			_OpenMessage: function(oEntryElem)
 			{
@@ -246,27 +747,70 @@ $(function()
 
 				this.element.find(this.js_selectors.entry + sExtraSelector)[sCallback](this.css_classes.is_closed);
 			},
+			/**
+			 * Update the messages and users counters in the tabs toolbar
+			 *
+			 * @return {void}
+			 * @private
+			 */
+			_UpdateMessagesCounters: function()
+			{
+				const me = this;
+				let iMessagesCount = 0;
+				let iUsersCount = 0;
+				let oUsers = {};
+
+				// Compute counts
+				this.element.find(this.js_selectors.entry + ':visible').each(function(){
+					// Increase messages count
+					if (me.enums.entry_types.caselog === $(this).attr('data-entry-type')) {
+						iMessagesCount++;
+					}
+
+					// Feed authors array so we can count them later
+					try {
+						oUsers[$(this).attr('data-entry-author-login')] = true;
+					}
+					catch (sError) {
+						// Do nothing, this is just in case the user's login has special chars that would break the object key
+					}
+				});
+				iUsersCount = Object.keys(oUsers).length;
+
+				// Update elements
+				this.element.find(this.js_selectors.messages_count).text(iMessagesCount);
+				this.element.find(this.js_selectors.authors_count).text(iUsersCount);
+			},
+
 			// - Helpers on entries
-			_ApplyEntryFilters: function()
+			_ApplyEntriesFilters: function()
 			{
 				const me = this;
 
 				// For each filter, show/hide corresponding entries
-				this.element.find(this.js_selectors.activity_tab_filter).each(function(){
+				this._GetActiveTabToolbarElement().find(this.js_selectors.activity_filter).each(function(){
 					const aTargetEntryTypes = $(this).attr('data-target-entry-types').split(' ');
 					const sCallbackMethod = ($(this).prop('checked')) ? '_ShowEntries' : '_HideEntries';
 
-					for(let iIdx in aTargetEntryTypes)
+					let aFilterOptions = [];
+					$(this).closest(me.js_selectors.tab_toolbar_action).find(me.js_selectors.activity_filter_option_input + ':checked').each(function(){
+						aFilterOptions.push($(this).val());
+					});
+
+					for(let sTargetEntryType of aTargetEntryTypes)
 					{
-						me[sCallbackMethod](aTargetEntryTypes[iIdx]);
+						me[sCallbackMethod](sTargetEntryType, aFilterOptions);
 					}
 				});
 
-				// Show only the last visible entry's medallion of a group (can be done through CSS yet 😕)
+				// Show only the last visible entry's medallion of a group (cannot be done through CSS yet 😕)
 				this.element.find(this.js_selectors.entry_group).each(function(){
 					$(this).find(me.js_selectors.entry_medallion).removeClass(me.css_classes.is_visible);
 					$(this).find(me.js_selectors.entry + ':visible:last').find(me.js_selectors.entry_medallion).addClass(me.css_classes.is_visible);
 				});
+
+				this._UpdateEntryGroupsVisibility();
+				this._UpdateMessagesCounters();
 			},
 			_ShowAllEntries: function()
 			{
@@ -281,89 +825,105 @@ $(function()
 			/**
 			 * Show entries of type sEntryType but do not hide the others
 			 *
-			 * @param sEntryType string
+			 * @param sEntryType {string}
 			 * @private
 			 */
 			_ShowEntries: function(sEntryType)
 			{
-				this.element.find(this.js_selectors.entry+'[data-entry-type="'+sEntryType+'"]').removeClass(this.css_classes.is_hidden);
+				let sEntrySelector = this.js_selectors.entry+'[data-entry-type="'+sEntryType+'"]';
+
+				// Note: Unlike, the _HideEntries() method, we don't have a special case for caselogs options. This is because this
+				// method is called when the main filter is checked, which means that all options are checked as well, so there is no
+				// need for a special treatment.
+
+				this.element.find(sEntrySelector).removeClass(this.css_classes.is_hidden);
 				this._UpdateEntryGroupsVisibility();
 			},
 			/**
 			 * Hide entries of type sEntryType but do not hide the others
 			 *
-			 * @param sEntryType string
+			 * @param sEntryType {string}
+			 * @param aOptions {Array} Options for the sEntryType, used differently depending on the sEntryType
 			 * @private
 			 */
-			_HideEntries: function(sEntryType)
+			_HideEntries: function(sEntryType, aOptions = [])
 			{
-				this.element.find(this.js_selectors.entry+'[data-entry-type="'+sEntryType+'"]').addClass(this.css_classes.is_hidden);
+				let sEntrySelector = this.js_selectors.entry+'[data-entry-type="'+sEntryType+'"]';
+
+				// Special case for options
+				if ((this.enums.entry_types.caselog === sEntryType) && (aOptions.length > 0)) {
+					// Hide all caselogs...
+					this._HideEntries(sEntryType);
+
+					// ... except the selected
+					for (let sCaseLogAttCode of aOptions) {
+						this.element.find(sEntrySelector+'[data-entry-caselog-attribute-code="'+sCaseLogAttCode+'"]').removeClass(this.css_classes.is_hidden);
+					}
+				}
+				// General case
+				else {
+					this.element.find(sEntrySelector).addClass(this.css_classes.is_hidden);
+				}
+
 				this._UpdateEntryGroupsVisibility();
 			},
-			_GetNewEntryGroup: function()
-			{
-				let AjaxNewEntryGroupDeferred = jQuery.Deferred();
-				const me = this;
-				var oParams = {
-					'operation' : 'new_entry_group',
-					'caselog_new_entry': sData,
-					'caselog_attcode' : sCaselog,
-				}
-				$.post(GetAbsoluteUrlAppRoot()+'pages/ajax.render.php', oParams, function(data){
-					AjaxNewEntryGroupDeferred.resolve(data);
-				});	
-				return AjaxNewEntryGroupDeferred.promise();
-			},
-			_AddEntry: function(sEntry, sOrigin)
-			{
-				let aEntryGroup = this.element.find(this.js_selectors.entry_group)
-				let sAuthorLogin = $(sEntry).attr('data-entry-author-login');
-				if (aEntryGroup.length > 0 && $(aEntryGroup[0]).attr('data-entry-group-author-login') === sAuthorLogin && $(aEntryGroup[0]).attr('data-entry-group-origin') === sOrigin)
-				{
-					$(aEntryGroup[0]).prepend(sEntry);
-					this._ReformatDateTimes();
-				}
-				else
-				{
-					// TODO 3.0.0 Create a new entry group
-					window.location.reload();
-				}
-			},
-			AddEntry: function(sEntry, sOrigin)
-			{
-				this._AddEntry(sEntry, sOrigin);
-			},
-			_GetCaseLogRank: function(sCaseLog)
-			{
-				let iIdx = 0;
-				let oCaselogTab = this.element.find(this.js_selectors.tab_toggler +
-					'[data-tab-type="caselog"]' +
-					'[data-caselog-attribute-code="'+ sCaseLog +'"]'
-				);
-				if(oCaselogTab.length > 0 && oCaselogTab.attr('data-caselog-rank'))
-				{
-					iIdx = parseInt(oCaselogTab.attr('data-caselog-rank'));
-				}
-				return iIdx;
-			},
-			GetCaseLogRank: function(sCaseLog)
-			{
-				return this._GetCaseLogRank(sCaseLog);	
-			},
-			_UpdateEntryGroupsVisibility: function()
-			{
+			_UpdateEntryGroupsVisibility: function () {
 				const me = this;
 
-				this.element.find(this.js_selectors.entry_group).each(function(){
-					if($(this).find(me.js_selectors.entry + ':not(.' + me.css_classes.is_hidden + ')').length === 0)
-					{
+				this.element.find(this.js_selectors.entry_group).each(function () {
+					if ($(this).find(me.js_selectors.entry+':not(.'+me.css_classes.is_hidden+')').length === 0) {
 						$(this).addClass(me.css_classes.is_hidden);
-					}
-					else
-					{
+					} else {
 						$(this).removeClass(me.css_classes.is_hidden);
 					}
 				});
-			}
+			},
+			/**
+			 * Add an entry represented by its oData to the case log with the sCaseLogAttCode
+			 *
+			 * @param sCaseLogAttCode {string}
+			 * @param oData {Object} Structured data of the entry: {html_rendering: <HTML_DATA>}
+			 * @private
+			 */
+			_AddEntry: function (sCaseLogAttCode, oData) {
+				// Info about the new entry
+				const oNewEntryElem = $(oData.html_rendering);
+				const sNewEntryAuthorLogin = oNewEntryElem.attr('data-entry-author-login');
+				const sNewEntryOrigin = oNewEntryElem.attr('data-entry-group-origin');
+
+				// Info about the last entry group to see the entry to add should be in this one or a new one
+				const oLastEntryGroupElem = this.element.find(this.js_selectors.entry_group+':first');
+				const sLastEntryAuthorLogin = oLastEntryGroupElem.length > 0 ? oLastEntryGroupElem.attr('data-entry-author-login') : null;
+				const sLastEntryOrigin = oLastEntryGroupElem.length > 0 ? oLastEntryGroupElem.attr('data-entry-group-origin') : null;
+
+				let oTargetEntryGroup = null;
+				if ((sLastEntryAuthorLogin === sNewEntryAuthorLogin) && (sLastEntryOrigin && sNewEntryOrigin)) {
+					oTargetEntryGroup = oLastEntryGroupElem;
+				} else {
+					oTargetEntryGroup = this._CreateEntryGroup(sNewEntryAuthorLogin, sNewEntryOrigin);
+				}
+				oTargetEntryGroup.prepend(oNewEntryElem);
+				this._ReformatDateTimes();
+			},
+			/**
+			 * Create an entry group and add it to the activity panel
+			 *
+			 * @param sAuthorLogin {string}
+			 * @param sOrigin {string}
+			 * @returns {Object} jQuery object representing the created entry group
+			 * @private
+			 */
+			_CreateEntryGroup: function (sAuthorLogin, sOrigin) {
+				// Note: When using the ActivityPanel, there should always be at least one entry group already, the one from the object creation
+				let oEntryGroupElem = this.element.find(this.js_selectors.entry_group+':first')
+					.clone()
+					.attr('data-entry-author-login', sAuthorLogin)
+					.attr('data-entry-group-origin', sOrigin)
+					.addClass(this.css_classes.is_current_user)
+					.html('')
+					.prependTo(this.element.find(this.js_selectors.body));
+
+				return oEntryGroupElem;
+			},
 		});
 });
