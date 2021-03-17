@@ -27,7 +27,7 @@ utils::InitTimeZone();
 
 
 /**
- * @param string $sPagePath relative path
+ * @param string $sPagePath full path (if symlink, it will be resolved)
  * @param array $aPossibleBasePaths list of possible base paths
  *
  * @return string|bool false if invalid path
@@ -37,7 +37,7 @@ function CheckPageExists(string $sPagePath, array $aPossibleBasePaths)
 {
 	$sTargetPage = false;
 	foreach ($aPossibleBasePaths as $sBasePath) {
-		$sTargetPage = utils::RealPath($sBasePath.'/'.$sPagePath, $sBasePath);
+		$sTargetPage = utils::RealPath($sPagePath, $sBasePath);
 		if ($sTargetPage !== false) {
 			return $sTargetPage;
 		}
@@ -65,16 +65,21 @@ $sEnvironment = utils::ReadParam('exec_env', utils::GetCurrentEnvironment());
 session_write_close();
 
 
-// in case module was compiled to symlink, trying multiple paths...
-$sPagePath = $sModule.'/'.$sPage;
-$aPossibleBasePaths = [
-	APPROOT.'env-'.$sEnvironment,
-	APPROOT.'datamodels/2.x',
-	APPROOT.'extensions',
-	APPROOT.'data/'.$sEnvironment.'-modules',
-	APPROOT.'data/downloaded-extensions', // Hub connector
-];
-$sTargetPage = CheckPageExists($sPagePath, $aPossibleBasePaths);
+$sEnvFullPath = APPROOT.'env-'.$sEnvironment;
+$sPageRelativePath = $sModule.'/'.$sPage;
+$sPageEnvFullPath = $sEnvFullPath.'/'.$sPageRelativePath;
+if (is_link($sPageEnvFullPath)) {
+	// in case module was compiled to symlink, we need to check against real linked path as symlink is resolved
+	$aPossibleBasePaths = [
+		APPROOT.'datamodels/2.x', // warning, won't work for datamodels/1.x for example !
+		APPROOT.'extensions',
+		APPROOT.'data/'.$sEnvironment.'-modules',
+		APPROOT.'data/downloaded-extensions', // Hub connector
+	];
+} else {
+	$aPossibleBasePaths = [$sEnvFullPath];
+}
+$sTargetPage = CheckPageExists($sPageEnvFullPath, $aPossibleBasePaths);
 
 if ($sTargetPage === false) {
 	// Do not recall the page parameters (security takes precedence)
