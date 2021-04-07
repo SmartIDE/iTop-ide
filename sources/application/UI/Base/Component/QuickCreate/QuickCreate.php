@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -21,6 +21,7 @@ namespace Combodo\iTop\Application\UI\Base\Component\QuickCreate;
 
 
 use Combodo\iTop\Application\UI\Base\UIBlock;
+use iKeyboardShortcut;
 use MetaModel;
 use UserRights;
 use utils;
@@ -33,7 +34,7 @@ use utils;
  * @internal
  * @since 3.0.0
  */
-class QuickCreate extends UIBlock
+class QuickCreate extends UIBlock implements iKeyboardShortcut
 {
 	// Overloaded constants
 	public const BLOCK_CODE = 'ibo-quick-create';
@@ -123,6 +124,7 @@ class QuickCreate extends UIBlock
 
 	/**
 	 * Return the $aClasses array of DM classes minus the classes that should not be proposed in the autocomplete:
+	 * - not derivating from cmdbAbstractObject
 	 * - n:n classes
 	 *
 	 * @param array $aClasses
@@ -134,6 +136,11 @@ class QuickCreate extends UIBlock
 		$aFilteredClasses = [];
 
 		foreach ($aClasses as $sClassName => $sClassLabel){
+			// Skip not derivating from cmdbAbstractObject
+			if(false === is_a($sClassName, '\cmdbAbstractObject', true)) {
+				continue;
+			}
+
 			// Skip n:n classes
 			if(MetaModel::IsLinkClass($sClassName)) {
 				continue;
@@ -194,5 +201,15 @@ class QuickCreate extends UIBlock
 	public function GetMaxHistoryResults(): int
 	{
 		return $this->iMaxHistoryResults;
+	}
+
+	public static function GetShortcutKeys(): array
+	{
+		return [['id' => 'ibo-open-quick-create', 'label' => 'UI:Component:QuickCreate:KeyboardShortcut:OpenDrawer', 'key' => 'c', 'event' => 'open_drawer']];
+	}
+
+	public static function GetShortcutTriggeredElementSelector(): string
+	{
+		return "[data-role='".static::BLOCK_CODE."']";
 	}
 }

@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2017 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -18,7 +18,7 @@
 /*
 * @author ITOMIG GmbH <martin.raenker@itomig.de>
 
-* @copyright     Copyright (C) 2017 Combodo SARL
+* @copyright     Copyright (C) 2021 Combodo SARL
 * @licence	http://opensource.org/licenses/AGPL-3.0
 *		
 */
@@ -42,6 +42,7 @@ Either you have pushed an empty file,
 or ask your iTop administrator if the iTop server disk is full.~~',
 	'Attachments:Render:Icons' => 'Als Icons anzeigen',
 	'Attachments:Render:Table' => 'Als Liste anzeigen',
+	'UI:Attachments:DropYourFileHint' => 'Drop files anywhere in this area~~',
 ));
 
 //

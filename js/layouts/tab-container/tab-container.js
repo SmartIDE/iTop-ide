@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2013-2020 Combodo SARL
- *
- * This file is part of iTop.
- *
- * iTop is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * iTop is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
 $(function()
@@ -23,6 +10,7 @@ $(function()
             // default options
             options:
             {
+	            remote_tab_load_dict: 'Click to load',
             },
             css_classes:
             {
@@ -47,41 +35,47 @@ $(function()
 	            var me = this;
 	            this.element.addClass(this.css_classes.tab_container);
 
-                // Ugly patch for a change in the behavior of jQuery UI:
-                // Before jQuery UI 1.9, tabs were always considered as "local" (opposed to Ajax)
-                // when their href was beginning by #. Starting with 1.9, a <base> tag in the page
-                // is taken into account and causes "local" tabs to be considered as Ajax
-                // unless their URL is equal to the URL of the page...
-                if ($('base').length > 0) {
-                    this.element.find(this.js_selectors.tab_toggler).each(function () {
-                        const sHash = location.hash;
-                        const sCleanLocation = location.href.toString().replace(sHash, '').replace(/#$/, '');
-                        $(this).attr('href', sCleanLocation + $(this).attr('href'));
-                    });
-                }
+	            // Ugly patch for a change in the behavior of jQuery UI:
+	            // Before jQuery UI 1.9, tabs were always considered as "local" (opposed to Ajax)
+	            // when their href was beginning by #. Starting with 1.9, a <base> tag in the page
+	            // is taken into account and causes "local" tabs to be considered as Ajax
+	            // unless their URL is equal to the URL of the page...
+	            if ($('base').length > 0) {
+		            this.element.find(this.js_selectors.tab_toggler).each(function () {
+			            const sHash = location.hash;
+			            const sCleanLocation = location.href.toString().replace(sHash, '').replace(/#$/, '');
+			            $(this).attr('href', sCleanLocation+$(this).attr('href'));
+		            });
+	            }
 
-                if ($.bbq) {
-                    // This selector will be reused when selecting actual tab widget A elements.
-                    const sTabAnchorSelector = 'ul.ui-tabs-nav a';
+	            let oTabsParams = {
+		            classes: {
+			            'ui-tabs-panel': 'ibo-tab-container--tab-container',    // For ajax tabs, so their containers have the right CSS classes
+		            },
+		            active: $.bbq.getState( this.element.attr('id'), true ) || 0,
+		            remote_tab_load_dict: this.options.remote_tab_load_dict
+	            };
+	            if ($.bbq) {
+		            // Enable tabs on all tab widgets. The `event` property must be overridden so
+		            // that the tabs aren't changed on click, and any custom event name can be
+		            // specified. Note that if you define a callback for the 'select' event, it
+		            // will be executed for the selected tab whenever the hash changes.
+		            oTabsParams['event'] = 'change';
+	            }
+	            this._addTabsWidget(oTabsParams);
 
-                    // Enable tabs on all tab widgets. The `event` property must be overridden so
-                    // that the tabs aren't changed on click, and any custom event name can be
-                    // specified. Note that if you define a callback for the 'select' event, it
-                    // will be executed for the selected tab whenever the hash changes.
-                    this._addTabsWidget({event: 'change'});
-                } else {
-                    this._addTabsWidget();
-                }
 
-	         
-                this._bindEvents();
+	            this._bindEvents();
             },
-	        _addTabsWidget: function(aParams)
-	        {
-	        	if(this.element.hasClass(this.css_classes.is_scrollable)){
-			        this.element.scrollabletabs(aParams);
+	        /**
+	         * @param oParams {Object} Structured object representing the options for the jQuery UI Tabs widget
+	         * @private
+	         */
+	        _addTabsWidget: function (oParams) {
+		        if (this.element.hasClass(this.css_classes.is_scrollable)) {
+			        this.element.scrollabletabs(oParams);
 		        } else {
-			        this.element.tabs(aParams);
+			        this.element.tabs(oParams);
 		        }
 	        },
             // events bound via _bind are removed automatically
@@ -114,8 +108,8 @@ $(function()
                 if(window.ResizeObserver)
                 {
                     const oTabsListRO = new ResizeObserver(function(){
-                        // Note: For a reason I don't understand, when called instantly the sub function IsElementVisibleToTheUser() won't be able to retrieve an element using the document.elementFromPoint() function
-                        // As it won't return anything, the function always thinks it's invisible...
+                        // Note: For a reason I don't understand, when called instantly the sub function CombodoGlobalToolbox.IsElementVisibleToTheUser() won't be able to retrieve an element using the document.elementFromPoint() function
+	                    // As it won't return anything, the function always thinks it's invisible...
                         setTimeout(function(){
                             me._onTabContainerResize();
                         }, 200);
@@ -150,17 +144,22 @@ $(function()
             // - Update URL hash when tab is activated
             _onTabActivated: function(oUI)
             {
-                let oState = {};
+	            let oState = {};
 
-                // Get the id of this tab widget.
-                const sId = this.element.attr( 'id' );
+	            // Get the id of this tab widget.
+	            const sId = this.element.attr('id');
 
-                // Get the index of this tab.
-                const iIdx = $(oUI.newTab).prevAll().length;
+	            //Datatable are not displayed correctly when hidden
+	            $(oUI.newPanel).find('.dataTables_scrollBody > .ibo-datatable').each(function () {
+		            $('#'+this.id).DataTable().columns.adjust().draw();
+	            });
 
-                // Set the state!
-                oState[ sId ] = iIdx;
-                $.bbq.pushState( oState );
+	            // Get the index of this tab.
+	            const iIdx = $(oUI.newTab).prevAll().length;
+
+	            // Set the state!
+	            oState[sId] = iIdx;
+	            $.bbq.pushState(oState);
             },
             // - Change current tab as necessary when URL hash changes
             _onHashChange: function()
@@ -248,14 +247,11 @@ $(function()
             	const sTabId = oTabHeaderElem.attr('data-tab-id');
             	const oMatchingExtraTabElem = this.element.find(this.js_selectors.extra_tab_toggler+'[href="#'+sTabId+'"]');
 
-                if(!IsElementVisibleToTheUser(oTabHeaderElem[0], true, 2))
-                {
-                    oMatchingExtraTabElem.removeClass(this.css_classes.is_hidden);
-                }
-                else
-                {
-                    oMatchingExtraTabElem.addClass(this.css_classes.is_hidden);
-                }
+	            if (!CombodoGlobalToolbox.IsElementVisibleToTheUser(oTabHeaderElem[0], true, 2)) {
+		            oMatchingExtraTabElem.removeClass(this.css_classes.is_hidden);
+	            } else {
+		            oMatchingExtraTabElem.addClass(this.css_classes.is_hidden);
+	            }
             },
             // - Update extra tabs list
             _updateExtraTabsList: function()

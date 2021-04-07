@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -194,7 +194,7 @@ class UserProfileBrickController extends BrickController
 				$sFormManagerData = $oRequestManipulator->ReadParam('formmanager_data', null, FILTER_UNSAFE_RAW);
 				if ($sFormManagerClass === null || $sFormManagerData === null)
 				{
-					IssueLog::Error(__METHOD__.' at line '.__LINE__.' : Parameters formmanager_class and formamanager_data must be defined.');
+					IssueLog::Error(__METHOD__.' at line '.__LINE__.' : Parameters formmanager_class and formmanager_data must be defined.');
 					throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR,
 						'Parameters formmanager_class and formmanager_data must be defined.');
 				}
@@ -211,6 +211,7 @@ class UserProfileBrickController extends BrickController
 				{
 					$aFormData['validation']['redirection'] = array(
 						'url' => $oUrlGenerator->generate('p_user_profile_brick'),
+						'timeout_duration' => 1000, //since there are several ajax request, we use a longer timeout in hope that they will all be finished in time. A promise would have been more reliable, but since this change is made in a minor version, this approach is less error prone.
 					);
 				}
 			}
@@ -277,9 +278,8 @@ class UserProfileBrickController extends BrickController
 			{
 				$sFormManagerClass = $oRequestManipulator->ReadParam('formmanager_class', null, FILTER_UNSAFE_RAW);
 				$sFormManagerData = $oRequestManipulator->ReadParam('formmanager_data', null, FILTER_UNSAFE_RAW);
-				if ($sFormManagerClass === null || $sFormManagerData === null)
-				{
-					IssueLog::Error(__METHOD__.' at line '.__LINE__.' : Parameters formmanager_class and formamanager_data must be defined.');
+				if ($sFormManagerClass === null || $sFormManagerData === null) {
+					IssueLog::Error(__METHOD__.' at line '.__LINE__.' : Parameters formmanager_class and formmanager_data must be defined.');
 					throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR,
 						'Parameters formmanager_class and formmanager_data must be defined.');
 				}

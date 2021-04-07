@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -82,13 +82,37 @@ const CombodoBackofficeToolbox = {
 	 * @param {object} oElem The jQuery object of the element
 	 * @constructor
 	 */
-	ToggleFullscreenForElement: function(oElem) {
-		if(oElem.hasClass('ibo-is-fullscreen')) {
+	ToggleFullscreenForElement: function (oElem) {
+		if (oElem.hasClass('ibo-is-fullscreen')) {
 			this.ExitFullscreenForElement(oElem);
-		}
-		else {
+		} else {
 			this.EnterFullscreenForElement(oElem);
 		}
+	},
+
+	/**
+	 * Initialize the code highlighting on elements
+	 *
+	 * @param {Object} oContainerElem code highlighting will only be init. on elements within the container
+	 * @param {boolean} bForce Whether the highlighting should be forced or not (if already done)
+	 * @return {void}
+	 * @constructor
+	 */
+	InitCodeHighlighting: function (oContainerElem = null, bForce = false) {
+		if (oContainerElem === null) {
+			oContainerElem = $('body');
+		}
+
+		const sComplementarySelector = bForce ? '' : ':not(.hljs)';
+
+		// AttributeHTML and HTML AttributeText
+		oContainerElem.find('[data-attribute-type="AttributeHTML"], [data-attribute-type="AttributeText"]').find('.HTML pre'+sComplementarySelector+' > code').parent().each(function (iIdx, oElem) {
+			hljs.highlightBlock(oElem);
+		});
+		// CaseLogs
+		oContainerElem.find('[data-role="ibo-activity-entry--main-information-content"] pre'+sComplementarySelector+' > code').parent().each(function (iIdx, oElem) {
+			hljs.highlightBlock(oElem);
+		});
 	}
 };
 
@@ -106,20 +130,23 @@ CKEDITOR.plugins.add( 'disabler',
 
 	});
 
-// Processing
+// Processing on each pages of the backoffice
 $(document).ready(function(){
+	// Initialize global keyboard shortcuts
+	$('body').keyboard_shortcuts({shortcuts: aKeyboardShortcuts});
+	
 	// Enable tooltips based on existing HTML markup, won't work on markup added dynamically after DOM ready (AJAX, ...)
-	$('[data-tooltip-content]:not([data-tooltip-instanciated="true"])').each(function(){
-		CombodoGlobalToolbox.InitTooltipFromMarkup($(this));
+	$('[data-tooltip-content]:not([data-tooltip-instantiated="true"])').each(function () {
+		CombodoTooltip.InitTooltipFromMarkup($(this));
 	});
 
 	// Enable fullscreen togglers based on existing HTML markup, won't work on markup added dynamically after DOM ready (AJAX, ...)
-	$('[data-fullscreen-toggler-target]:not([data-fullscreen-toggler-instanciated="true"])').each(function(){
+	$('[data-fullscreen-toggler-target]:not([data-fullscreen-toggler-instantiated="true"])').each(function () {
 		const sTargetSelector = $(this).attr('data-fullscreen-toggler-target');
 		let oTargetElem = null;
 
 		// Check if target selector is a jQuery expression, meaning that it needs to be evaluated (eg. $(this).closest('[data-role="ibo-xxx"]'))
-		if(sTargetSelector.indexOf('$') !== -1) {
+		if (sTargetSelector.indexOf('$') !== -1) {
 			oTargetElem = eval(sTargetSelector);
 		}
 		// Otherwise it should be a simple selector (eg. #abc, .def)
@@ -133,7 +160,7 @@ $(document).ready(function(){
 		}
 
 		// Toggle fullscreen on toggler click
-		$(this).on('click', function(oEvent){
+		$(this).on('click', function (oEvent) {
 			// Prevent anchor default behavior
 			oEvent.preventDefault();
 
@@ -141,19 +168,27 @@ $(document).ready(function(){
 		});
 		// Exit fullscreen on "Esc" key hit when focus is in either the toggler or the target
 		// - Toggler
-		$(this).on('keyup', function(oEvent){
-			if((oEvent.key === 'Escape') && ($(oEvent.target).attr('data-fullscreen-toggler-instanciated'))) {
+		$(this).on('keyup', function (oEvent) {
+			if ((oEvent.key === 'Escape') && ($(oEvent.target).attr('data-fullscreen-toggler-instantiated'))) {
 				CombodoBackofficeToolbox.ExitFullscreenForElement(oTargetElem);
 			}
 		});
 		// - Target
-		oTargetElem.on('keyup', function(oEvent){
-			if((oEvent.key === 'Escape') && ($(oEvent.target).attr('data-fullscreen-target'))) {
+		oTargetElem.on('keyup', function (oEvent) {
+			if ((oEvent.key === 'Escape') && ($(oEvent.target).attr('data-fullscreen-target'))) {
 				CombodoBackofficeToolbox.ExitFullscreenForElement(oTargetElem);
 			}
 		});
 
 		oTargetElem.attr('data-fullscreen-target', 'true');
-		$(this).attr('data-fullscreen-toggler-instanciated', 'true');
+		$(this).attr('data-fullscreen-toggler-instantiated', 'true');
 	});
+
+	// Processing on datatables refresh
+	$(document).on('init.dt draw.dt', function (oEvent) {
+		CombodoTooltip.InitAllNonInstantiatedTooltips($(oEvent.target), true);
+	});
+
+	// Code highlighting
+	CombodoBackofficeToolbox.InitCodeHighlighting();
 });

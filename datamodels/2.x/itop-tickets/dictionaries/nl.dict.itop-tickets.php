@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2019 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -23,7 +23,7 @@
  * 
  * @author Jeffrey Bostoen - <jbostoen.itop@outlook.com> (2018 - 2020)
  *
- * @copyright   Copyright (C) 2010-2019 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @licence	http://opensource.org/licenses/AGPL-3.0
  */
 // Dictionnay conventions
@@ -158,7 +158,6 @@ Dict::Add('NL NL', 'Dutch', 'Nederlands', array(
 
 // Fieldset translation
 Dict::Add('NL NL', 'Dutch', 'Nederlands', array(
-
 	'Ticket:baseinfo' => 'Globale informatie',
 	'Ticket:date' => 'Data',
 	'Ticket:contact' => 'Contacten',
@@ -172,7 +171,6 @@ Dict::Add('NL NL', 'Dutch', 'Nederlands', array(
 	'WorkOrder:Details' => 'Details',
 	'WorkOrder:Moreinfo' => 'Meer informatie',
 	'Tickets:ResolvedFrom' => 'Automatisch afgerond door %1$s',
-
 	'Class:cmdbAbstractObject/Method:Set' => 'Stel in op waarde',
 	'Class:cmdbAbstractObject/Method:Set+' => 'Stel in veldwaarde in op een statische waarde',
 	'Class:cmdbAbstractObject/Method:Set/Param:1' => 'Doelveld',

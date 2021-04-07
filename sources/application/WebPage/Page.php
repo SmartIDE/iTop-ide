@@ -1,10 +1,8 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
-
-use Combodo\iTop\Application\UI\Base\iUIBlock;
 
 
 /**
@@ -26,7 +24,7 @@ interface Page
 	 *
 	 * @return void
 	 */
-	public function add($sText): ?iUIBlock;
+	public function add($sText);
 
 	/**
 	 * Add a paragraph to the body of the page

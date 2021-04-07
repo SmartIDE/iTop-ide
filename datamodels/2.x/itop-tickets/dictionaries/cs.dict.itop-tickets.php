@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2014 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -20,7 +20,7 @@
  *
  * @author      Lukáš Dvořák <lukas.dvorak@itopportal.cz>
  * @author      Daniel Rokos <daniel.rokos@itopportal.cz>
- * @copyright   Copyright (C) 2010-2014 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 // Dictionnay conventions
@@ -155,7 +155,6 @@ Dict::Add('CS CZ', 'Czech', 'Čeština', array(
 
 // Fieldset translation
 Dict::Add('CS CZ', 'Czech', 'Čeština', array(
-
 	'Ticket:baseinfo' => 'Obecné informace',
 	'Ticket:date' => 'Data',
 	'Ticket:contact' => 'Kontakty',
@@ -225,4 +224,3 @@ Dict::Add('CS CZ', 'Czech', 'Čeština', array(
 	'Class:Document/Attribute:services_list' => 'Služby',
 	'Class:Document/Attribute:services_list+' => '',
 ));
-

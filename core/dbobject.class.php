@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2019 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -55,7 +55,7 @@ interface iDisplay
 /**
  * Class dbObject: the root of persistent classes
  *
- * @copyright   Copyright (C) 2010-2016 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -947,10 +947,10 @@ abstract class DBObject implements iDisplay
 
     /**
      * Compute the highlightCode
-     * 
-     * @example When TTR, then TTR of a UserRequest is greater thant a defined scale, the item is highlighted in the listings
      *
-     * @interal
+     * @internal
+     *
+     * @example When TTR, then TTR of a UserRequest is greater thant a defined scale, the item is highlighted in the listings
      *
      * @return string|null The Hightlight code (null if none set, meaning rank = 0)
      *
@@ -1328,13 +1328,10 @@ abstract class DBObject implements iDisplay
 		}
 		else
 		{
-			if ($bClickable)
-			{
-				$sIcon = "<span class=\"object-ref-icon fas $sFA fa-1x fa-fw\"></span>";
-			}
-			else
-			{
-				$sIcon = "<span class=\"object-ref-icon-disabled fas $sFA fa-1x fa-fw\"></span>";
+			if ($bClickable) {
+				$sIcon = "<span class=\"object-ref-icon text_decoration\"><span class=\"fas $sFA fa-1x fa-fw\"></span></span>";
+			} else {
+				$sIcon = "<span class=\"object-ref-icon-disabled text_decoration\"><span class=\"fas $sFA fa-1x fa-fw\"></span></span>";
 			}
 		}
 
@@ -3979,7 +3976,55 @@ abstract class DBObject implements iDisplay
 	public function SetCurrentDate($sAttCode)
 	{
 		$this->Set($sAttCode, time());
+
 		return true;
+	}
+
+	/**
+	 * Helper to add a value to the given attribute
+	 *
+	 * Suitable for use as a lifecycle action
+	 *
+	 * @api
+	 *
+	 * @param string $sAttCode
+	 * @param int|float $iValue
+	 *
+	 * @return bool
+	 *
+	 * @throws \CoreException
+	 * @throws \CoreUnexpectedValue
+	 * @since 3.0.0
+	 */
+	public function AddValue($sAttCode, $iValue = 1)
+	{
+		$this->Set($sAttCode, $this->Get($sAttCode) + $iValue);
+
+		return true;
+	}
+
+	/**
+	 * Helper to set a value only if it is currently undefined
+	 *
+	 * Call SetCurrentDate() only of the internal representation of the attribute is null.
+	 *
+	 * @api
+	 * @see SetCurrentDate()
+	 *
+	 * @param string $sAttCode
+	 *
+	 * @throws \CoreException
+	 * @throws \CoreUnexpectedValue
+	 * @since 3.0.0
+	 */
+	public function SetCurrentDateIfNull($sAttCode)
+	{
+		$oAttDef = MetaModel::GetAttributeDef(get_class($this), $sAttCode);
+		$oCurrentValue = $this->Get($sAttCode);
+		if ($oAttDef->IsNull($oCurrentValue))
+		{
+			$this->SetCurrentDate($sAttCode);
+		}
 	}
 
     /**

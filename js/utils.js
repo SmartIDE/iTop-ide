@@ -1,121 +1,9 @@
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
+ */
+
 // Some general purpose JS functions for the iTop application
-
-//IE 8 compatibility, copied from: https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/IndexOf
-if (!Array.prototype.indexOf) {
-
-	if (false) // deactivated since it causes troubles: for(k in aData) => returns the indexOf function as first element on empty arrays !
-	{
-		Array.prototype.indexOf = function (searchElement /*, fromIndex */) {
-			"use strict";
-			if (this == null) {
-				throw new TypeError();
-			}
-			var t = Object(this);
-			var len = t.length >>> 0;
-			if (len === 0) {
-				return -1;
-			}
-			var n = 0;
-			if (arguments.length > 1) {
-				n = Number(arguments[1]);
-				if (n != n) { // shortcut for verifying if it's NaN
-					n = 0;
-				} else if (n != 0 && n != Infinity && n != -Infinity) {
-					n = (n > 0 || -1) * Math.floor(Math.abs(n));
-				}
-			}
-			if (n >= len) {
-				return -1;
-			}
-			var k = n >= 0 ? n : Math.max(len-Math.abs(n), 0);
-			for (; k < len; k++) {
-				if (k in t && t[k] === searchElement) {
-					return k;
-				}
-			}
-			return -1;
-		}
-	}
-}
-// Polyfill for Array.from for IE
-// Copied from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
-if (!Array.from) {
-  Array.from = (function () {
-    var toStr = Object.prototype.toString;
-    var isCallable = function (fn) {
-      return typeof fn === 'function' || toStr.call(fn) === '[object Function]';
-    };
-    var toInteger = function (value) {
-      var number = Number(value);
-      if (isNaN(number)) { return 0; }
-      if (number === 0 || !isFinite(number)) { return number; }
-      return (number > 0 ? 1 : -1) * Math.floor(Math.abs(number));
-    };
-    var maxSafeInteger = Math.pow(2, 53) - 1;
-    var toLength = function (value) {
-      var len = toInteger(value);
-      return Math.min(Math.max(len, 0), maxSafeInteger);
-    };
-
-    // The length property of the from method is 1.
-    return function from(arrayLike/*, mapFn, thisArg */) {
-      // 1. Let C be the this value.
-      var C = this;
-
-      // 2. Let items be ToObject(arrayLike).
-      var items = Object(arrayLike);
-
-      // 3. ReturnIfAbrupt(items).
-      if (arrayLike == null) {
-        throw new TypeError('Array.from requires an array-like object - not null or undefined');
-      }
-
-      // 4. If mapfn is undefined, then let mapping be false.
-      var mapFn = arguments.length > 1 ? arguments[1] : void undefined;
-      var T;
-      if (typeof mapFn !== 'undefined') {
-        // 5. else
-        // 5. a If IsCallable(mapfn) is false, throw a TypeError exception.
-        if (!isCallable(mapFn)) {
-          throw new TypeError('Array.from: when provided, the second argument must be a function');
-        }
-
-        // 5. b. If thisArg was supplied, let T be thisArg; else let T be undefined.
-        if (arguments.length > 2) {
-          T = arguments[2];
-        }
-      }
-
-      // 10. Let lenValue be Get(items, "length").
-      // 11. Let len be ToLength(lenValue).
-      var len = toLength(items.length);
-
-      // 13. If IsConstructor(C) is true, then
-      // 13. a. Let A be the result of calling the [[Construct]] internal method 
-      // of C with an argument list containing the single item len.
-      // 14. a. Else, Let A be ArrayCreate(len).
-      var A = isCallable(C) ? Object(new C(len)) : new Array(len);
-
-      // 16. Let k be 0.
-      var k = 0;
-      // 17. Repeat, while k < len… (also steps a - h)
-      var kValue;
-      while (k < len) {
-        kValue = items[k];
-        if (mapFn) {
-          A[k] = typeof T === 'undefined' ? mapFn(kValue, k) : mapFn.call(T, kValue, k);
-        } else {
-          A[k] = kValue;
-        }
-        k += 1;
-      }
-      // 18. Let putStatus be Put(A, "length", len, true).
-      A.length = len;
-      // 20. Return A.
-      return A;
-    };
-  }());
-}
 
 /**
  * Reload a truncated list
@@ -129,8 +17,7 @@ function ReloadTruncatedList(divId, sSerializedFilter, sExtraParams) {
 		try {
 			aAjaxRequest = aTruncatedLists[divId];
 			aAjaxRequest.abort();
-		}
-		catch (e) {
+		} catch (e) {
 			// Do nothing special, just continue
 			console.log('Uh,uh, exception !');
 		}
@@ -150,8 +37,7 @@ function ReloadTruncatedList(divId, sSerializedFilter, sExtraParams) {
 					if (checkbox) {
 						// There is a checkbox in the first column, don't make it sortable
 						table.tablesorter({headers: {0: {sorter: false}}, widgets: ['myZebra', 'truncatedList']}).tablesorterPager({container: $("#pager")}); // sortable and zebra tables
-					}
-					else {
+					} else {
 						// There is NO checkbox in the first column, all columns are considered sortable
 						table.tablesorter({widgets: ['myZebra', 'truncatedList']}).tablesorterPager({container: $("#pager"), totalRows: 97, filter: sSerializedFilter, extra_params: sExtraParams}); // sortable and zebra tables
 					}
@@ -197,8 +83,7 @@ function ReloadBlock(divId, sStyle, sSerializedFilter, sExtraParams) {
 		if (bIsDataTable) {
 			oDataTable.DataTable().clearPipeline();
 			oDataTable.DataTable().ajax.reload(null, false);
-		}
-		else {
+		} else {
 			$('#'+divId).block();
 
 			$.post(GetAbsoluteUrlAppRoot()+'pages/ajax.render.php?style='+sStyle,
@@ -247,15 +132,12 @@ function UpdateFileName(id, sNewFileName) {
 	$('#'+id).val(sNewFileName);
 	$('#'+id).trigger('validate');
 	$('#name_'+id).text(sNewFileName);
-	if(sNewFileName=='')
-	{
+	if(sNewFileName=='') {
 		$('#do_remove_'+id).val('1');
-		$('#remove_attr_' + id).hide();
-	}
-	else
-	{
+		$('#remove_attr_'+id).addClass('ibo-is-hidden');
+	} else {
 		$('#do_remove_'+id).val('0');
-		$('#remove_attr_' + id).show();
+		$('#remove_attr_'+id).removeClass('ibo-is-hidden');
 	}
 
 	return true;
@@ -292,24 +174,19 @@ function ReloadSearchForm(divId, sClassName, sBaseClass, sContext, sTableId, sEx
 	oMap.currentId = divId;
 	oMap._table_id_ = sTableId;
 	oMap.action = sAction;
-	if(sExtraParams['selection_mode'])
-	{
+	if(sExtraParams['selection_mode']) {
 		oMap.selection_mode = sExtraParams['selection_mode'];
 	}
-	if(sExtraParams['result_list_outer_selector'])
-	{
+	if(sExtraParams['result_list_outer_selector']) {
 		oMap.result_list_outer_selector = sExtraParams['result_list_outer_selector'];
 	}
-	if(sExtraParams['cssCount'])
-	{
+	if(sExtraParams['cssCount']) {
 		oMap.css_count = sExtraParams['cssCount'];
 		$(sExtraParams['cssCount']).val(0).trigger('change');
 	}
-	if(sExtraParams['table_inner_id'])
-	{
+	if(sExtraParams['table_inner_id']) {
 		oMap.table_inner_id = sExtraParams['table_inner_id'];
-	}
-	else{
+	} else{
 		oMap.table_inner_id = sTableId;
 	}
 
@@ -319,7 +196,7 @@ function ReloadSearchForm(divId, sClassName, sBaseClass, sContext, sTableId, sEx
 			oDiv.append(data);
 			oDiv.unblock();
 			oDiv.parent().resize(); // Inform the parent that the form has just been (potentially) resized
-			oDiv.find('form').triggerHandler('itop.search.form.reloaded');
+			oDiv.find('form.search_form_handler').triggerHandler('itop.search.form.reloaded');
 		}
 	);
 }
@@ -333,8 +210,7 @@ function SetUserPreference(sPreferenceCode, sPrefValue, bPersistent) {
 	sPreviousValue = undefined;
 	try {
 		sPreviousValue = oUserPreferences[sPreferenceCode];
-	}
-	catch (err) {
+	} catch (err) {
 		sPreviousValue = undefined;
 	}
 	oUserPreferences[sPreferenceCode] = sPrefValue;
@@ -403,8 +279,7 @@ function ToggleField(value, field_id) {
 		$('#'+field_id).prop('disabled', false);
 		// In case the field is rendered as a div containing several inputs (e.g. RedundancySettings)
 		$('#'+field_id+' :input').prop('disabled', false);
-	}
-	else {
+	} else {
 		$('#'+field_id).prop('disabled', true);
 		// In case the field is rendered as a div containing several inputs (e.g. RedundancySettings)
 		$('#'+field_id+' :input').prop('disabled', true);
@@ -420,8 +295,7 @@ function ToggleField(value, field_id) {
 function BlockField(field_id, bBlocked) {
 	if (bBlocked) {
 		$('#'+field_id).block({message: ' ** disabled ** ', enableValidation : true});
-	}
-	else {
+	} else {
 		$('#'+field_id).unblock();
 	}
 }
@@ -436,8 +310,7 @@ function ToggleDurationField(field_id) {
 		for (var i = 0; i < aSubFields.length; i++) {
 			$('#'+field_id+'_'+aSubFields[i]).prop('disabled', true);
 		}
-	}
-	else {
+	} else {
 		for (var i = 0; i < aSubFields.length; i++) {
 			$('#'+field_id+'_'+aSubFields[i]).prop('disabled', false);
 		}
@@ -455,7 +328,7 @@ function PropagateCheckBox(bCurrValue, aFieldsList, bCheck) {
 			ToggleField(bCheck, sFieldId);
 
 			// Cascade propagation
-            $('#enable_'+sFieldId).trigger('change');
+			$('#enable_'+sFieldId).trigger('change');
 		}
 	}
 }
@@ -467,8 +340,7 @@ function FixTableSorter(table) {
 		if (checkbox) {
 			// There is a checkbox in the first column, don't make it sort-able
 			table.tablesorter({headers: {0: {sorter: false}}, widgets: ['myZebra', 'truncatedList']}); // sort-able and zebra tables
-		}
-		else {
+		} else {
 			// There is NO checkbox in the first column, all columns are considered sort-able
 			table.tablesorter({widgets: ['myZebra', 'truncatedList']}); // sort-able and zebra tables
 		}
@@ -547,35 +419,30 @@ function ExportStartExport() {
 				if (this.checked) {
 					oParams[this.name] = $(this).val();
 				}
-			}
-			else {
+			} else {
 				oParams[this.name] = $(this).val();
 			}
 		}
 	});
-	$(':itop-tabularfieldsselector:visible').tabularfieldsselector('close_all_tooltips');
-	$('#export-form').hide();
-	$('#export-feedback').show();
+	$('#export-form').addClass('ibo-is-hidden');
+	$('#export-feedback').removeClass('ibo-is-hidden');
 	oParams.operation = 'export_build';
 	oParams.format = $('#export-form :input[name=format]').val();
 	var sQueryMode = $(':input[name=query_mode]:checked').val();
 	if ($(':input[name=query_mode]:checked').length > 0) {
 		if (sQueryMode == 'oql') {
 			oParams.expression = $('#export-form :input[name=expression]').val();
-		}
-		else {
+		} else {
 			oParams.query = $('#export-form :input[name=query]').val();
 		}
-	}
-	else {
+	} else {
 		oParams.expression = $('#export-form :input[name=expression]').val();
 		oParams.query = $('#export-form :input[name=query]').val();
 	}
 	$.post(GetAbsoluteUrlAppRoot()+'pages/ajax.render.php', oParams, function (data) {
 			if (data == null) {
 				ExportError('Export failed (no data provided), please contact your administrator');
-			}
-			else {
+			} else {
 				ExportRun(data);
 			}
 		}, 'json')
@@ -601,8 +468,7 @@ function ExportRun(data) {
 			var sDataState = $('#export-form').attr('data-state');
 			if (sDataState == 'cancelled') {
 				oParams.operation = 'export_cancel';
-			}
-			else {
+			} else {
 				oParams.operation = 'export_build';
 			}
 
@@ -625,8 +491,7 @@ function ExportRun(data) {
 					$('#export_text_result').show();
 					//$('#export_text_result .listResults').tableHover();
 					$('#export_text_result .listResults').tablesorter({widgets: ['myZebra']});
-				}
-				else {
+				} else {
 					if ($('#export_text_result').closest('ui-dialog').length == 0) {
 						// not inside a dialog box, adjust the height... approximately
 						var jPane = $('#export_text_result').closest('.ui-layout-content');
@@ -672,8 +537,7 @@ function ExportInitButton(sSelector) {
 				}
 				if ($(this).hasClass('ui-button')) {
 					$(this).button('option', 'label', Dict.S('UI:Button:Cancel'));
-				}
-				else {
+				} else {
 					$(this).html(Dict.S('UI:Button:Cancel'));
 				}
 				$('#export-form').attr('data-state', 'running');
@@ -683,8 +547,7 @@ function ExportInitButton(sSelector) {
 			case 'running':
 				if ($(this).hasClass('ui-button')) {
 					$(this).button('disable');
-				}
-				else {
+				} else {
 					$(this).prop('disabled', true);
 				}
 				$('#export-form').attr('data-state', 'cancelled');
@@ -701,6 +564,9 @@ function ExportInitButton(sSelector) {
 	});
 }
 
+/**
+ * @deprecated 3.0.0 will be removed in 3.1, see N°3824
+ */
 function DisplayHistory(sSelector, sFilter, iCount, iStart) {
 	$(sSelector).block();
 	var oParams = {operation: 'history_from_filter', filter: sFilter, start: iStart, count: iCount};
@@ -758,53 +624,6 @@ function Format() {
 }
 
 /**
- * Return true if oDOMElem is visible to the user, meaning that it is in the current viewport AND is not behind another element.
- *
- * @param oDOMElem DOM element to check
- * @param bCompletely Should oDOMElem be completely visible for the function to return true?
- * @param iThreshold Use when bCompletely = true, a threshold in pixels to consider oDOMElem as completely visible. This is useful when elements are next to others as the browser can consider 1 pixel is overlapping the next element.
- * @returns {boolean}
- * @url: https://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport
- */
-function IsElementVisibleToTheUser(oDOMElem, bCompletely = false, iThreshold = 0)
-{
-	const oRect = oDOMElem.getBoundingClientRect(),
-		fViewportWidth = window.innerWidth || doc.documentElement.clientWidth,
-		fViewportHeight = window.innerHeight || doc.documentElement.clientHeight,
-		efp = function (x, y)
-		{
-			return document.elementFromPoint(x, y)
-		};
-
-	// Return false if it's not in the viewport
-	if (oRect.right < 0 || oRect.bottom < 0
-		|| oRect.left > fViewportWidth || oRect.top > fViewportHeight)
-	{
-		return false;
-	}
-
-	if (bCompletely === true)
-	{
-		// Return true if ALL of its four corners are visible
-		return (
-			oDOMElem.contains(efp(oRect.left+iThreshold, oRect.top+iThreshold))
-			&& oDOMElem.contains(efp(oRect.right-iThreshold, oRect.top+iThreshold))
-			&& oDOMElem.contains(efp(oRect.right-iThreshold, oRect.bottom-iThreshold))
-			&& oDOMElem.contains(efp(oRect.left+iThreshold, oRect.bottom-iThreshold))
-		);
-	} else
-	{
-		// Return true if ANY of its four corners are visible
-		return (
-			oDOMElem.contains(efp(oRect.left, oRect.top))
-			|| oDOMElem.contains(efp(oRect.right, oRect.top))
-			|| oDOMElem.contains(efp(oRect.right, oRect.bottom))
-			|| oDOMElem.contains(efp(oRect.left, oRect.bottom))
-		);
-	}
-}
-
-/**
  * Enable to access translation keys client side.
  * The called keys needs to be exported using \WebPage::add_dict_entry
  */
@@ -818,8 +637,7 @@ else {
 Dict.S = function (sEntry) {
 	if (sEntry in Dict._entries) {
 		return Dict._entries[sEntry];
-	}
-	else {
+	} else {
 		return sEntry;
 	}
 };
@@ -830,7 +648,6 @@ Dict.Format = function () {
 }
 
 // TODO 3.0.0: Move functions above either in CombodoGlobalToolbox or CombodoBackofficeToolbox and deprecate them
-
 /**
  * A toolbox for common JS operations accross the app no matter the GUI. Meant to be used by Combodo developers and the community.
  *
@@ -840,26 +657,79 @@ Dict.Format = function () {
  * @since 3.0.0
  */
 const CombodoGlobalToolbox = {
-	// Instanciate tooltips (abstraction layer between iTop markup and tooltip plugin to ease its replacement in the future)
 	/**
-	 * Instanciate a tooltip on oElem from its data attributes
+	 * Return true if oDOMElem is visible to the user, meaning that it is in the current viewport AND is not behind another element.
+	 *
+	 * @param oDOMElem {Object} DOM element to check
+	 * @param bCompletely {boolean} Should oDOMElem be completely visible for the function to return true?
+	 * @param iThreshold {integer} Use when bCompletely = true, a threshold in pixels to consider oDOMElem as completely visible. This is useful when elements are next to others as the browser can consider 1 pixel is overlapping the next element.
+	 * @returns {boolean}
+	 * @url: https://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport
+	 * @since 3.0.0
+	 */
+	IsElementVisibleToTheUser: function (oDOMElem, bCompletely = false, iThreshold = 0) {
+		const oRect = oDOMElem.getBoundingClientRect(),
+			fViewportWidth = window.innerWidth || doc.documentElement.clientWidth,
+			fViewportHeight = window.innerHeight || doc.documentElement.clientHeight,
+			efp = function (x, y) {
+				return document.elementFromPoint(x, y)
+			};
+
+		// Return false if it's not in the viewport
+		if (oRect.right < 0 || oRect.bottom < 0
+			|| oRect.left > fViewportWidth || oRect.top > fViewportHeight) {
+			return false;
+		}
+
+		if (bCompletely === true) {
+			// Return true if ALL of its four corners are visible
+			return (
+				oDOMElem.contains(efp(oRect.left+iThreshold, oRect.top+iThreshold))
+				&& oDOMElem.contains(efp(oRect.right-iThreshold, oRect.top+iThreshold))
+				&& oDOMElem.contains(efp(oRect.right-iThreshold, oRect.bottom-iThreshold))
+				&& oDOMElem.contains(efp(oRect.left+iThreshold, oRect.bottom-iThreshold))
+			);
+		} else {
+			// Return true if ANY of its four corners are visible
+			return (
+				oDOMElem.contains(efp(oRect.left, oRect.top))
+				|| oDOMElem.contains(efp(oRect.right, oRect.top))
+				|| oDOMElem.contains(efp(oRect.right, oRect.bottom))
+				|| oDOMElem.contains(efp(oRect.left, oRect.bottom))
+			);
+		}
+	}
+};
+
+/**
+ * Helper for tooltip instantiation (abstraction layer between iTop markup and tooltip plugin to ease its replacement in the future)
+ *
+ * Note: Content SHOULD be HTML entity encoded to avoid markup breaks (eg. when using a double quote in a sentence)
+ *
+ * @api
+ * @since 3.0.0
+ */
+const CombodoTooltip = {
+	/**
+	 * Instantiate a tooltip on oElem from its data attributes
 	 *
 	 * Note: Content SHOULD be HTML entity encoded to avoid markup breaks (eg. when using a double quote in a sentence)
 	 *
 	 * @param {Object} oElem The jQuery object representing the element
-	 * @param {boolean} bForce When set to true, tooltip will be instanciate even if one already exists, overwritting it.
+	 * @param {boolean} bForce When set to true, tooltip will be instantiate even if one already exists, overwritting it.
 	 * @constructor
 	 */
-	InitTooltipFromMarkup: function(oElem, bForce = false)
-	{
+	InitTooltipFromMarkup: function (oElem, bForce = false) {
 		const oOptions = {
-			allowHTML: true, // Always true so line breaks can work. Don't worry content will be sanitized.
+			allowHTML: true,    // Always true so line breaks can work. Don't worry content will be sanitized.
 		};
 
-		// First, check if the tooltip isn't already instanciated
-		if((oElem.attr('data-tooltip-instanciated') === 'true') && (bForce === false))
-		{
+		// First, check if the tooltip isn't already instantiated
+		if ((oElem.attr('data-tooltip-instantiated') === 'true') && (bForce === false)) {
 			return false;
+		}
+		else if((oElem.attr('data-tooltip-instantiated') === 'true') && (bForce === true) && (oElem[0]._tippy !== undefined)){
+			oElem[0]._tippy.destroy();
 		}
 
 		// Content must be reworked before getting into the tooltip
@@ -867,7 +737,7 @@ const CombodoGlobalToolbox = {
 		const bEnableHTML = oElem.attr('data-tooltip-html-enabled') === 'true';
 
 		// - Content should be sanitized unless the developer says otherwise
-		// Note: Condition is inversed on purpose. When the developer is instanciating a tooltip,
+		// Note: Condition is inversed on purpose. When the developer is instantiating a tooltip,
 		// we want him/her to explicitly declare that he/she wants the sanitizer to be skipped.
 		// Whereas in this code, it's easier to follow the logic with the variable oriented this way.
 		const bSanitizeContent = oElem.attr('data-tooltip-sanitizer-skipped') !== 'true';
@@ -875,20 +745,47 @@ const CombodoGlobalToolbox = {
 		// - Sanitize content and make sure line breaks are kept
 		const oTmpContentElem = $('<div />').html(oElem.attr('data-tooltip-content'));
 		let sContent = '';
-		if(bEnableHTML)
-		{
+		if (bEnableHTML) {
 			sContent = oTmpContentElem.html();
-			if(bSanitizeContent)
-			{
+			if (bSanitizeContent) {
 				sContent = sContent.replace(/<script/g, '&lt;script WARNING: scripts are not allowed in tooltips');
 			}
-		}
-		else
-		{
+		} else {
 			sContent = oTmpContentElem.text();
 			sContent = sContent.replace(/(\r\n|\n\r|\r|\n)/g, '<br/>');
 		}
 		oOptions['content'] = sContent;
+
+		// Interaction (selection, click, ...) have to be enabled manually
+		// Important: When set to true, if "data-tooltip-append-to" is not specified, tooltip will be append to the parent element instead of the body
+		const bInteractive = oElem.attr('data-tooltip-interaction-enabled') === 'true';
+		oOptions['interactive'] = bInteractive;
+
+		// Element to append the tooltip to
+		const sAppendToOriginalValue = oElem.attr('data-tooltip-append-to');
+		let mAppendTo;
+
+		if (sAppendToOriginalValue === undefined || sAppendToOriginalValue === '') {
+			mAppendTo = null;
+		} else if (sAppendToOriginalValue === 'body') {
+			mAppendTo = document.body;
+		} else if (sAppendToOriginalValue === 'parent') {
+			mAppendTo = oElem.parent()[0];
+		} else {
+			// We have a selector, try to get the first matching element
+			const oAppendToElems = $(sAppendToOriginalValue);
+			if (oAppendToElems.length === 0) {
+				CombodoJSConsole.Debug('CombodoTooltip: Could not create tooltip as there was no result for the element it should have been append to "'+sAppendToOriginalValue+'"');
+				return false;
+			} else {
+				mAppendTo = oAppendToElems[0];
+			}
+		}
+
+		// - Only set option if there is an actual value, otherwise, let the lib. handle it with it's default options
+		if (mAppendTo !== null) {
+			oOptions['appendTo'] = mAppendTo;
+		}
 
 		oOptions['placement'] = oElem.attr('data-tooltip-placement') ?? 'top';
 		oOptions['trigger'] = oElem.attr('data-tooltip-trigger') ?? 'mouseenter focus';
@@ -911,25 +808,97 @@ const CombodoGlobalToolbox = {
 
 		tippy(oElem[0], oOptions);
 
-		// Mark tooltip as instanciated
-		oElem.attr('data-tooltip-instanciated', 'true');
+		// Mark tooltip as instantiated
+		oElem.attr('data-tooltip-instantiated', 'true');
 	},
 	/**
 	 * Instantiate all tooltips that are not already.
 	 * Useful after AJAX calls or dynamic content modification for examples.
 	 *
 	 * @param {Object} oContainerElem Tooltips will only be instantiated if they are contained within this jQuery object
+	 * @param {boolean} bForce Whether the tooltip instantiation should be forced or not (if already done)
 	 * @constructor
 	 */
-	InitAllNonInstantiatedTooltips: function(oContainerElem = null)
-	{
-		if(oContainerElem === null)
-		{
+	InitAllNonInstantiatedTooltips: function (oContainerElem = null, bForce = false) {
+		if (oContainerElem === null) {
 			oContainerElem = $('body');
 		}
 
-		oContainerElem.find('[data-tooltip-content]:not([data-tooltip-instanciated="true"])').each(function(){
-			CombodoGlobalToolbox.InitTooltipFromMarkup($(this));
+		oContainerElem.find('[data-tooltip-content]' + (bForce ? '' : ':not([data-tooltip-instantiated="true"])')).each(function () {
+			CombodoTooltip.InitTooltipFromMarkup($(this), bForce);
 		});
 	}
 };
+
+/**
+ * Helper to print messages in the browser JS console, use this instead of "console.xxx()" directly as this checks that the method exists.
+ *
+ * @api
+ * @since 3.0.0
+ */
+const CombodoJSConsole = {
+	/**
+	 * @param sMessage {string} Message to output in the JS console
+	 * @param sLevel {string} Console canal to use for the output, values can be log|debug|warn|error, default is log
+	 * @returns {boolean}
+	 * @internal
+	 */
+	_Trace: function(sMessage, sLevel = 'log') {
+		// Check if browser has JS console
+		if (!window.console) {
+			return false;
+		}
+
+		// Check if browser has the wanted log level
+		if (!window.console[sLevel]) {
+			sLevel = 'log';
+		}
+
+		window.console[sLevel](sMessage);
+	},
+	/**
+	 * Equivalent of a "console.log(sMessage)"
+	 *
+	 * @param sMessage {string}
+	 * @constructor
+	 */
+	Log: function(sMessage) {
+		this._Trace(sMessage, 'log');
+	},
+	/**
+	 * Equivalent of a "console.info(sMessage)"
+	 *
+	 * @param sMessage {string}
+	 * @constructor
+	 */
+	Info: function(sMessage) {
+		this._Trace(sMessage, 'info');
+	},
+	/**
+	 * Equivalent of a "console.debug(sMessage)"
+	 *
+	 * @param sMessage {string}
+	 * @constructor
+	 */
+	Debug: function(sMessage) {
+		this._Trace(sMessage, 'debug');
+	},
+	/**
+	 * Equivalent of a "console.warn(sMessage)"
+	 *
+	 * @param sMessage {string}
+	 * @constructor
+	 */
+	Warn: function(sMessage) {
+		this._Trace(sMessage, 'warn');
+	},
+	/**
+	 * Equivalent of a "console.error(sMessage)"
+	 *
+	 * @param sMessage {string}
+	 * @constructor
+	 */
+	Error: function(sMessage) {
+		this._Trace(sMessage, 'error');
+	}
+}

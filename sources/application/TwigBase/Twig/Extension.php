@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2019 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -86,30 +86,26 @@ class Extension
 			})
 		);
 
-		// Filter to sanitize an XML / HTML identifier
-		// Usage in twig: {{ 'identifier:to-sanitize'|sanitize_identifier }}
-		$oTwigEnv->addFilter(new Twig_SimpleFilter('sanitize_identifier', function ($sString) {
-				return utils::Sanitize($sString, '', utils::ENUM_SANITIZATION_FILTER_ELEMENT_IDENTIFIER);
+		/**
+		 * Filter to sanitize a text
+		 * Usage in twig: {{ 'variable_name:to-sanitize'|sanitize(constant('utils::ENUM_SANITIZATION_FILTER_VARIABLE_NAME')) }}
+		 *
+		 * @uses \utils::Sanitize()
+		 * @since 3.0.0
+		 */
+		$oTwigEnv->addFilter(new Twig_SimpleFilter('sanitize', function (string $sString, string $sFilter) {
+				return utils::Sanitize($sString, '', $sFilter);
 			})
 		);
 
-		// Filter to sanitize a variable name
-		// Usage in twig: {{ 'variable_name:to-sanitize'|variable_name }}
-		$oTwigEnv->addFilter(new Twig_SimpleFilter('variable_name', function ($sString) {
-				return utils::Sanitize($sString, '', utils::ENUM_SANITIZATION_FILTER_VARIABLE_NAME);
-			})
-		);
 		// Filter to add a parameter at the end of the URL to force cache invalidation after an upgrade.
 		// Previously we put the iTop version but now it's the last setup/toolkit timestamp to avoid cache issues when building several times the same version during tests
 		//
 		// Note: This could be rename "add_cache_buster" instead.
 		$oTwigEnv->addFilter(new Twig_SimpleFilter('add_itop_version', function ($sUrl) {
-			if (strpos($sUrl, '?') === false)
-			{
+			if (strpos($sUrl, '?') === false) {
 				$sUrl = $sUrl."?t=".utils::GetCacheBusterTimestamp();
-			}
-			else
-			{
+			} else {
 				$sUrl = $sUrl."&t=".utils::GetCacheBusterTimestamp();
 			}
 
@@ -129,13 +125,6 @@ class Extension
 			return $sUrl;
 		}));
 
-		// Filter to sanitize a string (escape ')
-		// Usage in twig: {{ 'string'|escape_for_js_string }}
-		$oTwigEnv->addFilter(new Twig_SimpleFilter('escape_for_js_string', function ($sString) {
-				return str_replace(["\n"], [" "], htmlentities($sString, ENT_QUOTES, 'UTF-8'));
-			})
-		);
-
 		// var_export can be used for example to transform a PHP boolean to 'true' or 'false' strings
 		// @see https://www.php.net/manual/fr/function.var-export.php
 		$oTwigEnv->addFilter(new Twig_SimpleFilter('var_export', 'var_export'));
@@ -154,6 +143,20 @@ class Extension
 
 			return $oConfig->Get($sParamName);
 		}));
+
+		/**
+		 * Function to get a module setting
+		 * Usage in twig: {{ get_module_setting(<MODULE_CODE>, <PROPERTY_CODE> [, <DEFAULT_VALUE>]) }}
+		 *
+		 * @uses Config::GetModuleSetting()
+		 * @since 3.0.0
+		 */
+		$oTwigEnv->addFunction(new Twig_SimpleFunction('get_module_setting',
+			function (string $sModuleCode, string $sPropertyCode, $defaultValue = null) {
+				$oConfig = MetaModel::GetConfig();
+
+				return $oConfig->GetModuleSetting($sModuleCode, $sPropertyCode, $defaultValue);
+			}));
 
 		// Function to get iTop's app root absolute URL (eg. https://aaa.bbb.ccc/xxx/yyy/)
 		// Usage in twig: {{ get_absolute_url_app_root() }}

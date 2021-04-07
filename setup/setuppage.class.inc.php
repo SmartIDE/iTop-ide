@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -143,7 +143,7 @@ class SetupPage extends NiceWebPage
 			$this->p("<li>$sItem</li>\n");
 		}
 		$this->p('</ul>');
-		$this->add_ready_script("$('#{$sId}').click( function() { $(this).toggleClass('open'); $('#{$sId}_list').toggle();} );\n");
+		$this->add_ready_script("$('#{$sId}').on('click', function() { $(this).toggleClass('open'); $('#{$sId}_list').toggle();} );\n");
 		if (!$bOpen)
 		{
 			$this->add_ready_script("$('#{$sId}').toggleClass('open'); $('#{$sId}_list').toggle();\n");
@@ -152,7 +152,7 @@ class SetupPage extends NiceWebPage
 
 	public function output()
 	{
-		$sLogo = utils::GetAbsoluteUrlAppRoot(true).'/images/itop-logo.png?t='.utils::GetCacheBusterTimestamp();
+		$sLogo = utils::GetAbsoluteUrlAppRoot().'/images/itop-logo.png?t='.utils::GetCacheBusterTimestamp();
 		$oSetupPage = UIContentBlockUIBlockFactory::MakeStandard();
 		$oHeader = UIContentBlockUIBlockFactory::MakeStandard('header', ['ibo-setup--header']);
 		$oSetupPage->AddSubBlock($oHeader);
@@ -167,27 +167,41 @@ class SetupPage extends NiceWebPage
 		return parent::output();
 	}
 
-	//@deprecated since 3.0.0 use SetupLog::Error
+	/**
+	 * @deprecated 3.0.0 use SetupLog::Error
+	 */
 	public static function log_error($sText)
 	{
 		SetupLog::Error($sText);
 	}
-	//@deprecated since 3.0.0 use SetupLog::Warning
+
+	/**
+	 * @deprecated 3.0.0 use SetupLog::Warning
+	 */
 	public static function log_warning($sText)
 	{
 		SetupLog::Warning($sText);
 	}
-	//@deprecated since 3.0.0 use SetupLog::Info
+
+	/**
+	 * @deprecated 3.0.0 use SetupLog::Info
+	 */
 	public static function log_info($sText)
 	{
 		SetupLog::Info($sText);
 	}
-	//@deprecated since 3.0.0 use SetupLog::Ok
+
+	/**
+	 * deprecated 3.0.0 use SetupLog::Ok
+	 */
 	public static function log_ok($sText)
 	{
 		SetupLog::Ok($sText);
 	}
-	//@deprecated since 3.0.0 use SetupLog::Ok
+
+	/**
+	 * @deprecated 3.0.0 use SetupLog::Ok
+	 */
 	public static function log($sText)
 	{
 		SetupLog::Ok($sText);

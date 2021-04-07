@@ -2,7 +2,7 @@
 /**
  * Localized data
  *
- * @copyright Copyright (C) 2010-2018 Combodo SARL
+ * @copyright Copyright (C) 2010-2021 Combodo SARL
  * @license	http://opensource.org/licenses/AGPL-3.0
  *
  * This file is part of iTop.
@@ -38,12 +38,14 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'DBTools:ShowReport' => '报告',
 	'DBTools:IntegrityCheck' => '完整性检查',
 	'DBTools:FetchCheck' => 'Fetch Check (long)~~',
+	'DBTools:SelectAnalysisType' => '请选择分析类型',
 
 	'DBTools:Analyze' => '分析',
 	'DBTools:Details' => '显示详情',
 	'DBTools:ShowAll' => '显示所有错误',
 
 	'DBTools:Inconsistencies' => '数据库不一致',
+	'DBTools:DetailedErrorTitle' => '%2$s error(s) in class %1$s: %3$s~~',
 
 	'DBAnalyzer-Integrity-OrphanRecord' => 'Orphan record in `%1$s`, it should have its counterpart in table `%2$s`~~',
 	'DBAnalyzer-Integrity-InvalidExtKey' => '无效的外键 %1$s (列: `%2$s.%3$s`)~~',
@@ -64,7 +66,7 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 
 // Lost attachments
 Dict::Add('ZH CN', 'Chinese', '简体中文', array(
-	'DBTools:LostAttachments' => 'Lost attachments~~',
+	'DBTools:LostAttachments' => '缺失附件',
 	'DBTools:LostAttachments:Disclaimer' => 'Here you can search your database for lost or misplaced attachments. This is NOT a data recovery tool, is does not retrieve deleted data.~~',
 
 	'DBTools:LostAttachments:Button:Analyze' => '分析',
@@ -82,8 +84,8 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'DBTools:LostAttachments:Step:AnalyzeResults:Item:TargetLocation' => '移动到...',
 
 	'DBTools:LostAttachments:Step:RestoreResults' => '还原结果:',
-	'DBTools:LostAttachments:Step:RestoreResults:Results' => '%1$d/%2$d attachments were restored.~~',
+	'DBTools:LostAttachments:Step:RestoreResults:Results' => '%1$d/%2$d 的附件被还原.',
 
 	'DBTools:LostAttachments:StoredAsInlineImage' => 'Stored as inline image~~',
-	'DBTools:LostAttachments:History' => 'Attachment "%1$s" restored with DB tools~~'
+	'DBTools:LostAttachments:History' => '附件 "%1$s" restored with DB 工具~~'
 ));

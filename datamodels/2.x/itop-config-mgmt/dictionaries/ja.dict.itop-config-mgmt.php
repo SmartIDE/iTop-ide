@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2012 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -16,7 +16,7 @@
 //   You should have received a copy of the GNU Affero General Public License
 //   along with iTop. If not, see <http://www.gnu.org/licenses/>
 /**
- * @copyright   Copyright (C) 2010-2018 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @licence	http://opensource.org/licenses/AGPL-3.0
  */
 Dict::Add('JA JP', 'Japanese', '日本語', array(
@@ -1205,23 +1205,6 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 ));
 
 //
-// Class: lnkDocumentToFunctionalCI
-//
-
-Dict::Add('JA JP', 'Japanese', '日本語', array(
-	'Class:lnkDocumentToFunctionalCI' => 'リンク 文書/機能的CI',
-	'Class:lnkDocumentToFunctionalCI+' => '',
-	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_id' => '機能的ci',
-	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_id+' => '',
-	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_name' => '機能的ci名',
-	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_name+' => '',
-	'Class:lnkDocumentToFunctionalCI/Attribute:document_id' => '文書',
-	'Class:lnkDocumentToFunctionalCI/Attribute:document_id+' => '',
-	'Class:lnkDocumentToFunctionalCI/Attribute:document_name' => '文書名',
-	'Class:lnkDocumentToFunctionalCI/Attribute:document_name+' => '',
-));
-
-//
 // Class: Subnet
 //
 
@@ -1505,9 +1488,7 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'Class:lnkGroupToCI/Attribute:reason+' => '',
 ));
 
-//
 // Add translation for Fieldsets
-//
 
 Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'Server:baseinfo' => '基本情報',
@@ -1521,6 +1502,24 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'Class:Subnet/Tab:FreeIPs-count' => 'フリーIP: %1$s',
 	'Class:Subnet/Tab:FreeIPs-explain' => '10個のフリーなIPアドレス',
 	'Class:Document:PreviewTab' => 'プレビュー',
+));
+
+
+//
+// Class: lnkDocumentToFunctionalCI
+//
+
+Dict::Add('JA JP', 'Japanese', '日本語', array(
+	'Class:lnkDocumentToFunctionalCI' => 'リンク 文書/機能的CI',
+	'Class:lnkDocumentToFunctionalCI+' => '',
+	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_id' => '機能的ci',
+	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_id+' => '',
+	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_name' => '機能的ci名',
+	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_name+' => '',
+	'Class:lnkDocumentToFunctionalCI/Attribute:document_id' => '文書',
+	'Class:lnkDocumentToFunctionalCI/Attribute:document_id+' => '',
+	'Class:lnkDocumentToFunctionalCI/Attribute:document_name' => '文書名',
+	'Class:lnkDocumentToFunctionalCI/Attribute:document_name+' => '',
 ));
 
 //
@@ -1555,6 +1554,7 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'Menu:MobilePhone' => '携帯電話',
 	'Menu:MobilePhone+' => '全携帯電話',
 	'Menu:PC' => 'パーソナルコンピュタ',
+	'Menu:PC+' => 'All Personal computers~~',
 	'Menu:NewCI' => '新規CI',
 	'Menu:NewCI+' => '新規CI',
 	'Menu:SearchCIs' => 'CI検索',
@@ -1566,8 +1566,10 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'Menu:ConfigManagement:SWAndApps' => 'ソフトウエアとアプリケーション',
 	'Menu:ConfigManagement:Misc' => 'その他',
 	'Menu:Group' => 'CIグループ',
+	'Menu:Group+' => 'Groups of CIs~~',
 	'Menu:OSVersion' => 'OS バージョン',
 	'Menu:OSVersion+' => '',
 	'Menu:Software' => 'ソフトウエアカタログ',
 	'Menu:Software+' => 'ソフトウエアカタログ',
 ));
+?>

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -20,6 +20,7 @@
 namespace Combodo\iTop\Application\UI\Base\Layout\PageContent;
 
 
+use Combodo\iTop\Application\UI\Base\Component\Html\Html;
 use Combodo\iTop\Application\UI\Base\iUIBlock;
 
 /**
@@ -88,6 +89,19 @@ class PageContentWithSideContent extends PageContent {
 	}
 
 	/**
+	 * Add $sHtml to the side blocks
+	 *
+	 * @param string $sHtml
+	 *
+	 * @return $this
+	 */
+	public function AddSideHtml(string $sHtml) {
+		$this->AddBlockToContentArea(static::ENUM_CONTENT_AREA_SIDE, new Html($sHtml));
+
+		return $this;
+	}
+
+	/**
 	 * Remove the side block identified by $sBlockId.
 	 * Note that if no block with that ID exists, it will proceed silently.
 	 *
@@ -95,9 +109,18 @@ class PageContentWithSideContent extends PageContent {
 	 *
 	 * @return $this
 	 */
-	public function RemoveSideBlock(string $sBlockId) {
+	public function RemoveSideBlock(string $sBlockId)
+	{
 		$this->RemoveBlockFromContentArea(static::ENUM_CONTENT_AREA_SIDE, $sBlockId);
 
 		return $this;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function HasSubBlocks(): bool
+	{
+		return parent::HasSubBlocks() || !empty($this->GetSideBlocks());
 	}
 }

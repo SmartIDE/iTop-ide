@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -20,23 +20,38 @@
 // Activity panel
 Dict::Add('EN US', 'English', 'English', array(
 	'UI:Layout:ActivityPanel:SizeToggler:Expand:Tooltip' => 'Expand',
-	'UI:Layout:ActivityPanel:SizeToggler:Collapse:Tooltip' => 'Reduce',
+	'UI:Layout:ActivityPanel:SizeToggler:Reduce:Tooltip' => 'Reduce',
+	'UI:Layout:ActivityPanel:DisplayToggler:Close:Tooltip' => 'Close',
+	'UI:Layout:ActivityPanel:LoadMoreEntries:Tooltip' => 'Load previous entries',
 
-	// Activity tab
+	// Tabs
 	'UI:Layout:ActivityPanel:Tab:Activity:Title' => 'Activity',
-	'UI:Layout:ActivityPanel:Tab:Activity:Toolbar:CaselogsFilter:Title' => 'Case logs',
-	'UI:Layout:ActivityPanel:Tab:Activity:Toolbar:CaselogsFilter:Tooltip' => 'Show / hide case log entries',
-	'UI:Layout:ActivityPanel:Tab:Activity:Toolbar:TransitionsFilter:Title' => 'State changes',
-	'UI:Layout:ActivityPanel:Tab:Activity:Toolbar:TransitionsFilter:Tooltip' => 'Show / hide state changes',
-	'UI:Layout:ActivityPanel:Tab:Activity:Toolbar:EditsFilter:Title' => 'Edits',
-	'UI:Layout:ActivityPanel:Tab:Activity:Toolbar:EditsFilter:Tooltip' => 'Show / hide fields edits',
+	'UI:Layout:ActivityPanel:Tab:Log:DraftIndicator:Tooltip' => 'Draft entry',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Filter:Logs:Title' => 'Logs',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Filter:Logs:Tooltip' => 'Show / hide logs entries on this tab',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Filter:Transitions:Title' => 'State changes',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Filter:Transitions:Tooltip' => 'Show / hide state changes on this tab',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Filter:Edits:Title' => 'Edits',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Filter:Edits:Tooltip' => 'Show / hide fields edits on this tab',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Action:OpenAll:Tooltip' => 'Open all messages',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Action:CloseAll:Tooltip' => 'Close all messages',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Info:AuthorsCount:Tooltip' => 'Number of persons interacting in the visible entries',
+	'UI:Layout:ActivityPanel:Tab:Toolbar:Info:MessagesCount:Tooltip' => 'Number of messages in the visible log(s)',
 
-	// Case log tab
-	'UI:Layout:ActivityPanel:Tab:Caselog:Toolbar:OpenAll:Tooltip' => 'Open all messages',
-	'UI:Layout:ActivityPanel:Tab:Caselog:Toolbar:CloseAll:Tooltip' => 'Close all messages',
-	'UI:Layout:ActivityPanel:Tab:Caselog:Toolbar:AuthorsCount:Tooltip' => 'Number of persons interacting in this log',
-	'UI:Layout:ActivityPanel:Tab:Caselog:Toolbar:MessagesCount:Tooltip' => 'Number of messages in this log',
+	// Compose button
+	'UI:Layout:ActivityPanel:ComposeButton:Tooltip' => 'Compose a new log entry',
+
+	// Case log entry
+	'UI:Layout:ActivityPanel:MultipleEntriesSaveConfirmation:Title' => 'Multiple logs save',
+	'UI:Layout:ActivityPanel:MultipleEntriesSaveConfirmation:Explanation' => 'By pressing the "save" button, you will submit entries for all the edited logs at once.',
+
+	// Notification entry
+	'UI:Layout:ActivityPanel:NotificationEntry:MessageLink:Tooltip' => 'Click to open the notifications tab and get more information',
 
 	// Placeholder
 	'UI:Layout:ActivityPanel:NoEntry:Placeholder:Hint' => 'It\'s calm up here, no activity yet',
+
+	// Closed cover
+	'UI:Layout:ActivityPanel:ClosedCover:Title' => 'Activity panel',
+	'UI:Layout:ActivityPanel:ClosedCover:Tooltip' => 'Click to open the activity panel',
 ));

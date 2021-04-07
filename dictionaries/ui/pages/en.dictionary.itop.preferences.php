@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -20,17 +20,25 @@
 // Navigation menu
 Dict::Add('EN US', 'English', 'English', array(
 	'UI:Preferences:Title' => 'Preferences',
+	'UI:Preferences:UserInterface:Title' => 'User interface',
+	'UI:Preferences:Lists:Title' => 'Lists',
+	'UI:Preferences:RichText:Title' => 'Rich text editor',
+	'UI:Preferences:RichText:ToolbarState' => 'Toolbar default state',
+	'UI:Preferences:RichText:ToolbarState:Expanded' => 'Expanded',
+	'UI:Preferences:RichText:ToolbarState:Collapsed' => 'Collapsed',
+	'UI:Preferences:ActivityPanel:Title' => 'Activity panel',
+	'UI:Preferences:ActivityPanel:EntryFormOpened' => 'Entry form opened by default',
+	'UI:Preferences:ActivityPanel:EntryFormOpened+' => 'Whether the entry form will be opened when displaying an object. If unchecked, you will still be able to open it by clicking the compose button',
+	'UI:Preferences:PersonalizeKeyboardShortcuts:Title' => 'Application keyboard shortcuts',
+	'UI:Preferences:PersonalizeKeyboardShortcuts:Input:Hint' => 'Type a keyboard shortcut',
+	'UI:Preferences:PersonalizeKeyboardShortcuts:Button:Tooltip' => 'Record a keyboard shortcut',
+	'UI:Preferences:Tabs:Title' => 'Tabs',
+	'UI:Preferences:Tabs:Layout:Label' => 'Layout',
+	'UI:Preferences:Tabs:Layout:Horizontal' => 'Horizontal',
+	'UI:Preferences:Tabs:Layout:Vertical' => 'Vertical',
+	'UI:Preferences:Tabs:Scrollable:Label' => 'Navigation',
+	'UI:Preferences:Tabs:Scrollable:Classic' => 'Classic',
+	'UI:Preferences:Tabs:Scrollable:Scrollable' => 'Scrollable',
 	'UI:Preferences:ChooseAPlaceholder' => 'User placeholder image',
 	'UI:Preferences:ChooseAPlaceholder+' => 'Choose a placeholder image that will be displayed if the contact linked to your user doesn\'t have one',
-	'UI:RichText:Preferences' => 'Rich text editor',
-	'UI:RichText:ToolbarState' => 'Toolbar default state',
-	'UI:RichText:ToolbarState:Expanded' => 'Expanded',
-	'UI:RichText:ToolbarState:Collapsed' => 'Collapsed',
-	'UI:Tabs:Preferences' => 'Tabs',
-	'UI:Tabs:Layout:Label' => 'Tabs layout',
-	'UI:Tabs:Layout:Horizontal' => 'Horizontal',
-	'UI:Tabs:Layout:Vertical' => 'Vertical',
-	'UI:Tabs:Scrollable:Label' => 'Tabs navigation',
-	'UI:Tabs:Scrollable:Classic' => 'Classic',
-	'UI:Tabs:Scrollable:Scrollable' => 'Scrollable',
 ));

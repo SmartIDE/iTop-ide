@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -133,6 +133,8 @@ class MFCompiler
 		{
 			// Skip the creation of a temporary dictionary, not compatible with symbolic links
 			$sTempTargetDir = $sFinalTargetDir;
+			SetupUtils::rrmdir($sFinalTargetDir);
+			SetupUtils::builddir($sFinalTargetDir); // Here is the directory
 		}
 		else
 		{
@@ -2825,7 +2827,8 @@ EOF;
 			$sThemeId = $oTheme->getAttribute('id');
 			$aThemeParameters = array(
 				'variables' => array(),
-				'imports' => array(),
+				'imports_variable' => array(),
+				'imports_utility' => array(),
 				'stylesheets' => array(),
 				'precompiled_stylesheet' => '',
 			);
@@ -2843,7 +2846,14 @@ EOF;
 			foreach($oImports as $oImport)
 			{
 				$sImportId = $oImport->getAttribute('id');
-				$aThemeParameters['imports'][$sImportId] = $oImport->GetText();
+				if($oImport->getAttribute('xsi:type') === 'variable')
+				{
+					$aThemeParameters['imports_variable'][$sImportId] = $oImport->GetText();
+				}
+				else if($oImport->getAttribute('xsi:type') === 'utility')
+				{
+					$aThemeParameters['imports_utility'][$sImportId] = $oImport->GetText();
+				}
 			}
 
 			/** @var \DOMNodeList $oStylesheets */
@@ -2894,6 +2904,8 @@ EOF;
 			{
 				SetupLog::Info("Replacing theme '$sThemeId' precompiled file in file $sPostCompilationLatestPrecompiledFile for next setup.");
 				copy($sThemeDir.'/main.css', $sPostCompilationLatestPrecompiledFile);
+			}else {
+				SetupLog::Info("No theme '$sThemeId' compilation was required during setup.");
 			}
 		}
 		$this->Log(sprintf('Themes compilation took: %.3f ms for %d themes.', (microtime(true) - $fStart)*1000.0, count($aThemes)));

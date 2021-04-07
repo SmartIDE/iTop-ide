@@ -1,11 +1,16 @@
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
+ */
+
 //
 // Pipelining function for DataTables. To be used to the `ajax` option of DataTables
 //
 var numberCachePages = 5;
 
-$.fn.dataTable.pipeline = function ( opts ) {
+$.fn.dataTable.pipeline = function (opts) {
 	// Configuration options
-	var conf = $.extend( {
+	var conf = $.extend({
 		pages: numberCachePages,     // number of pages to cache
 		url: '',      // script url
 		data: null,   // function or object with parameters to send to the server
@@ -21,36 +26,71 @@ $.fn.dataTable.pipeline = function ( opts ) {
 	var	draw_number = 1;
 
 	return function ( request, drawCallback, settings ) {
-		var ajax          = false;
-		var requestStart  = request.start;
-		var drawStart     = request.start;
+		let message = Dict.S('UI:Datatables:Language:Processing');
+		if (this.find('tbody').find('td').length == 0) {
+			this.find('tbody').append('<tr class="ibo-dataTables--processing"><td>&#160;</td></tr>');
+			this.find('tbody').append('<tr class="ibo-dataTables--processing"><td>&#160;</td></tr>');
+			this.find('tbody').block({
+				message: message,
+				css: {
+					border: '0px '
+				}
+			});
+			this.find('thead').block({
+				message: '',
+				css: {
+					border: '0px '
+				}
+			});
+		} else {
+			this.find('tbody').block({
+				message: '',
+				css: {
+					border: '0px '
+				}
+			});
+			this.find('thead').block({
+				message: message,
+				css: {
+					border: '0px ',
+					top: '20px',
+				}
+			});
+		}
+		var ajax = false;
+		var requestStart = request.start;
+		var drawStart = request.start;
 		var requestLength = request.length;
-		if(request.start=undefined)
-		{
-			requestStart  = settings._iDisplayStart;
-			drawStart     = settings._iDisplayStart;
+		if (request.start = undefined) {
+			requestStart = settings._iDisplayStart;
+			drawStart = settings._iDisplayStart;
 			requestLength = settings._iDisplayLength;
 		}
-		var requestEnd    = requestStart + requestLength;
+		var requestEnd = requestStart+requestLength;
 
-		if ( settings.clearCache ) {
+		//Manage case requestLength=-1 => all the row are display 
+		if (requestLength == -1) {
+			requestLength = cacheLastJson.recordsTotal;
+			if (cacheLower != 0 || cacheLastJson.recordsTotal > cacheUpper) {
+				//new server request is mandatory
+				ajax = true;
+			}
+		}
+
+		if (settings.clearCache) {
 			// API requested that the cache be cleared
 			ajax = true;
 			settings.clearCache = false;
-		}
-		else if ( cacheLower < 0 || requestStart < cacheLower || requestEnd > cacheUpper ) {
+		} else if (cacheLower < 0 || requestStart < cacheLower || requestEnd > cacheUpper) {
 			// outside cached data - need to make a request
 			ajax = true;
-		}
-		else if ( JSON.stringify( request.order )   !== JSON.stringify( cacheLastRequest.order ) ||
-			JSON.stringify( request.columns ) !== JSON.stringify( cacheLastRequest.columns ) ||
-			JSON.stringify( request.search )  !== JSON.stringify( cacheLastRequest.search )
+		} else if (JSON.stringify(request.order) !== JSON.stringify(cacheLastRequest.order) ||
+			JSON.stringify(request.columns) !== JSON.stringify(cacheLastRequest.columns) ||
+			JSON.stringify(request.search) !== JSON.stringify(cacheLastRequest.search)
 		) {
 			// properties changed (ordering, columns, searching)
 			ajax = true;
-		}
-		else if(cacheLastJson == undefined || cacheLastJson.length==0)
-		{
+		} else if (cacheLastJson == undefined || cacheLastJson.length == 0) {
 			ajax = true;
 		}
 
@@ -83,8 +123,7 @@ $.fn.dataTable.pipeline = function ( opts ) {
 				if ( d ) {
 					$.extend( request, d );
 				}
-			}
-			else if ( $.isPlainObject( conf.data ) ) {
+			} else if ( $.isPlainObject( conf.data ) ) {
 				// As an object, the data given extends the default
 				$.extend( request, conf.data );
 			}
@@ -97,17 +136,16 @@ $.fn.dataTable.pipeline = function ( opts ) {
 				"success":  function ( json ) {
 					cacheLastJson = $.extend(true, {}, json);
 
-					if ( cacheLower != drawStart ) {
-						json.data.splice( 0, drawStart-cacheLower );
+					if (cacheLower != drawStart && requestLength != -1) {
+						json.data.splice(0, drawStart-cacheLower);
 					}
-					if ( requestLength >= -1 ) {
-						json.data.splice( requestLength, json.data.length );
+					if (requestLength >= -1) {
+						json.data.splice(requestLength, json.data.length);
 					}
-					drawCallback( json );
+					drawCallback(json);
 				}
 			} );
-		}
-		else {
+		} else {
 			json = $.extend( true, {}, cacheLastJson );
 			json.draw = request.draw; // Update the echo for each response
 			json.data.splice( 0, requestStart-cacheLower );

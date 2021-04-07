@@ -1,5 +1,5 @@
 /*!
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -50,12 +50,13 @@ $ibo-popover-menu--item--no-message--image--svg--padding : 15px !default;
   flex-flow: column;
   min-width: $ibo-navigation-menu--notifications-menu--min-width;
   .ibo-navigation-menu--notifications--messages-section{
-    overflow-x: auto;
+    overflow: auto;
   }
 }
 .ibo-navigation-menu--notifications--show-all-messages, .ibo-navigation-menu--notifications-dismiss-all, .ibo-navigation-menu--notifications-show-all-multiple{
   overflow-x: inherit;
   text-align: center;
+  min-height: 45px;
 }
 
 .ibo-navigation-menu--notifications--item--image{
@@ -102,7 +103,6 @@ img.ibo-navigation-menu--notifications--item--image:not([src=""]) ~ i.ibo-naviga
 }
 
 .ibo-navigation-menu--notifications-show-all-multiple ~ .ibo-popover-menu{
-  bottom: 0;
   .ibo-navigation-menu--notifications--item--new-message-indicator{
     display: inline-block;
     margin-right: $ibo-navigation-menu--notifications-show-all-multiple--ibo-popover-menu--indicator--margin-right;

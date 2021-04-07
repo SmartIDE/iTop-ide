@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2014 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -18,7 +18,7 @@
 /*
 * @author ITOMIG GmbH <martin.raenker@itomig.de>
 
-* @copyright     Copyright (C) 2017 Combodo SARL
+* @copyright     Copyright (C) 2021 Combodo SARL
 * @licence	http://opensource.org/licenses/AGPL-3.0
 *		
 */
@@ -1208,23 +1208,6 @@ Dict::Add('DE DE', 'German', 'Deutsch', array(
 ));
 
 //
-// Class: lnkDocumentToFunctionalCI
-//
-
-Dict::Add('DE DE', 'German', 'Deutsch', array(
-	'Class:lnkDocumentToFunctionalCI' => 'Verknüpfung Dokument/FunctionalCI',
-	'Class:lnkDocumentToFunctionalCI+' => '',
-	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_id' => 'FunctionalCI',
-	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_id+' => '',
-	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_name' => 'FunctionalCI-Name',
-	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_name+' => '',
-	'Class:lnkDocumentToFunctionalCI/Attribute:document_id' => 'Dokument',
-	'Class:lnkDocumentToFunctionalCI/Attribute:document_id+' => '',
-	'Class:lnkDocumentToFunctionalCI/Attribute:document_name' => 'Dokument-Name',
-	'Class:lnkDocumentToFunctionalCI/Attribute:document_name+' => '',
-));
-
-//
 // Class: Subnet
 //
 
@@ -1453,7 +1436,6 @@ Dict::Add('DE DE', 'German', 'Deutsch', array(
 	'Class:lnkApplicationSolutionToBusinessProcess/Attribute:applicationsolution_name+' => '',
 ));
 
-
 //
 // Class: Group
 //
@@ -1480,6 +1462,7 @@ Dict::Add('DE DE', 'German', 'Deutsch', array(
 	'Class:Group/Attribute:type' => 'Typ',
 	'Class:Group/Attribute:type+' => '',
 	'Class:Group/Attribute:parent_id' => 'Muttergruppe',
+
 	'Class:Group/Attribute:parent_id+' => '',
 	'Class:Group/Attribute:parent_name' => 'Name',
 	'Class:Group/Attribute:parent_name+' => '',
@@ -1508,9 +1491,7 @@ Dict::Add('DE DE', 'German', 'Deutsch', array(
 	'Class:lnkGroupToCI/Attribute:reason+' => '',
 ));
 
-//
 // Add translation for Fieldsets
-//
 
 Dict::Add('DE DE', 'German', 'Deutsch', array(
 	'Server:baseinfo' => 'Allgemeine Informationen',
@@ -1524,6 +1505,24 @@ Dict::Add('DE DE', 'German', 'Deutsch', array(
 	'Class:Subnet/Tab:FreeIPs-count' => 'Freie IPs: %1$s',
 	'Class:Subnet/Tab:FreeIPs-explain' => 'Hier ist eine Aufstellung von 10 freien IP Adressen',
 	'Class:Document:PreviewTab' => 'Vorschau',
+));
+
+
+//
+// Class: lnkDocumentToFunctionalCI
+//
+
+Dict::Add('DE DE', 'German', 'Deutsch', array(
+	'Class:lnkDocumentToFunctionalCI' => 'Verknüpfung Dokument/FunctionalCI',
+	'Class:lnkDocumentToFunctionalCI+' => '',
+	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_id' => 'FunctionalCI',
+	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_id+' => '',
+	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_name' => 'FunctionalCI-Name',
+	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_name+' => '',
+	'Class:lnkDocumentToFunctionalCI/Attribute:document_id' => 'Dokument',
+	'Class:lnkDocumentToFunctionalCI/Attribute:document_id+' => '',
+	'Class:lnkDocumentToFunctionalCI/Attribute:document_name' => 'Dokument-Name',
+	'Class:lnkDocumentToFunctionalCI/Attribute:document_name+' => '',
 ));
 
 //
@@ -1576,3 +1575,4 @@ Dict::Add('DE DE', 'German', 'Deutsch', array(
 	'Menu:Software' => 'Software-Katalog',
 	'Menu:Software+' => '',
 ));
+?>

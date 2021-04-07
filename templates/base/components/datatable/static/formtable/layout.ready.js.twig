@@ -1,9 +1,28 @@
-$('#{{ oUIBlock.GetId() }}').DataTable({
+var table{{ oUIBlock.GetId()|sanitize(constant('utils::ENUM_SANITIZATION_FILTER_ELEMENT_IDENTIFIER')) }} = $('#{{ oUIBlock.GetId() }}').DataTable({
     language: {
         emptyTable: "{{ 'UI:Message:EmptyList:UseAdd'|dict_s }}"
     },
+    scrollX: true,
+    scrollCollapse: true,
     paging: false,
     filter: false,
+    autoWidth: false,
     search: false,
-	dom: "t"
+    dom: "t",
+    "order": [],
+    {% if oUIBlock.GetOption("select_mode") is not empty %}
+    {% if oUIBlock.GetOption("select_mode") != "custom" %}
+    select: {
+        style: "{% if oUIBlock.GetOption("select_mode") == "multiple" %}multi{% else %}single{% endif %}",
+        info: false
+    },
+    {% endif %}
+    columnDefs: [
+        {orderable: false, targets: 0}
+    ],
+    {% endif %}
 });
+if ($('#{{ oUIBlock.GetId() }}').find('thead').is(':visible'))
+{
+    table{{ oUIBlock.GetId()|sanitize(constant('utils::ENUM_SANITIZATION_FILTER_ELEMENT_IDENTIFIER')) }}.columns.adjust().draw();
+}

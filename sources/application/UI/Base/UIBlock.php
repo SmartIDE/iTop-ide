@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -43,7 +43,11 @@ abstract class UIBlock implements iUIBlock
 	public const DEFAULT_GLOBAL_TEMPLATE_REL_PATH = null;
 	/** @var string|null */
 	public const DEFAULT_HTML_TEMPLATE_REL_PATH = null;
-	/** @var array */
+	/**
+	 * @var array list of external JS file paths to include in the page. Paths are relative to APPROOT
+	 *    **Warning** : if you need to call a JS var defined in one of this file, then this calling code MUST be in {@see DEFAULT_JS_ON_READY_TEMPLATE_REL_PATH}
+	 *         and not in {@see DEFAULT_JS_TEMPLATE_REL_PATH} ! Indeed the later is output before external files loading.
+	 */
 	public const DEFAULT_JS_FILES_REL_PATH = [];
 	/** @var string|null */
 	public const DEFAULT_JS_TEMPLATE_REL_PATH = null;
@@ -68,6 +72,9 @@ abstract class UIBlock implements iUIBlock
 	public const ENUM_BLOCK_FILES_TYPE_FILES = 'files';
 	/** @var string ENUM_BLOCK_FILES_TYPE_TEMPLATE */
 	public const ENUM_BLOCK_FILES_TYPE_TEMPLATE = 'template';
+
+	/** @var array Cache for the CSS classes of a block inheritance. Key is the block class, value is an array of CSS classes */
+	private static $aBlocksInheritanceCSSClassesCache = [];
 
 	/** @var string $sId */
 	protected $sId;
@@ -139,6 +146,7 @@ abstract class UIBlock implements iUIBlock
 
 	/**
 	 * @inheritDoc
+	 * @used-by \Combodo\iTop\Application\UI\Base\UIBlock::GetFilesUrlRecursively
 	 */
 	public function GetJsFilesRelPaths() {
 		return $this->aJsFilesRelPath;
@@ -154,6 +162,7 @@ abstract class UIBlock implements iUIBlock
 
 	/**
 	 * @inheritDoc
+	 * @used-by \Combodo\iTop\Application\UI\Base\UIBlock::GetFilesUrlRecursively
 	 */
 	public function GetCssFilesRelPaths()
 	{
@@ -401,6 +410,42 @@ abstract class UIBlock implements iUIBlock
 	}
 
 	/**
+	 * @return string[] The identification CSS classes of the all the parent blocks of the current one
+	 */
+	public function GetBlocksInheritanceCSSClasses(): array
+	{
+		$sCurrentClass = static::class;
+
+		// Add to cache if not already there
+		if (false === array_key_exists($sCurrentClass, self::$aBlocksInheritanceCSSClassesCache)) {
+			// Start with self
+			$aCSSClasses = [static::BLOCK_CODE];
+
+			// Get class ONLY from parents that implement iUIBlock
+			foreach (class_parents(static::class) as $sParentClass) {
+				if (false === in_array(iUIBlock::class, class_implements($sParentClass))) {
+					continue;
+				}
+
+				$aCSSClasses[] = $sParentClass::BLOCK_CODE;
+			}
+
+			self::$aBlocksInheritanceCSSClassesCache[$sCurrentClass] = $aCSSClasses;
+		}
+
+		return self::$aBlocksInheritanceCSSClassesCache[$sCurrentClass];
+	}
+
+	/**
+	 * @see static::GetBlocksInheritanceCSSClasses()
+	 * @return string Same as the regular method but as a space separated string
+	 */
+	public function GetBlocksInheritanceCSSClassesAsString(): string
+	{
+		return implode(' ', $this->GetBlocksInheritanceCSSClasses());
+	}
+
+	/**
 	 * Return an array of the URL of the block $sFilesType and its sub blocks.
 	 * URL is relative unless the $bAbsoluteUrl is set to true.
 	 *
@@ -448,7 +493,6 @@ abstract class UIBlock implements iUIBlock
 		return $this;
 	}
 
-
 	/**
 	 * @param string $sName
 	 * @param string $sValue
@@ -460,6 +504,15 @@ abstract class UIBlock implements iUIBlock
 		$this->aDataAttributes[$sName] = $sValue;
 
 		return $this;
+	}
+
+	/**
+	 * @return bool
+	 * @uses static::$aDataAttributes
+	 */
+	public function HasDataAttributes(): bool
+	{
+		return !empty($this->aDataAttributes);
 	}
 
 	/**

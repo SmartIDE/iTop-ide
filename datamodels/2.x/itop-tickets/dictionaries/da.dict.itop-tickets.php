@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2012 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -17,7 +17,7 @@
 //   along with iTop. If not, see <http://www.gnu.org/licenses/>
 /**
  * @author	Erik Bøg <erik@boegmoeller.dk>
- * @copyright   Copyright (C) 2010-2012 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @licence	http://opensource.org/licenses/AGPL-3.0
  */
 Dict::Add('DA DA', 'Danish', 'Dansk', array(
@@ -140,7 +140,6 @@ Dict::Add('DA DA', 'Danish', 'Dansk', array(
 
 // Fieldset translation
 Dict::Add('DA DA', 'Danish', 'Dansk', array(
-
 	'Ticket:baseinfo' => 'Almindelig information',
 	'Ticket:date' => 'Dato',
 	'Ticket:contact' => 'Kontakt',
@@ -199,6 +198,10 @@ Dict::Add('DA DA', 'Danish', 'Dansk', array(
 	'Class:ResponseTicketTTR/Interface:iMetricComputer' => 'Time To Resolve~~',
 	'Class:ResponseTicketTTR/Interface:iMetricComputer+' => 'Goal based on a SLT of type TTR~~',
 ));
+
+//
+// Class: Document
+//
 
 Dict::Add('DA DA', 'Danish', 'Dansk', array(
 	'Class:Document/Attribute:contracts_list' => 'Kontrakter',

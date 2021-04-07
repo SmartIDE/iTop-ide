@@ -1,6 +1,6 @@
 /*!
- * copyright   Copyright (C) 2010-2020 Combodo SARL
- * license     http://opensource.org/licenses/AGPL-3.0
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
 /* SCSS variables */
@@ -26,6 +26,8 @@ $ibo-field--fullscreen-toggler--background-color--on-hover: $ibo-color-white-200
 $ibo-field--value--padding-x--is-fullscreen: $ibo-field--label--padding-x--is-fullscreen !default;
 $ibo-field--value--padding-top--is-fullscreen: $ibo-field--label--padding-y--is-fullscreen + 32px !default;
 $ibo-field--value--padding-bottom--is-fullscreen: $ibo-field--label--padding-y--is-fullscreen !default;
+
+$ibo-field--value-decoration--spacing-x: 0.5rem !default;
 
 /* SCSS rules */
 .ibo-field {
@@ -109,6 +111,29 @@ $ibo-field--value--padding-bottom--is-fullscreen: $ibo-field--label--padding-y--
   display: table-cell;
   vertical-align: top;
   padding-right: 10px;
+
+  > input[type="checkbox"] {
+    margin-left: 5px;
+  }
+}
+
+.multi_values, .mono_value {
+  display: inline-block;
+  padding: 1px 3px;
+  margin-left: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  color: #fff;
+  font-weight: bold;
+}
+
+.mono_value {
+  background-color: #3c3;
+}
+
+.multi_values {
+  background-color: #c33;
 }
 
 /* Fullscreen mode */
@@ -125,8 +150,24 @@ $ibo-field--value--padding-bottom--is-fullscreen: $ibo-field--label--padding-y--
       background-color: $ibo-field--label--background-color--is-fullscreen;
       border-bottom: $ibo-field--label--border-bottom--is-fullscreen;
     }
+
     .ibo-field--value {
       padding: $ibo-field--value--padding-top--is-fullscreen $ibo-field--value--padding-x--is-fullscreen $ibo-field--value--padding-bottom--is-fullscreen $ibo-field--value--padding-x--is-fullscreen;
     }
+  }
+}
+
+.mailto, .tel {
+  white-space: nowrap;
+
+  .text_decoration {
+    margin-right: $ibo-field--value-decoration--spacing-x;
+  }
+}
+
+.object-ref-icon, .object-ref-icon-disabled {
+  &.text_decoration {
+    margin-right: $ibo-field--value-decoration--spacing-x;
+    @extend %ibo-font-ral-nor-100;
   }
 }

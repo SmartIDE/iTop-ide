@@ -1,22 +1,7 @@
 <?php
-/**
- * Copyright (C) 2010-2018 Combodo SARL
- *
- * This file is part of iTop.
- *
- *  iTop is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * iTop is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with iTop. If not, see <http://www.gnu.org/licenses/>
- *
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
 
@@ -32,6 +17,7 @@ use AttributeTagSet;
 use CMDBObjectSet;
 use Combodo\iTop\Application\Search\CriterionConversion\CriterionToSearchForm;
 use Combodo\iTop\Application\UI\Base\Component\Form\Form;
+use Combodo\iTop\Application\UI\Base\Component\Form\FormUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Html\Html;
 use Combodo\iTop\Application\UI\Base\Component\Input\InputUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Panel\Panel;
@@ -79,77 +65,59 @@ class SearchForm
 		}
 
 		// Simple search form
-		if (isset($aExtraParams['currentId']))
-		{
+		if (isset($aExtraParams['currentId'])) {
 			$sSearchFormId = 'sf_'.$aExtraParams['currentId'];
-		}
-		else
-		{
+		} else {
 			$iSearchFormId = utils::GetUniqueId();
 			$sSearchFormId = 'SimpleSearchForm'.$iSearchFormId;
 			$oUiBlock->AddHtml("<div id=\"ds_$sSearchFormId\" class=\"mini_tab{$iSearchFormId}\">");
 			$aListParams['currentId'] = "$iSearchFormId";
 		}
 		// Check if the current class has some sub-classes
-		if (isset($aExtraParams['baseClass']))
-		{
+		if (isset($aExtraParams['baseClass'])) {
 			$sRootClass = $aExtraParams['baseClass'];
-		}
-		else
-		{
+		} else {
 			$sRootClass = $sClassName;
 		}
 		//should the search be opened on load?
-		if (isset($aExtraParams['open']))
-		{
+		if (isset($aExtraParams['open'])) {
 			$bOpen = $aExtraParams['open'];
-		}
-		else
-		{
+		} else {
 			$bOpen = true;
 		}
 
 		$sJson = utils::ReadParam('json', '', false, 'raw_data');
-		if (!empty($sJson))
-		{
+		if (!empty($sJson)) {
 			$aListParams['json'] = json_decode($sJson, true);
 		}
 
-		if (!isset($aExtraParams['result_list_outer_selector']))
-		{
-			if (isset($aExtraParams['table_id']) )
-			{
+		if (!isset($aExtraParams['result_list_outer_selector'])) {
+			if (isset($aExtraParams['table_id'])) {
 				$aExtraParams['result_list_outer_selector'] = $aExtraParams['table_id'];
-			}
-			else
-			{
+			} else {
 				$aExtraParams['result_list_outer_selector'] = "search_form_result_{$sSearchFormId}";
 			}
 		}
 
-		if (isset($aExtraParams['search_header_force_dropdown']))
-		{
+		$sContext = $oAppContext->GetForLink();
+		$sJsonExtraParams = htmlentities(json_encode($aListParams), ENT_QUOTES);
+		$sOuterSelector = $aExtraParams['result_list_outer_selector'];
+
+		if (isset($aExtraParams['search_header_force_dropdown'])) {
 			$sClassesCombo = $aExtraParams['search_header_force_dropdown'];
-		}
-		else
-		{
+		} else {
 			$aSubClasses = MetaModel::GetSubclasses($sRootClass);
-			if (count($aSubClasses) > 0)
-			{
+			if (count($aSubClasses) > 0) {
 				$aOptions = array();
 				$aOptions[MetaModel::GetName($sRootClass)] = "<option value=\"$sRootClass\">".MetaModel::GetName($sRootClass)."</options>\n";
-				foreach($aSubClasses as $sSubclassName)
-				{
-					if (UserRights::IsActionAllowed($sSubclassName, UR_ACTION_READ))
-					{
+				foreach ($aSubClasses as $sSubclassName) {
+					if (UserRights::IsActionAllowed($sSubclassName, UR_ACTION_READ)) {
 						$aOptions[MetaModel::GetName($sSubclassName)] = "<option value=\"$sSubclassName\">".MetaModel::GetName($sSubclassName)."</options>\n";
 					}
 				}
 				$aOptions[MetaModel::GetName($sClassName)] = "<option selected value=\"$sClassName\">".MetaModel::GetName($sClassName)."</options>\n";
 				ksort($aOptions);
-				$sContext = $oAppContext->GetForLink();
-				$sJsonExtraParams = htmlentities(json_encode($aListParams), ENT_QUOTES);
-				$sOuterSelector = $aExtraParams['result_list_outer_selector'];
+
 				$sClassesCombo = "<select name=\"class\" onChange=\"ReloadSearchForm('$sSearchFormId', this.value, '$sRootClass', '$sContext', '$sOuterSelector', $sJsonExtraParams)\">\n".implode('',
 						$aOptions)."</select>\n";
 			}
@@ -168,10 +136,8 @@ class SearchForm
 		else
 		{
 			$mSubmitParam = utils::GetConfig()->Get('high_cardinality_classes');
-			if (is_array($mSubmitParam))
-			{
-				if (in_array($sClassName, $mSubmitParam))
-				{
+			if (is_array($mSubmitParam)) {
+				if (in_array($sClassName, $mSubmitParam)) {
 					$bAutoSubmit = false;
 				}
 			}
@@ -181,22 +147,25 @@ class SearchForm
 
 		$sAction = (isset($aExtraParams['action'])) ? $aExtraParams['action'] : utils::GetAbsoluteUrlAppRoot().'pages/UI.php';
 		$aCSSClasses = ["ibo-search-form"];
-		if ($bOpen == 'true') {
+		if ($bOpen != 'true') {
 			$aCSSClasses[] = 'closed';
 		}
-		if ($bAutoSubmit === true) {
+		if ($bAutoSubmit != true) {
 			$aCSSClasses[] = 'no_auto_submit';
 		}
-		$oUiSearchBlock = new Panel(Dict::Format('UI:SearchFor_Class_Objects', $sClassesCombo), [],Panel::ENUM_COLOR_CYAN, $sSearchFormId);
-		$oUiSearchBlock->SetCSSClasses(["ibo-search-form-panel", "display_block"]);
+		$oForm = FormUIBlockFactory::MakeStandard();
+		$oForm->AddSubBlock(new Html(Dict::Format('UI:SearchFor_Class_Objects', $sClassesCombo)));
+
+		$oUiSearchBlock = new Panel('', [], Panel::ENUM_COLOR_CYAN, $sSearchFormId);
+		$oUiSearchBlock->SetCSSClasses(["ibo-search-form-panel", "display_block"])
+			->AddTitleBlock($oForm);
 		$oUiBlock->AddSubBlock($oUiSearchBlock);
-		$sHtml = "<a class=\"sft_toggler fas fa-caret-down pull-right\" href=\"#\" title=\"" . Dict::S('UI:Search:Toggle') . "\"></a>";
-		if (!$bShowObsoleteData)
-		{
+		$sHtml = "";
+		if (!$bShowObsoleteData) {
 			$sHtml .= "<span class=\"pull-right\">";
-			$sHtml .= "<span class=\"sfobs_hint pull-right\">" . Dict::S('UI:Search:Obsolescence:DisabledHint') . "</span>";
+			$sHtml .= "<span class=\"sfobs_hint pull-right\">".Dict::S('UI:Search:Obsolescence:DisabledHint')."</span>";
 		}
-		if($bAutoSubmit === false) {
+		if ($bAutoSubmit === false) {
 			$sHtml .= "<br class='clearboth' />";
 			$sHtml .= "<span class=\"sft_hint pull-right\">".Dict::S('UI:Search:AutoSubmit:DisabledHint')."</span>";
 			$sHtml .= "</span>";

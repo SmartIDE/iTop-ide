@@ -3,9 +3,11 @@
 namespace Combodo\iTop\Application\UI\Base\Component\DataTable\StaticTable;
 
 use Combodo\iTop\Application\UI\Base\Layout\UIContentBlock;
+use Combodo\iTop\Application\UI\Base\tJSRefreshCallback;
+use utils;
 
 /**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -15,17 +17,18 @@ use Combodo\iTop\Application\UI\Base\Layout\UIContentBlock;
  */
 class StaticTable extends UIContentBlock
 {
+	use tJSRefreshCallback;
+
 	// Overloaded constants
 	public const BLOCK_CODE = 'ibo-datatable';
 	public const DEFAULT_HTML_TEMPLATE_REL_PATH = 'base/components/datatable/static/layout';
 	public const DEFAULT_JS_ON_READY_TEMPLATE_REL_PATH = 'base/components/datatable/static/layout';
 	public const DEFAULT_JS_FILES_REL_PATH = [
-		'lib/datatables/js/jquery.dataTables.min.js',
-		'lib/datatables/js/dataTables.bootstrap.min.js',
-		'lib/datatables/js/dataTables.fixedHeader.min.js',
-		'lib/datatables/js/dataTables.responsive.min.js',
-		'lib/datatables/js/dataTables.scroller.min.js',
-		'lib/datatables/js/dataTables.select.min.js',
+		'node_modules/datatables.net/js/jquery.dataTables.js',
+		'node_modules/datatables.net-fixedheader/js/dataTables.fixedHeader.js',
+		'node_modules/datatables.net-responsive/js/dataTables.responsive.js',
+		'node_modules/datatables.net-scroller/js/dataTables.scroller.js',
+		'node_modules/datatables.net-select/js/dataTables.select.js',
 		'js/dataTables.main.js',
 		'js/dataTables.settings.js',
 		'js/dataTables.pipeline.js',
@@ -51,12 +54,21 @@ class StaticTable extends UIContentBlock
 	 * ]
 	 */
 	private $aData;
+	private $aExtraParams;
+	/*@var string $sUrlForRefresh*/
+	private $sFilter;
+	/** @var array $aOptions 
+	 * List of specific options for display datatable
+	 */
+	private $aOptions;
 
-	public function __construct(string $sId = null, array $aContainerCSSClasses = [])
+	public function __construct(string $sId = null, array $aContainerCSSClasses = [], array $aExtraParams = [])
 	{
 		parent::__construct($sId, $aContainerCSSClasses);
 		$this->aColumns = [];
 		$this->aData = [];
+		$this->aExtraParams = $aExtraParams;
+		$this->aOptions = [];
 	}
 
 	/**
@@ -91,4 +103,57 @@ class StaticTable extends UIContentBlock
 		$this->aData = $aData;
 	}
 
+	/**
+	 * @param string $sFilter
+	 */
+	public function SetFilter($sFilter): void
+	{
+		$this->sFilter = $sFilter;
+	}
+
+	public function GetJSRefresh(): string
+	{
+		//$('#".$this->sId."').DataTable().clear().rows.add(data).draw()
+		$aParams = [
+			'style' => 'list',
+			'filter' => $this->sFilter,
+			'extra_params' => $this->aExtraParams,
+		];
+
+		return "$.post('".utils::GetAbsoluteUrlAppRoot()."pages/ajax.render.php?operation=refreshDashletList', ".json_encode($aParams).", 
+					function (data) {
+						$('#".$this->sId."').DataTable().clear();
+	                    $('#".$this->sId."').dataTable().fnAddData(data);
+					});";
+	}
+	
+	/**
+	 * @return mixed
+	 */
+	public function GetOption(string $sOption)
+	{
+		if (isset($this->aOptions[$sOption])) {
+			return $this->aOptions[$sOption];
+		}
+		return null;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function GetOptions(): array
+	{
+		return $this->aOptions;
+	}
+
+	/**
+	 * @param array $aOptions
+	 * 
+	 * @return $this
+	 */
+	public function SetOptions($aOptions)
+	{
+		$this->aOptions = $aOptions;
+		return $this;
+	}
 }

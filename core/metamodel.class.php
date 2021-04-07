@@ -1,5 +1,5 @@
 <?php
-// Copyright (c) 2010-2018 Combodo SARL
+// Copyright (c) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -38,7 +38,7 @@ require_once APPROOT.'application/loginurl.class.inc.php';
 /**
  * Metamodel
  *
- * @copyright   Copyright (C) 2010-2018 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -486,14 +486,46 @@ abstract class MetaModel
 		self::_check_subclass($sClass);
 
 		if (array_key_exists('style', self::$m_aClassParams[$sClass])) {
-			return self::$m_aClassParams[$sClass]['style'];
-		}
-		$sParentClass = self::GetParentPersistentClass($sClass);
-		if (strlen($sParentClass) > 0) {
-			return self::GetClassStyle($sParentClass);
+			$oStyle = self::$m_aClassParams[$sClass]['style'];
+		} else {
+			// Create empty style
+			$oStyle = new ormStyle("ibo-class-style--$sClass", "ibo-class-style-alt--$sClass");
 		}
 
-		return null;
+		if ((strlen($oStyle->GetMainColor()) > 0) && (strlen($oStyle->GetComplementaryColor()) > 0) && (strlen($oStyle->GetIcon()) > 0)) {
+			// all the parameters are set, no need to search in the parent classes
+			return $oStyle;
+		}
+
+		// Search missing parameters in the parent classes
+		$sParentClass = self::GetParentPersistentClass($sClass);
+		while (strlen($sParentClass) > 0) {
+			$oParentStyle = self::GetClassStyle($sParentClass);
+			if (!is_null($oParentStyle)) {
+				if (strlen($oStyle->GetMainColor()) == 0) {
+					$oStyle->SetMainColor($oParentStyle->GetMainColor());
+					$oStyle->SetStyleClass($oParentStyle->GetStyleClass());
+				}
+				if (strlen($oStyle->GetComplementaryColor()) == 0) {
+					$oStyle->SetComplementaryColor($oParentStyle->GetComplementaryColor());
+					$oStyle->SetAltStyleClass($oParentStyle->GetAltStyleClass());
+				}
+				if (strlen($oStyle->GetIcon()) == 0) {
+					$oStyle->SetIcon($oParentStyle->GetIcon());
+				}
+				if ((strlen($oStyle->GetMainColor()) > 0) && (strlen($oStyle->GetComplementaryColor()) > 0) && (strlen($oStyle->GetIcon()) > 0)) {
+					// all the parameters are set, no need to search in the parent classes
+					return $oStyle;
+				}
+			}
+			$sParentClass = self::GetParentPersistentClass($sParentClass);
+		}
+
+		if ((strlen($oStyle->GetMainColor()) == 0) && (strlen($oStyle->GetComplementaryColor()) == 0) && (strlen($oStyle->GetIcon()) == 0)) {
+			return null;
+		}
+
+		return $oStyle;
 	}
 
 	/**
@@ -766,7 +798,12 @@ abstract class MetaModel
 		self::_check_subclass($sClass);
 		if (!isset(self::$m_aClassParams[$sClass]["name_complement_for_select"]))
 		{
-			return array($sClass, array());
+			$sParentClass = static::GetParentClass($sClass);
+			if (is_null($sParentClass)) {
+				return array($sClass, array());
+			} else {
+				return static::GetComplementAttributeSpec($sParentClass);
+			}
 		}
 		$nameRawSpec = self::$m_aClassParams[$sClass]["name_complement_for_select"];
 		if (is_array($nameRawSpec))
@@ -1334,26 +1371,36 @@ abstract class MetaModel
 	 *
 	 * @param string $sClass
 	 * @param string[] $aDesiredAttTypes Array of AttributeDefinition classes to filter the list on
+	 * @param string|null $sListCode If provided, attributes will be limited to those in this zlist
 	 *
 	 * @return array
 	 * @throws \CoreException
 	 */
-	final public static function GetAttributesList($sClass, $aDesiredAttTypes = [])
+	final public static function GetAttributesList(string $sClass, array $aDesiredAttTypes = [], ?string $sListCode = null)
 	{
 		self::_check_subclass($sClass);
 
-		if(empty($aDesiredAttTypes))
-		{
-			return array_keys(self::$m_aAttribDefs[$sClass]);
+		$aAttributesToCheck = [];
+		if (!is_null($sListCode)) {
+			$aAttCodes = self::FlattenZList(self::GetZListItems($sClass, $sListCode));
+			foreach ($aAttCodes as $sAttCode) {
+				// Important: As $aAttributesToCheck will only be used to check the type of the attribute definition, we considered is was ok to mix strings and objects to lower the memory print.
+				$aAttributesToCheck[$sAttCode] = get_class(self::$m_aAttribDefs[$sClass][$sAttCode]);
+			}
+		} else {
+			$aAttributesToCheck = self::$m_aAttribDefs[$sClass];
+		}
+
+		if (empty($aDesiredAttTypes)) {
+			return array_keys($aAttributesToCheck);
 		}
 
 		$aMatchingAttCodes = [];
-		foreach(self::$m_aAttribDefs[$sClass] as $sAttCode => $oAttDef)
-		{
-			foreach($aDesiredAttTypes as $sDesiredAttType)
-			{
-				if(is_a($oAttDef, $sDesiredAttType))
-				{
+		/** @var string|AttributeDefinition $mAttDef See how it's built */
+		foreach ($aAttributesToCheck as $sAttCode => $mAttDef) {
+			foreach ($aDesiredAttTypes as $sDesiredAttType) {
+				// Important: Use of a method allowing either an object or a class as a parameter is important
+				if (is_a($mAttDef, $sDesiredAttType, true)) {
 					$aMatchingAttCodes[] = $sAttCode;
 				}
 			}
@@ -1633,18 +1680,20 @@ abstract class MetaModel
 	 * Return an array of attribute codes for the caselogs attributes of $sClass
 	 *
 	 * @param string $sClass
+	 * @param string|null $sListCode If provided, will only return attributes from ths zlist
 	 *
 	 * @return array
 	 * @throws \CoreException
 	 * @since 3.0.0
 	 */
-	final public static function GetCaseLogs(string $sClass)
+	final public static function GetCaseLogs(string $sClass, ?string $sListCode = null)
 	{
-		if (!isset(static::$m_aCaseLogsAttributesCache[$sClass])) {
-			static::$m_aCaseLogsAttributesCache[$sClass] = self::GetAttributesList($sClass, ['AttributeCaseLog']);
+		$sScopeKey = empty($sListCode) ? 'all' : 'zlist:'.$sListCode;
+		if (!isset(static::$m_aCaseLogsAttributesCache[$sClass][$sScopeKey])) {
+			static::$m_aCaseLogsAttributesCache[$sClass][$sScopeKey] = self::GetAttributesList($sClass, ['AttributeCaseLog'], $sListCode);
 		}
 
-		return static::$m_aCaseLogsAttributesCache[$sClass];
+		return static::$m_aCaseLogsAttributesCache[$sClass][$sScopeKey];
 	}
 
 	/** @var array */
@@ -5642,15 +5691,10 @@ abstract class MetaModel
 
 						// The field already exists, does it have the relevant properties?
 						//
-						$bToBeChanged = false;
 						$sActualFieldSpec = CMDBSource::GetFieldSpec($sTable, $sField);
 						if (!CMDBSource::IsSameFieldTypes($sDBFieldSpec, $sActualFieldSpec))
 						{
-							$bToBeChanged = true;
 							$aErrors[$sClass][$sAttCode][] = "field '$sField' in table '$sTable' has a wrong type: found <code>$sActualFieldSpec</code> while expecting <code>$sDBFieldSpec</code>";
-						}
-						if ($bToBeChanged)
-						{
 							$aSugFix[$sClass][$sAttCode][] = "ALTER TABLE `$sTable` CHANGE `$sField` $sFieldDefinition";
 							$aAlterTableItems[$sTable][$sField] = "CHANGE `$sField` $sFieldDefinition";
 						}

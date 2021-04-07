@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -633,7 +633,7 @@ HTML
 
 			$oPage->add_ready_script(
 <<<EOF
-	$("#changes_summary .title").click(function() { $(this).parent().toggleClass('closed'); } );
+	$("#changes_summary .title").on('click', function() { $(this).parent().toggleClass('closed'); } );
 	$('input[name=upgrade_type]').bind('click change', function() { WizardUpdateButtons(); });
 EOF
 			);
@@ -726,7 +726,7 @@ EOF
 			$oPage->add('<li><b>'.$oLicense->product.'</b>, &copy; '.$oLicense->author.' is licensed under the <b>'.$oLicense->license_type.' license</b>. (<span class="toggle" id="toggle_'.$index.'">Details</span>)');
 			$oPage->add('<div id="license_'.$index.'" class="license_text" style="display:none;overflow:auto;max-height:10em;font-size:small;border:1px #696969 solid;margin-bottom:1em; margin-top:0.5em;padding:0.5em;">'.$oLicense->text.'</div>');
 			$oPage->add_ready_script('$(".license_text a").attr("target", "_blank").addClass("no-arrow");');
-			$oPage->add_ready_script('$("#toggle_'.$index.'").click( function() { $("#license_'.$index.'").toggle(); } );');
+			$oPage->add_ready_script('$("#toggle_'.$index.'").on("click", function() { $("#license_'.$index.'").toggle(); } );');
             $index++;
 		}
 		$oPage->add('</ul>');
@@ -987,14 +987,14 @@ class WizStepMiscParams extends WizardStep
 		$oPage->add('<fieldset>');
 		$oPage->add('<legend>Application URL</legend>');
 		$oPage->add('<table>');
-		$oPage->add('<tr><td>URL: </td><td><input id="application_url" name="application_url" type="text" size="35" maxlength="1024" value="'.htmlentities($sApplicationURL, ENT_QUOTES, 'UTF-8').'"><span id="v_application_url"/></td><tr>');
-		$oPage->add('<tr><td colspan="2">Change the value above if the end-users will be accessing the application by another path due to a specific configuration of the web server.</td><tr>');
+		$oPage->add('<tr><td>URL: </td><td><input id="application_url" name="application_url" type="text" size="35" maxlength="1024" value="'.htmlentities($sApplicationURL, ENT_QUOTES, 'UTF-8').'" style="width: 100%;box-sizing: border-box;"><span id="v_application_url"/></td><tr>');
+		$oPage->add('<tr><td colspan="2"><div class="message message-warning">Change the value above if the end-users will be accessing the application by another path due to a specific configuration of the web server.</div></td><tr>');
 		$oPage->add('</table>');
 		$oPage->add('</fieldset>');
 		$oPage->add('<fieldset>');
 		$oPage->add('<legend>Path to Graphviz\' dot application</legend>');
 		$oPage->add('<table style="width: 100%;">');
-		$oPage->add('<tr><td>Path: </td><td><input id="graphviz_path" name="graphviz_path" type="text" size="35" maxlength="1024" value="'.htmlentities($sGraphvizPath, ENT_QUOTES, 'UTF-8').'"><span id="v_graphviz_path"/></td><tr>');
+		$oPage->add('<tr><td>Path: </td><td><input id="graphviz_path" name="graphviz_path" type="text" size="35" maxlength="1024" value="'.htmlentities($sGraphvizPath, ENT_QUOTES, 'UTF-8').'" style="width: 100%;box-sizing: border-box;"><span id="v_graphviz_path"/></td><tr>');
 		$oPage->add('<tr><td colspan="2"><a href="http://www.graphviz.org" target="_blank">Graphviz</a> is required to display the impact analysis graph (i.e. impacts / depends on).</td><tr>');
 		$oPage->add('<tr><td colspan="2"><span id="graphviz_status"></span></td><tr>');
 		$oPage->add('</table>');
@@ -1012,7 +1012,7 @@ class WizStepMiscParams extends WizardStep
 <<<EOF
 		$('#application_url').bind('change keyup', function() { WizardUpdateButtons(); } );
 		$('#graphviz_path').bind('change keyup init', function() { WizardUpdateButtons();  WizardAsyncAction('check_graphviz', { graphviz_path: $('#graphviz_path').val(), authent: $('#authent_token').val()}); } ).trigger('init');
-		$('#btn_next').click(function() {
+		$('#btn_next').on('click', function() {
 			bRet = true;
 			if ($(this).attr('data-graphviz') != 'ok')
 			{
@@ -1126,21 +1126,21 @@ class WizStepUpgradeMiscParams extends WizardStep
 
 	public function Display(WebPage $oPage)
 	{
-		$sApplicationURL = $this->oWizard->GetParameter('application_url', utils::GetDefaultUrlAppRoot(true));
+		$sApplicationURL = $this->oWizard->GetParameter('application_url', utils::GetAbsoluteUrlAppRoot(true)); //Preserve existing configuration.
 		$sDefaultGraphvizPath = (strtolower(substr(PHP_OS, 0, 3)) === 'win') ? 'C:\\Program Files\\Graphviz\\bin\\dot.exe' : '/usr/bin/dot';
 		$sGraphvizPath = $this->oWizard->GetParameter('graphviz_path', $sDefaultGraphvizPath);
 		$oPage->add('<h2>Additional parameters</h2>');
 		$oPage->add('<fieldset>');
 		$oPage->add('<legend>Application URL</legend>');
 		$oPage->add('<table>');
-		$oPage->add('<tr><td>URL: </td><td><input id="application_url" name="application_url" type="text" size="35" maxlength="1024" value="'.htmlentities($sApplicationURL, ENT_QUOTES, 'UTF-8').'"><span id="v_application_url"/></td><tr>');
-		$oPage->add('<tr><td colspan="2">Change the value above if the end-users will be accessing the application by another path due to a specific configuration of the web server.</td><tr>');
+		$oPage->add('<tr><td>URL: </td><td><input id="application_url" name="application_url" type="text" size="35" maxlength="1024" value="'.htmlentities($sApplicationURL, ENT_QUOTES, 'UTF-8').'" style="width: 100%;box-sizing: border-box;"><span id="v_application_url"/></td><tr>');
+		$oPage->add('<tr><td colspan="2"><div class="message message-warning">Change the value above if the end-users will be accessing the application by another path due to a specific configuration of the web server.</div></td><tr>');
 		$oPage->add('</table>');
 		$oPage->add('</fieldset>');
 		$oPage->add('<fieldset>');
 		$oPage->add('<legend>Path to Graphviz\' dot application</legend>');
 		$oPage->add('<table style="width: 100%;">');
-		$oPage->add('<tr><td>Path: </td><td><input id="graphviz_path" name="graphviz_path" type="text" size="35" maxlength="1024" value="'.htmlentities($sGraphvizPath, ENT_QUOTES, 'UTF-8').'"><span id="v_graphviz_path"/></td><tr>');
+		$oPage->add('<tr><td>Path: </td><td><input id="graphviz_path" name="graphviz_path" type="text" size="35" maxlength="1024" value="'.htmlentities($sGraphvizPath, ENT_QUOTES, 'UTF-8').'" style="width: 100%;box-sizing: border-box;"><span id="v_graphviz_path"/></td><tr>');
 		$oPage->add('<tr><td colspan="2"><a href="http://www.graphviz.org" target="_blank">Graphviz</a> is required to display the impact analysis graph (i.e. impacts / depends on).</td><tr>');
 		$oPage->add('<tr><td colspan="2"><span id="graphviz_status"></span></td><tr>');
 		$oPage->add('</table>');
@@ -1151,7 +1151,7 @@ class WizStepUpgradeMiscParams extends WizardStep
 <<<EOF
 		$('#application_url').bind('change keyup', function() { WizardUpdateButtons(); } );
 		$('#graphviz_path').bind('change keyup init', function() { WizardUpdateButtons();  WizardAsyncAction('check_graphviz', { graphviz_path: $('#graphviz_path').val(), authent: $('#authent_token').val() }); } ).trigger('init');
-		$('#btn_next').click(function() {
+		$('#btn_next').on('click', function() {
 			bRet = true;
 			if ($(this).attr('data-graphviz') != 'ok')
 			{
@@ -2213,7 +2213,7 @@ CSS
 
 		$oPage->add('<fieldset id="summary"><legend>Installation Parameters</legend>');
 		$oPage->add('<div id="params_summary">');
-		$oPage->add('<div class="closed"><span class="title">Database Parameters</span><ul>');
+		$oPage->add('<div class="closed"><span class="title ibo-setup-summary-title">Database Parameters</span><ul>');
 		$oPage->add('<li>Server Name: '.$aInstallParams['database']['server'].'</li>');
 		$oPage->add('<li>DB User Name: '.$aInstallParams['database']['user'].'</li>');
 		$oPage->add('<li>DB user password: '.$aInstallParams['database']['pwd'].'</li>');
@@ -2235,11 +2235,11 @@ CSS
 		}
 		$oPage->add('</ul></div>');
 
-		$oPage->add('<div><span class="title">Data Model Configuration</span>');
+		$oPage->add('<div><span class="title ibo-setup-summary-title">Data Model Configuration</span>');
 		$oPage->add($this->oWizard->GetParameter('display_choices'));
 		$oPage->add('</div>');
 
-		$oPage->add('<div class="closed"><span class="title">Other Parameters</span><ul>');
+		$oPage->add('<div class="closed"><span class="title ibo-setup-summary-title">Other Parameters</span><ul>');
 		if ($sMode == 'install')
 		{
 			$oPage->add('<li>Default language: '.$aInstallParams['language'].'</li>');
@@ -2259,7 +2259,7 @@ CSS
 
 		if ($sMode == 'install')
 		{
-			$oPage->add('<div class="closed"><span class="title">Admininistrator Account</span><ul>');
+			$oPage->add('<div class="closed"><span class="title ibo-setup-summary-title">Admininistrator Account</span><ul>');
 			$oPage->add('<li>Login: '.$aInstallParams['admin_account']['user'].'</li>');
 			$oPage->add('<li>Password: '.$aInstallParams['admin_account']['pwd'].'</li>');
 			$oPage->add('<li>Language: '.$aInstallParams['admin_account']['language'].'</li>');
@@ -2318,7 +2318,7 @@ CSS
 		$oPage->add_ready_script(
 			<<<JS
 	$("#params_summary div").addClass('closed');
-	$("#params_summary .title").click(function() { $(this).parent().toggleClass('closed'); } );
+	$("#params_summary .title").on('click', function() { $(this).parent().toggleClass('closed'); } );
 	$("#btn_next").bind("click.install", function(event) {
 			$('#summary').hide();
 			$('#installation_progress').show();
@@ -2458,7 +2458,7 @@ EOF
 	$("#wiz_form").data("installation_status", "completed");
 	$('#progress').progression( {Current:100, Maximum: 100} );
 	WizardUpdateButtons();
-	$("#btn_next").unbind("click.install");
+	$("#btn_next").off("click.install");
 	$("#btn_next").click();
 EOF
 			);

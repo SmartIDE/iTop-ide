@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2019 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -226,7 +226,7 @@ abstract class TriggerOnObject extends Trigger
 		{
 			/** @var \DBObject $oObject */
 			$oObject = $aContextArgs['this->object()'];
-			$bGo = $this->IsTargetObject($oObject->GetKey(), $oObject->ListChanges());
+			$bGo = $this->IsTargetObject($oObject->GetKey(), $oObject->ListPreviousValuesForUpdatedAttributes());
 		}
 		if ($bGo)
 		{

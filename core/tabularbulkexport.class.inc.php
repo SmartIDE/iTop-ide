@@ -1,29 +1,19 @@
 <?php
-// Copyright (C) 2015 Combodo SARL
-//
-//   This file is part of iTop.
-//
-//   iTop is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Affero General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
-//
-//   iTop is distributed in the hope that it will be useful,
-//   but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU Affero General Public License for more details.
-//
-//   You should have received a copy of the GNU Affero General Public License
-//   along with iTop. If not, see <http://www.gnu.org/licenses/>
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
+ */
+
+use Combodo\iTop\Application\UI\Base\Component\Input\InputUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Layout\UIContentBlockUIBlockFactory;
 
 /**
  * Bulk export: Tabular export: abstract base class for all "tabular" exports.
  * Provides the user interface for selecting the column to be exported
  *
- * @copyright   Copyright (C) 2015 Combodo SARL
+ * @copyright   Copyright (C) 2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
-
 abstract class TabularBulkExport extends BulkExport
 {
 	public function EnumFormParts()
@@ -31,23 +21,28 @@ abstract class TabularBulkExport extends BulkExport
 		return array_merge(parent::EnumFormParts(), array('tabular_fields' => array('fields')));
 	}
 
-	public function DisplayFormPart(WebPage $oP, $sPartId)
+	/**
+	 * @param \WebPage $oP
+	 * @param $sPartId
+	 *
+	 * @return UIContentBlock
+	 */
+	public function GetFormPart(WebPage $oP, $sPartId)
 	{
-		switch($sPartId)
-		{
+		switch ($sPartId) {
 			case 'tabular_fields':
 				$sFields = utils::ReadParam('fields', '', true, 'raw_data');
 				$sSuggestedFields = utils::ReadParam('suggested_fields', null, true, 'raw_data');
-				if (($sSuggestedFields !== null) && ($sSuggestedFields !== ''))
-				{
+				if (($sSuggestedFields !== null) && ($sSuggestedFields !== '')) {
 					$aSuggestedFields = explode(',', $sSuggestedFields);
 					$sFields = implode(',', $this->SuggestFields($aSuggestedFields));
 				}
-				$oP->add('<input id="tabular_fields" type="hidden" size="50" name="fields" value="'.htmlentities($sFields, ENT_QUOTES, 'UTF-8').'"></input>');
+
+				return InputUIBlockFactory::MakeForHidden("fields", $sFields, "tabular_fields");
 				break;
-					
+
 			default:
-				return parent::DisplayFormPart($oP, $sPartId);
+				return parent::GetFormPart($oP, $sPartId);
 		}
 	}
 
@@ -272,7 +267,6 @@ abstract class TabularBulkExport extends BulkExport
 			}
 		}
 
-		$oP->add('<div id="'.$sWidgetId.'"></div>');
 		$JSAllFields = json_encode($aAllFieldsByAlias);
 
 		// First, fetch only the ids - the rest will be fetched by an object reload
@@ -321,10 +315,14 @@ abstract class TabularBulkExport extends BulkExport
 		);
 		$sJSLabels = json_encode($aLabels);
 		$oP->add_ready_script(
-<<<EOF
+			<<<EOF
 $('#$sWidgetId').tabularfieldsselector({fields: $JSAllFields, value_holder: '#tabular_fields', advanced_holder: '#tabular_advanced', sample_data: $sJSSampleData, total_count: $iCount, preview_limit: $iPreviewLimit, labels: $sJSLabels });
 EOF
 		);
+		$oUIContentBlock = UIContentBlockUIBlockFactory::MakeStandard($sWidgetId);
+		$oUIContentBlock->AddCSSClass('ibo-tabularbulkexport');
+
+		return $oUIContentBlock;
 	}
 
 	static public function SortOnLabel($aItem1, $aItem2)

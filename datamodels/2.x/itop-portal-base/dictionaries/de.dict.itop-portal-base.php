@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -61,6 +61,11 @@ Dict::Add('DE DE', 'German', 'Deutsch', array(
 	'Portal:File:DisplayInfo' => '<a href="%2$s" class="file_download_link">%1$s</a>',
 	'Portal:File:DisplayInfo+' => '%1$s (%2$s) <a href="%3$s" class="file_open_link" target="_blank">Öffnen</a> / <a href="%4$s" class="file_download_link">Download</a>',
 	'Portal:Calendar-FirstDayOfWeek' => 'de', //work with moment.js locales
+));
+
+// Object form
+Dict::Add('DE DE', 'German', 'Deutsch', array(
+	'Portal:Form:Caselog:Entry:Close:Tooltip' => 'Close this entry~~',
 	'Portal:Form:Close:Warning' => 'Soll diese Eingabemaske verlassen werden? Eingegebene Daten werden nicht gespeichert.',
 ));
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -8,21 +8,29 @@
 namespace Combodo\iTop\Application\UI\Base\Component\Dashlet;
 
 
+/**
+ * Class DashletFactory
+ *
+ * @author Eric Espie <eric.espie@combodo.com>
+ * @package Combodo\iTop\Application\UI\Base\Component\Dashlet
+ * @since 3.0.0
+ * @internal
+ */
 class DashletFactory
 {
-	public static function MakeForDashletBadge(string $sClassIconUrl, string $sHyperlink, string $iCount, string $sClassLabel, string $sCreateActionUrl = '', string $sCreateActionLabel = '')
+	public static function MakeForDashletBadge(string $sClassIconUrl, string $sHyperlink, string $iCount, string $sClassLabel, ?string $sCreateActionUrl = '', ?string $sCreateActionLabel = '', array $aRefreshParams = []): DashletBadge
 	{
-		return new DashletBadge($sClassIconUrl, $sHyperlink, $iCount, $sClassLabel, $sCreateActionUrl, $sCreateActionLabel);
+		return new DashletBadge($sClassIconUrl, $sHyperlink, $iCount, $sClassLabel, $sCreateActionUrl, $sCreateActionLabel, $aRefreshParams);
 	}
 
-	public static function MakeForDashletHeaderStatic(string $sTitle, string $sIconUrl)
+	public static function MakeForDashletHeaderStatic(string $sTitle, string $sIconUrl, string $sId = null): DashletHeaderStatic
 	{
-		return new DashletHeaderStatic(null, $sTitle, $sIconUrl);
+		return new DashletHeaderStatic($sTitle, $sIconUrl, $sId);
 	}
 
-	public static function MakeForDashletText(string $sId, string $sText)
+	public static function MakeForDashletPlainText(string $sText, string $sId = null): DashletPlainText
 	{
-		return new DashletHeaderStatic($sId, '', '', $sText);
+		return new DashletPlainText($sText, $sId);
 	}
 
 }

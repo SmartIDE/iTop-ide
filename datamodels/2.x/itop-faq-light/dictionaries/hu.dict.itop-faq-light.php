@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2012 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -16,14 +16,12 @@
 //   You should have received a copy of the GNU Affero General Public License
 //   along with iTop. If not, see <http://www.gnu.org/licenses/>
 /**
- * @copyright   Copyright (C) 2010-2012 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
-
 //
 // Class: FAQ
 //
-
 Dict::Add('HU HU', 'Hungarian', 'Magyar', array(
 	'Class:FAQ' => 'FAQ~~',
 	'Class:FAQ+' => 'Frequently asked questions~~',
@@ -56,7 +54,6 @@ Dict::Add('HU HU', 'Hungarian', 'Magyar', array(
 	'Class:FAQCategory/Attribute:faq_list' => 'FAQs~~',
 	'Class:FAQCategory/Attribute:faq_list+' => 'All the frequently asked questions related to this category~~',
 ));
-
 Dict::Add('HU HU', 'Hungarian', 'Magyar', array(
 	'Menu:ProblemManagement' => 'Probléma menedzsment',
 	'Menu:ProblemManagement+' => '',

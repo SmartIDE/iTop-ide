@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -825,14 +825,26 @@ class iTopDesignFormat
 		$this->RemoveNodeFromXPath('/itop_design/branding/themes/theme[@id="test-red"]/stylesheets/stylesheet[@id="jqueryui"]');
 		$this->RemoveNodeFromXPath('/itop_design/branding/themes/theme[@id="test-red"]/stylesheets/stylesheet[@id="main"]');
 
-		$sTestRedBannerBackgroundColorPath = '/itop_design/branding/themes/theme[@id="test-red"]/variables/variable[@id="backoffice-environment-banner-background-color"]';
-		$this->SetNodeAttribute($sTestRedBannerBackgroundColorPath, 'id', 'ibo-page-banner-background-color');
+		$oNodeList = $oXPath->query('/itop_design/branding/themes/theme[@id="test-red"]/variables/variable[@id="backoffice-environment-banner-background-color"]');
+		foreach ($oNodeList as $oNode) {
+			$oNode->setAttribute('id', 'ibo-page-banner--background-color');
+		}		
+		
+		$oNodeList = $oXPath->query( '/itop_design/branding/themes/theme[@id="test-red"]/variables/variable[@id="backoffice-environment-banner-text-color"]');
+		foreach ($oNodeList as $oNode) {
+			$oNode->setAttribute('id', 'ibo-page-banner--text-color');
+		}
 
-		$sTestRedBannerTextColorPath = '/itop_design/branding/themes/theme[@id="test-red"]/variables/variable[@id="backoffice-environment-banner-text-color"]';
-		$this->SetNodeAttribute($sTestRedBannerTextColorPath, 'id', 'ibo-page-banner-text-color');
-
-		$sTestRedBannerTextContentPath = '/itop_design/branding/themes/theme[@id="test-red"]/variables/variable[@id="backoffice-environment-banner-text-content"]';
-		$this->SetNodeAttribute($sTestRedBannerTextContentPath, 'id', 'ibo-page-banner-text-content');
+		$oNodeList = $oXPath->query( '/itop_design/branding/themes/theme[@id="test-red"]/variables/variable[@id="backoffice-environment-banner-text-content"]');
+		foreach ($oNodeList as $oNode) {
+			$oNode->setAttribute('id', 'ibo-page-banner--text-content');
+		}
+		
+		// Add new attribute to theme import nodes
+		$oNodeList = $oXPath->query('/itop_design/branding/themes/theme/imports/import');
+		foreach ($oNodeList as $oNode) {
+			$oNode->setAttribute('xsi:type', 'utility');
+		}
 
 		// Add Class Style
 		$oNodeList = $oXPath->query("/itop_design/classes//class/properties");
@@ -922,15 +934,29 @@ class iTopDesignFormat
 
 		// N°3516 Bring back legacy themes
 		// Update test-red theme
-		$sTestRedBannerBackgroundColorPath = '/itop_design/branding/themes/theme[@id="test-red"]/variables/variable[@id="ibo-page-banner-background-color"]';
-		$this->SetNodeAttribute($sTestRedBannerBackgroundColorPath, 'id', 'backoffice-environment-banner-background-color');
 
-		$sTestRedBannerTextColorPath = '/itop_design/branding/themes/theme[@id="test-red"]/variables/variable[@id="ibo-page-banner-text-color"]';
-		$this->SetNodeAttribute($sTestRedBannerTextColorPath, 'id', 'backoffice-environment-banner-text-color');
+		$oNodeList = $oXPath->query('/itop_design/branding/themes/theme[@id="test-red"]/variables/variable[@id="ibo-page-banner--background-color"]');
+		foreach ($oNodeList as $oNode) {
+			$oNode->setAttribute('id', 'backoffice-environment-banner-background-color');
+		}
 
-		$sTestRedBannerTextContentPath = '/itop_design/branding/themes/theme[@id="test-red"]/variables/variable[@id="ibo-page-banner-text-content"]';
-		$this->SetNodeAttribute($sTestRedBannerTextContentPath, 'id', 'backoffice-environment-banner-text-content');
+		$oNodeList = $oXPath->query('/itop_design/branding/themes/theme[@id="test-red"]/variables/variable[@id="ibo-page-banner--text-color"]');
+		foreach ($oNodeList as $oNode) {
+			$oNode->setAttribute('id', 'backoffice-environment-banner-text-color');
+		}
 
+		$oNodeList = $oXPath->query( '/itop_design/branding/themes/theme[@id="test-red"]/variables/variable[@id="ibo-page-banner--text-content"]');
+		foreach ($oNodeList as $oNode) {
+			$oNode->setAttribute('id', 'backoffice-environment-banner-text-content');
+		}
+
+		// Add new attribute to theme import nodes
+		
+		$oNodeList = $oXPath->query('/itop_design/branding/themes/theme/imports/import');
+		foreach ($oNodeList as $oNode) {
+			$oNode->removeAttribute('xsi:type');
+		}
+		
 		// Remove class style
 		$oNodeList = $oXPath->query("/itop_design/classes//class/properties");
 		foreach ($oNodeList as $oNode) {
@@ -942,38 +968,6 @@ class iTopDesignFormat
 					$oNode->appendChild($oIconNode);
 				}
 				$this->DeleteNode($oStyleNode);
-			}
-		}
-	}
-
-	/**
-	 *
-	 * Replace those weird setAttribute calls on DOMNode above 🤷
-	 *
-	 * @param string $sPath
-	 * @param string $sAttributeName
-	 * @param string $sAttributeValue
-	 *
-	 * @return void
-	 *
-	 * @since 3.0.0
-	 */
-	private function SetNodeAttribute($sPath, $sAttributeName, $sAttributeValue)
-	{
-		$oXPath = new DOMXPath($this->oDocument);
-
-		$oNodeList = $oXPath->query($sPath);
-		foreach ($oNodeList as $oNode)
-		{
-			if($oNode->attributes)
-			{
-				foreach ($oNode->attributes as $oAttribute)
-				{
-					if($oAttribute->nodeName === $sAttributeName)
-					{
-						$oAttribute->nodeValue = $sAttributeValue;
-					}
-				}
 			}
 		}
 	}

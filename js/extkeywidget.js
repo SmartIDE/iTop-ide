@@ -1,38 +1,30 @@
 /*
- * Copyright (C) 2010-2020 Combodo SARL
- *
- * This file is part of iTop.
- *
- * iTop is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * iTop is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
  */
-var KEY_BACKSPACE = 8;
-var KEY_RETURN    = 13;
-Selectize.define('custom_itop', function(options) {
+/*
+* Plugin to change the behaviour of enter and backspace buttons
+* if the inputText is null when iti push on enter, the field is put to null
+* when we push on backspace, it clean the input text, in order to autocmplete
+* */
+Selectize.define('custom_itop', function(aOptions) {
+	var KEY_BACKSPACE = 8;
+	var KEY_RETURN    = 13;
 	var self = this;
 
-	options.text = options.text || function(option) {
-		return option[this.settings.labelField];
+	aOptions.text = aOptions.text || function(aOptions) {
+		return aOptions[this.settings.labelField];
 	};
 
 	this.onKeyDown = (function() {
 		var original = self.onKeyDown;
 		return function(e) {
-			var index, option;
+			var iIndex;
 			switch (e.keyCode) {
 				case KEY_BACKSPACE:
 					if (e.keyCode === KEY_BACKSPACE && this.$control_input.val() === '' && !this.$activeItems.length) {
-						index = this.caretPos-1;
-						if (index >= 0 && index < this.items.length) {
+						iIndex = this.caretPos-1;
+						if (iIndex >= 0 && iIndex < this.items.length) {
 							this.clear(true);
 							e.preventDefault();
 							return;
@@ -43,14 +35,12 @@ Selectize.define('custom_itop', function(options) {
 						//case nothing selected ->delete selection
 						if (!self.$activeOption || self.currentResults.query == "") {
 							self.deleteSelection(e);
-							//if(self.getOption("") != "undefined"){
-								self.setValue("");
-							//}
+							self.setValue("");
 							return;
 						}
 					}
 			}
-			return original.apply(this, arguments);
+			return original.apply();
 		};
 	})();
 });
@@ -78,6 +68,7 @@ function ExtKeyWidget(id, sTargetClass, sFilter, sTitle, bSelectMode, oWizHelper
 		// make sure that the form is clean
 		$('#'+this.id+'_btnRemove').prop('disabled', true);
 		$('#'+this.id+'_linksToRemove').val('');
+
 	}
 	this.AddSelectize = function (options, initValue) {
 		let $select = $('#'+me.id).selectize({
@@ -85,23 +76,19 @@ function ExtKeyWidget(id, sTargetClass, sFilter, sTitle, bSelectMode, oWizHelper
 			render: {
 				item: function (item) {
 					if (item.obsolescence_flag == 1) {
-						val = '<span class="object-ref-icon fas fa-eye-slash object-obsolete fa-1x fa-fw"></span>'+item.label;
+						val = '<span class="object-ref-icon text_decoration"><span class="fas fa-eye-slash object-obsolete fa-1x fa-fw"></span></span>'+item.label;
 					} else {
 						val = item.label;
 					}
 					return $("<div>").append(val);
 				},
 				option: function(item) {
-					if ( item.obsolescence_flag == 1)
-					{
-						val = '<span class="object-ref-icon fas fa-eye-slash object-obsolete fa-1x fa-fw"></span>'+item.label;
-					}
-					else
-					{
+					if (item.obsolescence_flag == 1) {
+						val = '<span class="object-ref-icon text_decoration"><span class="fas fa-eye-slash object-obsolete fa-1x fa-fw"></span></span>'+item.label;
+					} else {
 						val = item.label;
 					}
-					if (item.additional_field != undefined )
-					{
+					if (item.additional_field != undefined) {
 						val = val+'<br><i>'+item.additional_field+'</i>';
 					}
 					return $("<div>").append(val);
@@ -110,73 +97,74 @@ function ExtKeyWidget(id, sTargetClass, sFilter, sTitle, bSelectMode, oWizHelper
 			valueField: 'value',
 			labelField: 'label',
 			searchField: 'label',
-			options:JSON.parse(options),
+			options: JSON.parse(options),
 			maxItems: 1,
 			copyClassesToDropdown: false,
 			inputClass: 'ibo-input ibo-input-select ibo-input-selectize',
+			// To avoid dropdown to be cut by the container's overflow hidden rule
+			dropdownParent: 'body',
 		});
 		let $selectize = $select[0].selectize; // This stores the selectize object to a variable (with name 'selectize')
 		$selectize.setValue(initValue, true);
+		var iPaddingRight = 	$('#'+this.id).parent().find('.ibo-input-select--action-buttons')[0].childElementCount*20+15;
+		 $('#'+this.id).parent().find('.ibo-input-select').css('padding-right',iPaddingRight);
+
 	}
 	this.AddAutocomplete = function(iMinChars, sWizHelperJSON)
 	{
 		var hasFocus = 0;
 		var cache = {};
+		$('#label_'+me.id).data('selected_value', $('#label_'+me.id).val());
 		$('#label_'+me.id).autocomplete({
-			source: function (request, response) {
-				term = request.term.toLowerCase().latinise().replace(/[\u0300-\u036f]/g, "");
+				source: function (request, response) {
+					term = request.term.toLowerCase().latinise().replace(/[\u0300-\u036f]/g, "");
 
-				if (term in cache)
-				{
-					response(cache[term]);
-					return;
-				}
-				if (term.indexOf(this.previous) >= 0 && cache[this.previous] != null && cache[this.previous].length < 120)
-				{
-					//we have already all the possibility in cache
-					var data = [];
-					$.each(cache[this.previous], function (key, value) {
-						if (value.label.toLowerCase().latinise().replace(/[\u0300-\u036f]/g, "").indexOf(term) >= 0)
-						{
-							data.push(value);
-						}
-					});
-					cache[term] = data;
-					response(data);
-				}
-				else
-				{
-					$.post({
-						url: GetAbsoluteUrlAppRoot()+'pages/ajax.render.php',
-						dataType: "json",
-						data: {
-							q: request.term,
-							operation: 'ac_extkey',
-							sTargetClass: me.sTargetClass,
-							sFilter: me.sFilter,
-							bSearchMode: me.bSearchMode,
-							sOutputFormat: 'json',
-							json: function () {
-								return sWizHelperJSON;
+					if (term in cache) {
+						response(cache[term]);
+						return;
+					}
+					if (term.indexOf(this.previous) >= 0 && cache[this.previous] != null && cache[this.previous].length < 120) {
+						//we have already all the possibility in cache
+						var data = [];
+						$.each(cache[this.previous], function (key, value) {
+							if (value.label.toLowerCase().latinise().replace(/[\u0300-\u036f]/g, "").indexOf(term) >= 0) {
+								data.push(value);
 							}
-						},
-						success: function (data) {
-							cache[term] = data;
-							response(data);
-						}
-					});
+						});
+						cache[term] = data;
+						response(data);
+					} else {
+						$.post({
+							url: GetAbsoluteUrlAppRoot()+'pages/ajax.render.php',
+							dataType: "json",
+							data: {
+								q: request.term,
+								operation: 'ac_extkey',
+								sTargetClass: me.sTargetClass,
+								sFilter: me.sFilter,
+								bSearchMode: me.bSearchMode,
+								sOutputFormat: 'json',
+								json: function () {
+									return sWizHelperJSON;
+								}
+							},
+							success: function (data) {
+								cache[term] = data;
+								response(data);
+							}
+						});
 
-				}
-			},
+					}
+				},
 			autoFocus: true,
 			minLength: iMinChars,
 			focus: function (event, ui) {
-				// $('#label_$this->iId').val( ui.item.label );
 				return false;
 			},
 			select: function (event, ui) {
 				$('#'+me.id).val(ui.item.value);
 				$('#label_'+me.id).val(ui.item.label);
+				$('#label_'+me.id).data('selected_value', ui.item.label);
 				$('#'+me.id).trigger('validate');
 				$('#'+me.id).trigger('extkeychange');
 				$('#'+me.id).trigger('change');
@@ -187,9 +175,8 @@ function ExtKeyWidget(id, sTargetClass, sFilter, sTitle, bSelectMode, oWizHelper
 			$(ul).addClass('selectize-dropdown');
 			var term = this.term.replace("/([\^\$\(\)\[\]\{\}\*\.\+\?\|\\])/gi", "\\$1");
 			var val = item.label.replace(new RegExp("(?![^&;]+;)(?!<[^<>]*)("+term+")(?![^<>]*>)(?![^&;]+;)", "gi"), "<strong>$1</strong>");
-			if (item.obsolescence_flag == '1')
-			{
-				val = ' <span class="object-ref-icon fas fa-eye-slash object-obsolete fa-1x fa-fw"></span>'+val;
+			if (item.obsolescence_flag == '1') {
+				val = ' <span class="object-ref-icon text_decoration"><span class="fas fa-eye-slash object-obsolete fa-1x fa-fw"></span></span>'+val;
 			}
 			if (item.additional_field != undefined )
 			{
@@ -201,19 +188,34 @@ function ExtKeyWidget(id, sTargetClass, sFilter, sTitle, bSelectMode, oWizHelper
 				.appendTo(ul);
 		};
 
-		$('#label_'+me.id).focus(function () {
+		$('#label_'+me.id).on('focus', function () {
 			// track whether the field has focus, we shouldn't process any
 			// results if the field no longer has focus
 			hasFocus++;
-		}).blur(function () {
+		}).on('blur', function () {
 			hasFocus = 0;
-		}).click(
+			if ($('#label_'+me.id).val().length == 0) {
+				eval('oACWidget_'+me.id).Clear();
+			} else {
+				$('#label_'+me.id).val($('#label_'+me.id).data('selected_value'));
+			}
+		}).on('click',
 			function () {
-				if (hasFocus++ > 1)
-				{
-					$('#label_'+me.id).autocomplete("search");
+				hasFocus++;
+				$('#label_'+me.id).autocomplete("search");
+			}).on('keyup',function () {
+			if ($('#label_'+me.id).val().length == 0) {
+				if (!$('#label_'+me.id).parent().find('.ibo-input-select--action-button--clear').hasClass('ibo-is-hidden')) {
+					$('#label_'+me.id).parent().find('.ibo-input-select--action-button--clear').addClass('ibo-is-hidden');
 				}
-			});
+			} else {
+				if ($('#label_'+me.id).parent().find('.ibo-input-select--action-button--clear').hasClass('ibo-is-hidden')) {
+					$('#label_'+me.id).parent().find('.ibo-input-select--action-button--clear').removeClass('ibo-is-hidden');
+				}
+			}
+		});
+		var iPaddingRight = 	$('#'+this.id).parent().find('.ibo-input-select--action-buttons')[0].childElementCount*20+15;
+		$('#'+this.id).parent().find('.ibo-input-select').css('padding-right',iPaddingRight);
 	};
 
 	this.StopPendingRequest = function () {
@@ -359,8 +361,7 @@ function ExtKeyWidget(id, sTargetClass, sFilter, sTitle, bSelectMode, oWizHelper
 		theMap.operation = 'searchObjectsToSelect'; // Override what is defined in the form itself
 		theMap.sAttCode = me.sAttCode,
 
-			sSearchAreaId = '#dr_'+me.id;
-		//$(sSearchAreaId).html('<div style="text-align:center;width:100%;height:24px;vertical-align:middle;"><img src="../images/indicator.gif" /></div>');
+		sSearchAreaId = '#dr_'+me.id;
 		$(sSearchAreaId).block();
 		me.UpdateButtons();
 
@@ -372,8 +373,7 @@ function ExtKeyWidget(id, sTargetClass, sFilter, sTitle, bSelectMode, oWizHelper
 		me.ajax_request = $.post(AddAppContext(GetAbsoluteUrlAppRoot()+'pages/ajax.render.php'), theMap,
 			function (data) {
 				$(sSearchAreaId).html(data);
-				$(sSearchAreaId+' .listResults').tableHover();
-				$('#fr_'+me.id+' input:radio').click(function () {
+				$('#fr_'+me.id+' input:radio').on('click', function () {
 					me.UpdateButtons();
 				});
 				me.UpdateButtons();
@@ -448,6 +448,7 @@ function ExtKeyWidget(id, sTargetClass, sFilter, sTitle, bSelectMode, oWizHelper
 	this.Clear = function () {
 		$('#'+me.id).val('');
 		$('#label_'+me.id).val('');
+		$('#label_'+me.id).data('selected_value', '');
 		$('#'+me.id).trigger('validate');
 		$('#'+me.id).trigger('extkeychange');
 		$('#'+me.id).trigger('change');
@@ -532,7 +533,7 @@ function ExtKeyWidget(id, sTargetClass, sFilter, sTitle, bSelectMode, oWizHelper
 				$('#ac_create_'+me.id).dialog('open');
 				$('#ac_create_'+me.id).dialog("option", "close", me.OnCloseCreateObject);
 				// Modify the action of the cancel button
-				$('#ac_create_'+me.id+' button.cancel').unbind('click').click(me.CloseCreateObject);
+				$('#ac_create_'+me.id+' button.cancel').off('click').on('click', me.CloseCreateObject);
 				me.ajax_request = null;
 				// Adjust the dialog's size to fit into the screen
 				if ($('#ac_create_'+me.id).width() > ($(window).width()-40))

@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2012 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -20,7 +20,7 @@
  * Helper class to build interactive forms to be used either in stand-alone
  * modal dialog or in "property-sheet" panes.
  *
- * @copyright   Copyright (C) 2010-2012 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 class DesignerForm
@@ -102,23 +102,19 @@ class DesignerForm
 				$sReturn .= '<fieldset>';
 				$sReturn .= '<legend>'.$sLabel.'</legend>';
 			}
-			foreach($aFields as $oField)
-			{
+			foreach($aFields as $oField) {
 				$aRow = $oField->Render($oP, $sFormId);
-				if ($oField->IsVisible())
-				{
+				if ($oField->IsVisible()) {
 					$sValidation = '<span class="prop_apply ibo-prop--apply">'.$this->GetValidationArea($oField->GetFieldId()).'</span>';
 					$sField = $aRow['value'].$sValidation;
 					$aDetails[] = array('label' => $aRow['label'], 'value' => $sField);
-				}
-				else
-				{
+				} else {
 					$sHiddenFields .= $aRow['value'];
 				}
 			}
 			$sReturn .= $oP->GetDetails($aDetails);
-			if ($sLabel != '')
-			{
+
+			if ($sLabel != '') {
 				$sReturn .= '</fieldset>';
 			}
 		}
@@ -266,7 +262,7 @@ class DesignerForm
 					$this->AddReadyScript(
 <<<EOF
 $('#row_$sFieldId').$sWidgetClass({parent_selector: $sNotifyParentSelectorJS, field_id: '$sFieldId', equals: $sHandlerEquals, get_field_value: $sHandlerGetValue, auto_apply: $sAutoApply, value: '', submit_to: '$sActionUrl', submit_parameters: $sJSSubmitParams $sJSExtraParams });
-CombodoGlobalToolbox.InitTooltipFromMarkup($('#$sFormId [data-tooltip-content]'));
+CombodoTooltip.InitTooltipFromMarkup($('#$sFormId [data-tooltip-content]'));
 EOF
 					);
 				}
@@ -292,7 +288,6 @@ EOF
 		}
 		$this->AddReadyScript(
 <<<EOF
-		$('.prop_table').tableHover();
 		var idx = 0;
 		$('.prop_table tbody tr').each(function() {
 			if ((idx % 2) == 0)
@@ -1021,10 +1016,10 @@ class DesignerTextField extends DesignerFormField
 			$sMandatory = $this->bMandatory ? 'true' :  'false';
 			$oP->add_ready_script(
 <<<EOF
-$('#$sId').bind('change keyup validate', function() { ValidateWithPattern('$sId', $sMandatory, '$sPattern', $(this).closest('form').attr('id'), $sForbiddenValues); } );
+$('#$sId').on('change keyup validate', function() { ValidateWithPattern('$sId', $sMandatory, '$sPattern', $(this).closest('form').attr('id'), $sForbiddenValues); } );
 {
 	var myTimer = null;
-	$('#$sId').bind('keyup', function() { clearTimeout(myTimer); myTimer = setTimeout(function() { $('#$sId').trigger('change', {} ); }, 100); });
+	$('#$sId').on('keyup', function() { clearTimeout(myTimer); myTimer = setTimeout(function() { $('#$sId').trigger('change', {} ); }, 100); });
 }
 EOF
 			);
@@ -1059,7 +1054,7 @@ class DesignerLongTextField extends DesignerTextField
 	public function __construct($sCode, $sLabel = '', $defaultValue = '')
 	{
 		parent::__construct($sCode, $sLabel, $defaultValue);
-		$this->aCSSClasses[] = 'ibo-input-text-area';
+		$this->aCSSClasses[] = 'ibo-input-text';
 	}
 
 	public function Render(WebPage $oP, $sFormId, $sRenderMode='dialog')
@@ -1085,10 +1080,10 @@ class DesignerLongTextField extends DesignerTextField
 		{
 			$oP->add_ready_script(
 <<<EOF
-$('#$sId').bind('change keyup validate', function() { ValidateWithPattern('$sId', $sMandatory, '$sPattern',  $(this).closest('form').attr('id'), $sForbiddenValues); } );
+$('#$sId').on('change keyup validate', function() { ValidateWithPattern('$sId', $sMandatory, '$sPattern',  $(this).closest('form').attr('id'), $sForbiddenValues); } );
 {
 	var myTimer = null;
-	$('#$sId').bind('keyup', function() { clearTimeout(myTimer); myTimer = setTimeout(function() { $('#$sId').trigger('change', {} ); }, 100); });
+	$('#$sId').on('keyup', function() { clearTimeout(myTimer); myTimer = setTimeout(function() { $('#$sId').trigger('change', {} ); }, 100); });
 }
 EOF
 			);
@@ -1136,10 +1131,10 @@ class DesignerIntegerField extends DesignerFormField
 			$sMandatory = $this->bMandatory ? 'true' :  'false';
 			$oP->add_ready_script(
 <<<EOF
-$('#$sId').bind('change keyup validate', function() { ValidateInteger('$sId', $sMandatory,  $(this).closest('form').attr('id'), $sMin, $sMax); } );
+$('#$sId').on('change keyup validate', function() { ValidateInteger('$sId', $sMandatory,  $(this).closest('form').attr('id'), $sMin, $sMax); } );
 {
 	var myTimer = null;
-	$('#$sId').bind('keyup', function() { clearTimeout(myTimer); myTimer = setTimeout(function() { $('#$sId').trigger('change', {} ); }, 100); });
+	$('#$sId').on('keyup', function() { clearTimeout(myTimer); myTimer = setTimeout(function() { $('#$sId').trigger('change', {} ); }, 100); });
 }
 EOF
 			);
@@ -1300,11 +1295,12 @@ class DesignerComboField extends DesignerFormField
 			}
 			$oP->add_ready_script(
 <<<EOF
-$('#$sId').bind('change validate', function() { ValidateWithPattern('$sId', $sMandatory, '',  $(this).closest('form').attr('id'), null, null); } );
+$('#$sId').on('change validate', function() { ValidateWithPattern('$sId', $sMandatory, '',  $(this).closest('form').attr('id'), null, null); } );
 EOF
 			);
 		}
 		return array('label' => $this->sLabel, 'value' => $sHtml);
+
 	}
 
 	public function ReadParam(&$aValues)
@@ -1740,7 +1736,7 @@ class DesignerFormSelectorField extends DesignerFormField
 		{
 			$oP->add_ready_script(
 <<<EOF
-$('#$sId').bind('change reverted', function() {	$('.subform_{$sId}').hide(); $('.{$sId}_'+this.value).show(); } );
+$('#$sId').on('change reverted', function() {	$('.subform_{$sId}').hide(); $('.{$sId}_'+this.value).show(); } );
 EOF
 			);
 		}

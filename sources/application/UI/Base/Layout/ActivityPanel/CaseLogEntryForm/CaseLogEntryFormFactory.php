@@ -1,7 +1,7 @@
 <?php
 
 /*
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -11,6 +11,7 @@ namespace Combodo\iTop\Application\UI\Base\Layout\ActivityPanel\CaseLogEntryForm
 use cmdbAbstractObject;
 use Combodo\iTop\Application\UI\Base\Component\Button\Button;
 use Combodo\iTop\Application\UI\Base\Component\Button\ButtonUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\ButtonGroup\ButtonGroupUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenu;
 use Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenuItem\PopoverMenuItemFactory;
 use Combodo\iTop\Application\UI\Base\Layout\ActivityPanel\CaseLogEntryForm\CaseLogEntryForm;
@@ -34,11 +35,18 @@ class CaseLogEntryFormFactory
 {
 	public static function MakeForCaselogTab(DBObject $oObject, string $sCaseLogAttCode, string $sObjectMode = cmdbAbstractObject::DEFAULT_OBJECT_MODE)
 	{
-		$oCaseLogEntryForm = new CaseLogEntryForm();
+		$oCaseLogEntryForm = new CaseLogEntryForm($oObject, $sCaseLogAttCode);
 		$oCaseLogEntryForm->SetSubmitModeFromHostObjectMode($sObjectMode)
-			->AddMainActionButtons(static::PrepareCancelButton())
-			->AddMainActionButtons(static::PrepareSendButton()->SetLabel(Dict::S('UI:Button:AddEntryAndWithChoice')))
-			->SetSendButtonPopoverMenu(static::PrepareSendActionSelectionPopoverMenu($oObject, $sCaseLogAttCode));
+			->AddMainActionButtons(static::PrepareCancelButton());
+
+		$oSaveButton = static::PrepareSaveButton();
+		$oTransitionsMenu = static::PrepareTransitionsSelectionPopoverMenu($oObject, $sCaseLogAttCode);
+		if (true === $oTransitionsMenu->HasItems()) {
+			$oButtonGroup = ButtonGroupUIBlockFactory::MakeButtonWithOptionsMenu($oSaveButton, $oTransitionsMenu);
+			$oCaseLogEntryForm->AddMainActionButtons($oButtonGroup);
+		} else {
+			$oCaseLogEntryForm->AddMainActionButtons($oSaveButton);
+		}
 
 		return $oCaseLogEntryForm;
 	}
@@ -48,21 +56,21 @@ class CaseLogEntryFormFactory
 	 */
 	protected static function PrepareCancelButton(): Button
 	{
-		return ButtonUIBlockFactory::MakeForSecondaryAction(Dict::S('UI:Button:Cancel'), 'cancel', 'cancel');
+		return ButtonUIBlockFactory::MakeForCancel(Dict::S('UI:Button:Cancel'), 'cancel', 'cancel');
 	}
 
 	/**
 	 * @return \Combodo\iTop\Application\UI\Base\Component\Button\Button
 	 */
-	protected static function PrepareSendButton(): Button
+	protected static function PrepareSaveButton(): Button
 	{
-		$oButton = ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Send'), 'send', 'send');
+		$oButton = ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Send'), 'save', 'save');
 		$oButton->SetIconClass('fas fa-paper-plane');
 
 		return $oButton;
 	}
 
-	protected static function PrepareSendActionSelectionPopoverMenu(DBObject $oObject, string $sCaseLogAttCode): PopoverMenu
+	protected static function PrepareTransitionsSelectionPopoverMenu(DBObject $oObject, string $sCaseLogAttCode): PopoverMenu
 	{
 		$sObjClass = get_class($oObject);
 
@@ -72,19 +80,6 @@ class CaseLogEntryFormFactory
 
 		$sCaseLogEntryFormDataRole = CaseLogEntryForm::BLOCK_CODE;
 
-		// Standard, just save
-		$oMenuItem = PopoverMenuItemFactory::MakeFromApplicationPopupMenuItem(
-			new JSPopupMenuItem(
-				CaseLogEntryForm::BLOCK_CODE.'--add-action--'.$sCaseLogAttCode.'--save',
-				Dict::S('UI:Button:Save'),
-				<<<JS
-$(this).closest('[data-role="{$sCaseLogEntryFormDataRole}"]').trigger('add_to_caselog.caselog_entry_form.itop', {caselog_att_code: '{$sCaseLogAttCode}'});
-JS
-			)
-		);
-		$oMenu->AddItem($sSectionId, $oMenuItem);
-
-		// Transitions
 		// Note: This code is inspired from cmdbAbstract::DisplayModifyForm(), it might be better to factorize it
 		$aTransitions = $oObject->EnumTransitions();
 		if (!isset($aExtraParams['custom_operation']) && count($aTransitions)) {
@@ -98,9 +93,9 @@ JS
 						$oMenuItem = PopoverMenuItemFactory::MakeFromApplicationPopupMenuItem(
 							new JSPopupMenuItem(
 								CaseLogEntryForm::BLOCK_CODE.'--add-action--'.$sCaseLogAttCode.'--stimulus--'.$sStimulusCode,
-								$aStimuli[$sStimulusCode]->GetLabel(),
+								Dict::Format('UI:Button:SendAnd', $aStimuli[$sStimulusCode]->GetLabel()),
 								<<<JS
-$(this).closest('[data-role="{$sCaseLogEntryFormDataRole}"]').trigger('add_to_caselog.caselog_entry_form.itop', {caselog_att_code: '{$sCaseLogAttCode}', stimulus_code: '{$sStimulusCode}'});
+$(this).closest('[data-role="{$sCaseLogEntryFormDataRole}"]').trigger('save_entry.caselog_entry_form.itop', {stimulus_code: '{$sStimulusCode}'});
 JS
 							)
 						);

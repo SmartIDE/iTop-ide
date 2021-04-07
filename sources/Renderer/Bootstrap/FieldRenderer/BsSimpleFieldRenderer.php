@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (C) 2013-2019 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -20,17 +20,17 @@
 
 namespace Combodo\iTop\Renderer\Bootstrap\FieldRenderer;
 
-use utils;
-use Dict;
-use UserRights;
-use AttributeDateTime;
 use AttributeDate;
+use AttributeDateTime;
 use AttributeText;
+use Combodo\iTop\Form\Field\MultipleChoicesField;
+use Combodo\iTop\Form\Field\TextAreaField;
+use Combodo\iTop\Renderer\RenderingOutput;
+use Dict;
 use InlineImage;
 use MetaModel;
-use Combodo\iTop\Renderer\RenderingOutput;
-use Combodo\iTop\Form\Field\TextAreaField;
-use Combodo\iTop\Form\Field\MultipleChoicesField;
+use UserRights;
+use utils;
 
 /**
  * Description of BsSimpleFieldRenderer
@@ -528,10 +528,10 @@ JS
 
 		if ($iNbEntries > 0) {
 			// Dict entries
-			$sOpenAllEntriesTooltip = utils::HtmlEntities(Dict::S('UI:Layout:ActivityPanel:Tab:Caselog:Toolbar:OpenAll:Tooltip'));
-			$sCloseAllEntriesTooltip = utils::HtmlEntities(Dict::S('UI:Layout:ActivityPanel:Tab:Caselog:Toolbar:CloseAll:Tooltip'));
-			$sUsersCountTooltip = utils::HtmlEntities(Dict::S('UI:Layout:ActivityPanel:Tab:Caselog:Toolbar:AuthorsCount:Tooltip'));
-			$sEntriesCountTooltip = utils::HtmlEntities(Dict::S('UI:Layout:ActivityPanel:Tab:Caselog:Toolbar:MessagesCount:Tooltip'));
+			$sOpenAllEntriesTooltip = utils::HtmlEntities(Dict::S('UI:Layout:ActivityPanel:Tab:Toolbar:Action:OpenAll:Tooltip'));
+			$sCloseAllEntriesTooltip = utils::HtmlEntities(Dict::S('UI:Layout:ActivityPanel:Tab:Toolbar:Action:CloseAll:Tooltip'));
+			$sUsersCountTooltip = utils::HtmlEntities(Dict::S('UI:Layout:ActivityPanel:Tab:Toolbar:Info:AuthorsCount:Tooltip'));
+			$sEntriesCountTooltip = utils::HtmlEntities(Dict::S('UI:Layout:ActivityPanel:Tab:Toolbar:Info:MessagesCount:Tooltip'));
 			$sCloseEntryTooltip = utils::HtmlEntities(Dict::S('Portal:Form:Caselog:Entry:Close:Tooltip'));
 
 			// First pass to retrieve number of users
@@ -594,7 +594,7 @@ HTML
 						$sEntryContactPictureAbsoluteUrl = null;
 					}
 					else {
-						$sEntryContactPictureAbsoluteUrl = UserRights::GetContactPictureAbsUrl($oEntryUser->Get('login'), false);
+						$sEntryContactPictureAbsoluteUrl = UserRights::GetUserPictureAbsUrl($oEntryUser->Get('login'), false);
 					}
 					$aContactPicturesCache[$iEntryUserId] = $sEntryContactPictureAbsoluteUrl;
 				}

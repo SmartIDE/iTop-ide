@@ -1,17 +1,19 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2019 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
 namespace Combodo\iTop\Application\TwigBase\Twig;
 
 use Combodo\iTop\Application\TwigBase\UI\UIBlockExtension;
-use Exception;
+use Combodo\iTop\Application\UI\Base\Component\Alert\AlertUIBlockFactory;
+use Combodo\iTop\Renderer\BlockRenderer;
+use CoreTemplateException;
 use IssueLog;
 use Twig\Environment;
+use Twig\Error\Error;
 use Twig_Environment;
-use Twig_Error;
 use Twig_Loader_Filesystem;
 use utils;
 use WebPage;
@@ -46,6 +48,12 @@ class TwigHelper
 	 * @since 3.0.0
 	 */
 	public const ENUM_FILE_TYPE_SVG = 'svg';
+
+	/**
+	 * @var string Base path for the backoffice templates
+	 * @since 3.0.0
+	 */
+	public const ENUM_TEMPLATES_BASE_PATH_BACKOFFICE = APPROOT.'templates/';
 
 	/**
 	 * @var string DEFAULT_FILE_TYPE
@@ -114,27 +122,47 @@ class TwigHelper
 	 * @param bool $bLogMissingFile
 	 *
 	 * @return string
-	 * @throws \Twig\Error\LoaderError
-	 * @throws \Twig\Error\RuntimeError
-	 * @throws \Twig\Error\SyntaxError
-	 * @throws \Exception
+	 * @throws \CoreTemplateException
 	 */
 	public static function RenderTemplate(Environment $oTwig, array $aParams, string $sName, string $sTemplateFileExtension = self::DEFAULT_FILE_TYPE, bool $bLogMissingFile = true): string
 	{
 		try {
 			return $oTwig->render($sName.'.'.$sTemplateFileExtension.'.twig', $aParams);
-		} catch (Twig_Error $e) {
-			$sPath = '';
-			if ($e->getSourceContext()) {
-				$sPath = utils::LocalPath($e->getSourceContext()->getPath()).' ('.$e->getLine().') - ';
+		}
+		catch (Error $oTwigException) {
+			$oTwigPreviousException = $oTwigException->getPrevious();
+			if (!is_null(($oTwigPreviousException)) && ($oTwigPreviousException instanceof CoreTemplateException)) {
+				// handles recursive calls : if we're here, an exception was already raised in a child template !
+				throw $oTwigPreviousException;
 			}
-			$sMessage = $sPath.$e->getMessage();
-			if (!utils::StartsWith($e->getMessage(), 'Unable to find template')) {
-				IssueLog::Error($sMessage);
-				// Todo 3.0 Less violent message
-				throw new Exception($sMessage);
-			} elseif ($bLogMissingFile) {
-				IssueLog::Debug($sMessage);
+
+			$sPath = '';
+			if ($oTwigException->getSourceContext()) {
+				$sPath = utils::LocalPath($oTwigException->getSourceContext()->getPath()).' ('.$oTwigException->getLine().') - ';
+			}
+
+			if (strpos($oTwigException->getMessage(), 'Unable to find template') === false) {
+				if (utils::IsXmlHttpRequest()) {
+					// Ajax : just return the error message as part of the DOM
+					$oAlert = AlertUIBlockFactory::MakeForFailure($sPath, $oTwigException->getMessage())
+						->SetIsClosable(false)
+						->SetIsCollapsible(false); // not rendering JS so...
+
+					IssueLog::Error('Error occurred on TWIG rendering', null, [
+						'twig_path' => $sPath,
+						'twig_exception_message' => $oTwigException->getMessage(),
+					]);
+
+					return BlockRenderer::RenderBlockTemplates($oAlert);
+				} else {
+					// this will trigger error page, and will log to error.log !
+					throw new CoreTemplateException($oTwigException, $sPath);
+				}
+			}
+
+			if ($bLogMissingFile) {
+				$sLogMessageMissingFile = "Twig : missing file '$sPath' : ".$oTwigException->getMessage();
+				IssueLog::Debug($sLogMessageMissingFile);
 			}
 		}
 

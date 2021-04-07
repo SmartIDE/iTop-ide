@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2019 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -29,7 +29,7 @@ class PDFPage extends WebPage
 	public function __construct($s_title, $sPageFormat = 'A4', $sPageOrientation = 'L')
 	{
 		parent::__construct($s_title);
-		define(K_PATH_FONTS, APPROOT.'lib/combodo/tcpdf/fonts');
+		define('K_PATH_FONTS', APPROOT.'lib/combodo/tcpdf/fonts/');
 		$this->oPdf = new iTopPDF($sPageOrientation, 'mm', $sPageFormat, true, self::PAGES_CHARSET, false);
 
 		// set document information

@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2017 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -30,7 +30,7 @@ require_once(APPROOT.'setup/backup.class.inc.php');
  * while displaying a progress bar, or in an unattended manner
  * (for example from the command line), to run all the steps
  * in one go.
- * @copyright   Copyright (C) 2010-2017 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -623,7 +623,7 @@ class ApplicationInstaller
 		$oMFCompiler = new MFCompiler($oFactory, $sEnvironment);
 		$oMFCompiler->Compile($sTargetPath, null, $bUseSymbolicLinks);
 		//$aCompilerLog = $oMFCompiler->GetLog();
-		//SetupPage::log_info(implode("\n", $aCompilerLog));
+		//SetupLog::Info(implode("\n", $aCompilerLog));
 		SetupLog::Info("Data model successfully compiled to '$sTargetPath'.");
 
 		$sCacheDir = APPROOT.'/data/cache-'.$sEnvironment.'/';
@@ -727,10 +727,16 @@ class ApplicationInstaller
 				SetupLog::Info("There are $iOrphanCount useless records in {$sDBPrefix}priv_change (".sprintf('%.2f', ((100.0*$iOrphanCount)/$iTotalCount))."%)");
 				if ($iOrphanCount > 0)
 				{
-					SetupLog::Info("Removing the orphan records...");
-					$sCleanup = "DELETE FROM `{$sDBPrefix}priv_change` USING `{$sDBPrefix}priv_change` LEFT JOIN `{$sDBPrefix}priv_changeop` ON `{$sDBPrefix}priv_change`.id = `{$sDBPrefix}priv_changeop`.changeid WHERE `{$sDBPrefix}priv_changeop`.id IS NULL;";
-					CMDBSource::Query($sCleanup);
-					SetupLog::Info("Cleanup completed successfully.");
+					//N°3793
+					if ($iOrphanCount > 100000)
+					{
+						SetupLog::Info("There are too much useless records ($iOrphanCount) in {$sDBPrefix}priv_change. Cleanup cannot be done during setup.");
+					} else {
+						SetupLog::Info("Removing the orphan records...");
+						$sCleanup = "DELETE FROM `{$sDBPrefix}priv_change` USING `{$sDBPrefix}priv_change` LEFT JOIN `{$sDBPrefix}priv_changeop` ON `{$sDBPrefix}priv_change`.id = `{$sDBPrefix}priv_changeop`.changeid WHERE `{$sDBPrefix}priv_changeop`.id IS NULL;";
+						CMDBSource::Query($sCleanup);
+						SetupLog::Info("Cleanup completed successfully.");
+					}
 				}
 				else
 				{

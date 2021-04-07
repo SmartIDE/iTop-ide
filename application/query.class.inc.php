@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2010-2020 Combodo SARL
+ * Copyright (C) 2010-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -84,7 +84,7 @@ class QueryOQL extends Query
 			"key_type" => "autoincrement",
 			"name_attcode" => "name",
 			"state_attcode" => "",
-			"reconc_keys" => array(),
+			"reconc_keys" => array('oql', 'is_template'),
 			"db_table" => "priv_query_oql",
 			"db_key_field" => "id",
 			"db_finalclass_field" => "",

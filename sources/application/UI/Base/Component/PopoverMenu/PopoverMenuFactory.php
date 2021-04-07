@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -49,11 +49,14 @@ class PopoverMenuFactory
 	public static function MakeUserMenuForNavigationMenu()
 	{
 		$oMenu = new PopoverMenu('ibo-navigation-menu--user-menu');
+		$oMenu->SetTogglerJSSelector('[data-role="ibo-navigation-menu--user-menu--toggler"]')
+			->SetContainer(PopoverMenu::ENUM_CONTAINER_BODY)
+			->SetHorizontalPosition(PopoverMenu::ENUM_HORIZONTAL_POSITION_ALIGN_OUTER_RIGHT)
+			->SetVerticalPosition(PopoverMenu::ENUM_VERTICAL_POSITION_ABOVE);
 
 		// Allowed portals
 		$aAllowedPortalsItems = static::PrepareAllowedPortalsItemsForUserMenu();
-		if(!empty($aAllowedPortalsItems))
-		{
+		if (!empty($aAllowedPortalsItems)) {
 			$oMenu->AddSection('allowed_portals')
 				->SetItems('allowed_portals', $aAllowedPortalsItems);
 		}

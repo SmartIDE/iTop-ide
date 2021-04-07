@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -29,6 +29,7 @@ use DBObjectSearch;
 use DBObjectSet;
 use Dict;
 use InlineImage;
+use MetaModel;
 use utils;
 
 /**
@@ -271,7 +272,7 @@ JS
 							});
 						}
 						// Remove button handler
-						$('#display_attachment_'+data.result.att_id+' :button').click(function(oEvent){
+						$('#display_attachment_'+data.result.att_id+' :button').on('click', function(oEvent){
 							oEvent.preventDefault();
 							RemoveAttachment(data.result.att_id);
 						});
@@ -319,7 +320,7 @@ JS
 				});
 			});
 			// Remove button handler
-			$('.attachments_container table#$sAttachmentTableId>tbody>tr>td :button').click(function(oEvent){
+			$('.attachments_container table#$sAttachmentTableId>tbody>tr>td :button').on('click', function(oEvent){
 				oEvent.preventDefault();
 				RemoveAttachment($(this).closest('.attachment').find(':input[name="attachments[]"]').val());
 			});
@@ -421,7 +422,8 @@ HTML
 				if ($oDoc->IsPreviewAvailable())
 				{
 					$sIconClass = 'trigger-preview';
-					if ($oDoc->GetSize() <= AbstractAttachmentsRenderer::MAX_SIZE_FOR_PREVIEW)
+					$iMaxSizeForPreview = MetaModel::GetModuleSetting('itop-attachments', 'icon_preview_max_size', AbstractAttachmentsRenderer::DEFAULT_MAX_SIZE_FOR_PREVIEW);
+					if ($oDoc->GetSize() <= $iMaxSizeForPreview)
 					{
 						$sAttachmentThumbUrl = $sDocDownloadUrl;
 					}

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -252,6 +252,7 @@ class ManageBrickController extends BrickController
 		$oExporter->SetObjectList($oSearch);
 		$oExporter->SetFormat($sFormat);
 		$oExporter->SetChunkSize(EXPORTER_DEFAULT_CHUNK_SIZE);
+		$oExporter->SetLocalizeOutput(true);
 		$oExporter->SetFields($sFields);
 
 		$aData = array(

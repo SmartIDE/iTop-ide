@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2017 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -16,7 +16,7 @@
 //   You should have received a copy of the GNU Affero General Public License
 //   along with iTop. If not, see <http://www.gnu.org/licenses/>
 /**
- * @copyright   Copyright (C) 2010-2017 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @licence	http://opensource.org/licenses/AGPL-3.0
  */
 Dict::Add('JA JP', 'Japanese', '日本語', array(
@@ -71,6 +71,10 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'Class:Query/Attribute:name+' => 'クエリを識別します。',
 	'Class:Query/Attribute:description' => '説明',
 	'Class:Query/Attribute:description+' => 'クエリの長い説明（目的、使用方法等）',
+	'Class:Query/Attribute:is_template' => 'Template for OQL fields~~',
+	'Class:Query/Attribute:is_template+' => 'Usable as source for recipient OQL in Notifications~~',
+	'Class:Query/Attribute:is_template/Value:yes' => 'Yes~~',
+	'Class:Query/Attribute:is_template/Value:no' => 'No~~',
 	'Class:QueryOQL/Attribute:fields' => 'フィールド',
 	'Class:QueryOQL/Attribute:fields+' => 'エクスポートする属性（またはエイリアス属性,alias.attribute）のコンマ区切り(CSV)リスト',
 	'Class:QueryOQL' => 'OQL クエリ',
@@ -363,6 +367,7 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 <li>ITの中でもっとも重要な財産である「文書化」の管理。</li>
 </ul>
 </p>',
+	'UI:WelcomeMenu:Text'=> '~~',
 	'UI:WelcomeMenu:AllOpenRequests' => '要求を開く: %1$d',
 	'UI:WelcomeMenu:MyCalls' => '担当中の要求',
 	'UI:WelcomeMenu:OpenIncidents' => 'インシデントを開く: %1$d',
@@ -375,12 +380,17 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'UI:Button:Logoff' => 'ログオフ',
 	'UI:Button:GlobalSearch' => '検索',
 	'UI:Button:Search' => '　検索　',
+	'UI:Button:Clear' => ' Clear ~~',
+	'UI:Button:SearchInHierarchy' => ' Search in hierachy ~~',
 	'UI:Button:Query' => ' クエリ',
 	'UI:Button:Ok' => 'OK',
 	'UI:Button:Save' => '　保存　',
+	'UI:Button:SaveAnd' => 'Save and %1$s~~',
 	'UI:Button:Cancel' => 'キャンセル',
 	'UI:Button:Close' => 'Close~~',
 	'UI:Button:Apply' => '　適用　',
+	'UI:Button:Send' => 'Send~~',
+	'UI:Button:SendAnd' => 'Send and %1$s~~',
 	'UI:Button:Back' => ' << 戻る',
 	'UI:Button:Restart' => ' |<< リスタート',
 	'UI:Button:Next' => ' 次へ >> ',
@@ -408,6 +418,9 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'UI:Button:Wait' => 'Please wait while updating fields~~',
 	'UI:Treeview:CollapseAll' => 'Collapse All~~',
 	'UI:Treeview:ExpandAll' => 'Expand All~~',
+	'UI:UserPref:DoNotShowAgain' => 'Do not show again~~',
+	'UI:InputFile:NoFileSelected' => 'No File Selected~~',
+	'UI:InputFile:SelectFile' => 'Select a file~~',
 
 	'UI:SearchToggle' => '検索（トグル↓↑)',
 	'UI:ClickToCreateNew' => '新規 %1$s を作成~~',
@@ -440,6 +453,7 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'UI:Error:ObjectsAlreadyDeleted' => 'エラー：オブジェクトは既に削除されています。',
 	'UI:Error:BulkDeleteNotAllowedOn_Class' => '%1$s クラスのオブジェクトに対するバルク削除の実行は許可されていません。',
 	'UI:Error:DeleteNotAllowedOn_Class' => '%1$s クラスのオブジェクトの削除は許可されていません。',
+	'UI:Error:ReadNotAllowedOn_Class' => 'You are not allowed to view objects of class %1$s~~',
 	'UI:Error:BulkModifyNotAllowedOn_Class' => '%1$s クラスのオブジェクトに対するバルクアップデートの実行は許可されていません。',
 	'UI:Error:ObjectAlreadyCloned' => 'エラー：このオブジェクトはすでに、クローンされています。',
 	'UI:Error:ObjectAlreadyCreated' => 'エラー：このオブジェクトは既に作成済みです。',
@@ -448,6 +462,7 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'UI:Error:InvalidDashboard' => 'Error: invalid dashboard~~',
 	'UI:Error:MaintenanceMode' => 'Application is currently in maintenance~~',
 	'UI:Error:MaintenanceTitle' => 'Maintenance~~',
+	'UI:Error:InvalidToken' => 'Error: the requested operation has already been performed (CSRF token not found)~~',
 
 	'UI:GroupBy:Count' => 'カウント',
 	'UI:GroupBy:Count+' => '要素数',
@@ -475,6 +490,8 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'UI:Loading' => '読み込み...',
 	'UI:Menu:Actions' => '実行',
 	'UI:Menu:OtherActions' => 'その他の実行',
+	'UI:Menu:Transitions' => 'Transitions~~',
+	'UI:Menu:OtherTransitions' => 'Other Transitions~~',
 	'UI:Menu:New' => '新規...',
 	'UI:Menu:Add' => '追加...',
 	'UI:Menu:Manage' => '管理...',
@@ -668,8 +685,18 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'UI:Audit:HeaderNbObjects' => 'オブジェクト数',
 	'UI:Audit:HeaderNbErrors' => 'エラー数',
 	'UI:Audit:PercentageOk' => '% OK',
+	'UI:Audit:OqlError' => 'OQL Error~~',
+	'UI:Audit:Error:ValueNA' => 'n/a~~',
+	'UI:Audit:ErrorIn_Rule' => 'Error in Rule~~',
 	'UI:Audit:ErrorIn_Rule_Reason' => 'ルール %1$s 中のOQLエラー: %2$s.',
+	'UI:Audit:ErrorIn_Category' => 'Error in Category~~',
 	'UI:Audit:ErrorIn_Category_Reason' => 'カテゴリ %1$s 中のOQLエラー: %2$s.',
+	'UI:Audit:AuditErrors' => 'Audit Errors~~',
+	'UI:Audit:Dashboard:ObjectsAudited' => 'Objects audited~~',
+	'UI:Audit:Dashboard:ObjectsInError' => 'Objects in errors~~',
+	'UI:Audit:Dashboard:ObjectsValidated' => 'Objects validated~~',
+	'UI:Audit:AuditCategory:Subtitle' => '%1$s errors ouf of %2$s - %3$s%%~~',
+
 
 	'UI:RunQuery:Title' => 'iTop - OQLクエリ評価',
 	'UI:RunQuery:QueryExamples' => 'クエリの例',
@@ -755,6 +782,7 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'UI:Schema:Attribute/Filter' => 'Filter~~',
 	'UI:Schema:DefaultNullValue' => 'Default null : "%1$s"~~',
 	'UI:LinksWidget:Autocomplete+' => '最初の3文字をタイプしてください...',
+	'UI:Edit:SearchQuery' => 'Select a predefined query~~',
 	'UI:Edit:TestQuery' => 'Test query',
 	'UI:Combo:SelectValue' => '--- 値を選んでください ---',
 	'UI:Label:SelectedObjects' => '選択されたオブジェクト: ',
@@ -1126,10 +1154,10 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'UI:ArchiveMode:Banner+' => 'Archived objects are visible, and no modification is allowed~~',
 	'UI:FavoriteOrganizations' => 'クイックアクセス組織',
 	'UI:FavoriteOrganizations+' => '迅速なアクセスのためのドロップダウンメニューに表示したい組織は、以下のリストで確認してください。セキュリティ設定ではないことに注意してください。全ての組織のオブジェクトは、表示可能です。ドロップダウンリストで「すべての組織(All Organizations)」を選択することでアクセスすることができます。',
-	'UI:FavoriteLanguage' => 'ユーザインターフェースの言語',
+	'UI:FavoriteLanguage' => 'ユーザインターフェースの言語~~',
 	'UI:Favorites:SelectYourLanguage' => '希望する言語を選択ください。',
 	'UI:FavoriteOtherSettings' => '他のセッティング',
-	'UI:Favorites:Default_X_ItemsPerPage' => 'リストの規定の長さ: %1$s items 毎ページ',
+	'UI:Favorites:Default_X_ItemsPerPage' => 'リストの規定の長さ: %1$s items 毎ページ~~',
 	'UI:Favorites:ShowObsoleteData' => 'Show obsolete data~~',
 	'UI:Favorites:ShowObsoleteData+' => 'Show obsolete data in search results and lists of items to select~~',
 	'UI:NavigateAwayConfirmationMessage' => '全ての変更を破棄します。',
@@ -1146,8 +1174,8 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'UI:PrintResolution:A4Landscape' => 'A4 Landscape~~',
 	'UI:PrintResolution:LetterPortrait' => 'Letter Portrait~~',
 	'UI:PrintResolution:LetterLandscape' => 'Letter Landscape~~',
-	'UI:Toggle:StandardDashboard' => 'Standard~~',
-	'UI:Toggle:CustomDashboard' => 'Custom~~',
+	'UI:Toggle:SwitchToStandardDashboard' => 'Switch to standard dashboard~~',
+	'UI:Toggle:SwitchToCustomDashboard' => 'Switch to custom dashboard~~',
 
 	'UI:ConfigureThisList' => 'このリストを構成...',
 	'UI:ListConfigurationTitle' => 'リストコンフィギュレーション',
@@ -1168,13 +1196,15 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'UI:OQL:UnknownClassAndFix' => '未知のクラス "%1$s"。 代りに "%2$s" を試すことが出来ます。',
 	'UI:OQL:UnknownClassNoFix' => '未知のクラス "%1$s"',
 
-	'UI:Dashboard:Edit' => 'このページを編集...',
-	'UI:Dashboard:Revert' => '元のバージョンに戻す...',
+	'UI:Dashboard:EditCustom' => 'Edit custom version...~~',
+	'UI:Dashboard:CreateCustom' => 'Create a custom version...~~',
+	'UI:Dashboard:DeleteCustom' => 'Delete custom version...~~',
 	'UI:Dashboard:RevertConfirm' => '元のバージョンに加えられたすべての変更は失われます。この実行を望む事をご確認ください。',
 	'UI:ExportDashBoard' => 'ファイルへエキスポート',
 	'UI:ImportDashBoard' => 'ファイルからインポート...',
 	'UI:ImportDashboardTitle' => 'ファイルからインポート',
 	'UI:ImportDashboardText' => 'インポートするダッシュボードファイルを選択ください。:',
+	'UI:Dashboard:Actions' => 'Dashboard actions~~',
 
 
 	'UI:DashletCreation:Title' => '新しいダッシュレットを作成',
@@ -1409,6 +1439,7 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 
 	'UI:CurrentObjectIsLockedBy_User' => 'The object is locked since it is currently being modified by %1$s.~~',
 	'UI:CurrentObjectIsLockedBy_User_Explanation' => 'The object is currently being modified by %1$s. Your modifications cannot be submitted since they would be overwritten.~~',
+	'UI:CurrentObjectIsSoftLockedBy_User' => 'The object is currently being modified by %1$s. You\'ll be able to submit your modifications once they are done.~~',
 	'UI:CurrentObjectLockExpired' => 'The lock to prevent concurrent modifications of the object has expired.~~',
 	'UI:CurrentObjectLockExpired_Explanation' => 'The lock to prevent concurrent modifications of the object has expired. You can no longer submit your modification since other users are now allowed to modify this object.~~',
 	'UI:ConcurrentLockKilled' => 'The lock preventing modifications on the current object has been deleted.~~',
@@ -1426,6 +1457,7 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'UI:ToggleFullScreen' => 'Toggle Maximize / Minimize~~',
 	'UI:Button:ResetImage' => 'Recover the previous image~~',
 	'UI:Button:RemoveImage' => 'Remove the image~~',
+	'UI:Button:UploadImage' => 'Upload an image from the disk~~',
 	'UI:UploadNotSupportedInThisMode' => 'The modification of images or files is not supported in this mode.~~',
 
 	'UI:Button:RemoveDocument' => 'Remove the document~~',
@@ -1537,6 +1569,8 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 
 	'UI:Search:Criteria:Raw:Filtered' => 'Filtered~~',
 	'UI:Search:Criteria:Raw:FilteredOn' => 'Filtered on %1$s~~',
+
+	'UI:StateChanged' => 'State changed~~',
 ));
 
 //
@@ -1565,6 +1599,7 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 //
 Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'UI:Newsroom:NoNewMessage' => 'No new message~~',
+	'UI:Newsroom:XNewMessage' => '%1$s new message(s)~~',
 	'UI:Newsroom:MarkAllAsRead' => 'Mark all messages as read~~',
 	'UI:Newsroom:ViewAllMessages' => 'View all messages~~',
 	'UI:Newsroom:Preferences' => 'Newsroom preferences~~',
@@ -1573,6 +1608,7 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'UI:Newsroom:DisplayMessagesFor_Provider' => 'Display messages from %1$s~~',
 	'UI:Newsroom:DisplayAtMost_X_Messages' => 'Display up to %1$s messages in the %2$s menu.~~',
 ));
+
 
 Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'Menu:DataSources' => '同期データソース',
@@ -1611,4 +1647,12 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'Menu:UserManagement' => 'User Management~~',
 	'Menu:Queries' => 'Queries~~',
 	'Menu:ConfigurationTools' => 'Configuration~~',
+));
+
+// Additional language entries not present in English dict
+Dict::Add('JA JP', 'Japanese', '日本語', array(
+ 'UI:Toggle:StandardDashboard' => 'Standard~~',
+ 'UI:Toggle:CustomDashboard' => 'Custom~~',
+ 'UI:Dashboard:Edit' => 'このページを編集...',
+ 'UI:Dashboard:Revert' => '元のバージョンに戻す...',
 ));

@@ -1,5 +1,5 @@
 <?php
-// Copyright (c) 2010-2018 Combodo SARL
+// Copyright (c) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -240,14 +240,13 @@ class UserRightsTest extends ItopDataTestCase
 			'User Portal ModuleInstallation' => array(2 , array('class' => 'ModuleInstallation', 'action' => 2, 'res' => true)),
 
 			/* Configuration manager (2 = UR_ACTION_MODIFY) */
-			'Configuration manager FunctionalCI' => array(3 , array('class' => 'FunctionalCI', 'action' => 2, 'res' => true)),
-			'Configuration manager UserRequest' => array(3 , array('class' => 'UserRequest', 'action' => 2, 'res' => false)),
-			'Configuration manager URP_UserProfile' => array(3 , array('class' => 'URP_UserProfile', 'action' => 2, 'res' => false)),
-			'Configuration manager UserLocal' => array(3 , array('class' => 'UserLocal', 'action' => 2, 'res' => false)),
-			'Configuration manager ModuleInstallation' => array(3 , array('class' => 'ModuleInstallation', 'action' => 2, 'res' => true)),
+			'Configuration manager FunctionalCI' => array(3, array('class' => 'FunctionalCI', 'action' => 2, 'res' => true)),
+			'Configuration manager UserRequest' => array(3, array('class' => 'UserRequest', 'action' => 2, 'res' => false)),
+			'Configuration manager URP_UserProfile' => array(3, array('class' => 'URP_UserProfile', 'action' => 2, 'res' => false)),
+			'Configuration manager UserLocal' => array(3, array('class' => 'UserLocal', 'action' => 2, 'res' => false)),
+			'Configuration manager ModuleInstallation' => array(3, array('class' => 'ModuleInstallation', 'action' => 2, 'res' => true)),
 		);
 
 		return $aClassActionResult;
 	}
-
 }

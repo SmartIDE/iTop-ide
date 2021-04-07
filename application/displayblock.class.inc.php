@@ -1,32 +1,22 @@
 <?php
-/**
- * Copyright (C) 2013-2019 Combodo SARL
- *
- * This file is part of iTop.
- *
- * iTop is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * iTop is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
 use Combodo\iTop\Application\Search\SearchForm;
 use Combodo\iTop\Application\UI\Base\Component\Alert\AlertUIBlockFactory;
-use Combodo\iTop\Application\UI\Base\Component\Badge\BadgeFactory;
 use Combodo\iTop\Application\UI\Base\Component\Button\ButtonUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Dashlet\DashletFactory;
 use Combodo\iTop\Application\UI\Base\Component\DataTable\DataTableUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Html\Html;
-use Combodo\iTop\Application\UI\Base\Component\Toolbar\Toolbar;
+use Combodo\iTop\Application\UI\Base\Component\Pill\PillFactory;
+use Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenu;
+use Combodo\iTop\Application\UI\Base\Component\Toolbar\Separator\ToolbarSeparatorUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\Toolbar\ToolbarUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\iUIBlock;
 use Combodo\iTop\Application\UI\Base\Layout\UIContentBlock;
+use Combodo\iTop\Application\UI\Base\Layout\UIContentBlockWithJSRefreshCallback;
 use Combodo\iTop\Application\UI\DisplayBlock\BlockChart\BlockChart;
 use Combodo\iTop\Application\UI\DisplayBlock\BlockChartAjaxBars\BlockChartAjaxBars;
 use Combodo\iTop\Application\UI\DisplayBlock\BlockChartAjaxPie\BlockChartAjaxPie;
@@ -104,19 +94,33 @@ class DisplayBlock
 	{
 		$aAllowedParams = [
 			'actions' => [
-				'context_filter',	/** int if != 0 filter with user context */
+				'context_filter',
+				/** int if != 0 filter with user context */
+				'display_limit',
+				/** for dashlet*/
 			],
 			'chart' => [
-				'chart_type',       /** string 'pie' or 'bars'  */
-				'group_by',         /** string group by att code */
-				'group_by_expr',    /** string group by expression */
-				'group_by_label',   /** string aggregation column name */
-				'aggregation_function',     /** string aggregation function ('count', 'sum', 'avg', 'min', 'max', ...) */
-				'aggregation_attribute',    /** string att code used for aggregation */
-				'limit',            /** int limit the chart results */
-				'order_by',         /** string either 'attribute' group_by attcode or 'function' aggregation_function value */
-				'order_direction',  /** string order direction 'asc' or 'desc' */
-				'chart_title',      /** string title */
+				'chart_type',
+				/** string 'pie' or 'bars'  */
+				'group_by',
+				/** string group by att code */
+				'group_by_expr',
+				/** string group by expression */
+				'group_by_label',
+				/** string aggregation column name */
+				'aggregation_function',
+				/** string aggregation function ('count', 'sum', 'avg', 'min', 'max', ...) */
+				'aggregation_attribute',
+				/** string att code used for aggregation */
+				'limit',
+				/** int limit the chart results */
+				'order_by',
+				/** string either 'attribute' group_by attcode or 'function' aggregation_function value */
+				'order_direction',
+				/** string order direction 'asc' or 'desc' */
+				'chart_title',
+				/** string title */
+				'display_limit',
 			],
 			'chart_ajax' => [
 				'chart_type',       /** string 'pie' or 'bars'  */
@@ -143,6 +147,7 @@ class DisplayBlock
 				/** string either 'attribute' group_by attcode or 'function' aggregation_function value */
 				'order_direction',
 				/** string order direction 'asc' or 'desc' */
+				'display_limit',
 			],
 			'csv' => [],
 			'join' => array_merge([
@@ -161,6 +166,8 @@ class DisplayBlock
 				/** string html link target */
 				'toolkit_menu',
 				/** bool add toolkit menu */
+				'selectionMode',
+				/**positive or negative*/
 			], DataTableUIBlockFactory::GetAllowedParams()),
 			'list_search' => array_merge([
 				'update_history',
@@ -214,22 +221,39 @@ class DisplayBlock
 				/** string label */
 				'context_filter',
 				/** int if != 0 filter with user context */
+				'org_id',
 			],
 		];
 
 		$aAllowedGeneralParams = [
-			'show_obsolete_data',   /** bool display obsolete data */
-			'currentId',            /** string current block id overridden by $sId argument */
-			'query_params',   	    /** array query parameters */
-			'this->id',             /** int Id of the current object */
-			'this->class',          /** string class of the current object */
-			'order_by',             /** string comma separated list of attCodes */
-			'auto_reload',          /** bool|string|numeric 'fast' (reload faster) or 'standard' (= true or 'true') (reload standard) or reload interval value (numeric) */
-			'c[menu]',              /** string current navigation menu */
-			'c[org_id]',            /** int current filtered organization */
-			'c[menu',               /** string workaround due to extraparams in menunode */
-			'c[org_id',             /** int workaround due to extraparams in menunode */
-			'dashboard_div_id',     /** string dashboard html div id */
+			/** bool display obsolete data */
+			'show_obsolete_data',
+			/** string current block id overridden by $sId argument */
+			'currentId',
+			/** array query parameters */
+			'query_params',
+			/** int Id of the current object */
+			'this->id',
+			/** string class of the current object */
+			'this->class',
+			/** string comma separated list of attCodes */
+			'order_by',
+			/** bool|string|numeric 'fast' (reload faster) or 'standard' (= true or 'true') (reload standard) or reload interval value (numeric) */
+			'auto_reload',
+			/** string current navigation menu */
+			'c[menu]',
+			/** int current filtered organization */
+			'c[org_id]',
+			/** string workaround due to extraparams in menunode */
+			'c[menu',
+			/** int workaround due to extraparams in menunode */
+			'c[org_id',
+			/** string dashboard html div id */
+			'dashboard_div_id',
+			/** param true if block is in a dashboard*/
+			'withJSRefreshCallBack',
+			/** true if dashboard page */
+			'from_dashboard_page',
 		];
 
 		if (isset($aAllowedParams[$sStyle])) {
@@ -381,6 +405,7 @@ class DisplayBlock
 				$oFilter = DBSearch::FromOQL($sITopData);
 				break;
 		}
+
 		return new $sBlockClass($oFilter, $sBlockType, $bAsynchronous, $aParams);
 	}
 
@@ -397,10 +422,12 @@ class DisplayBlock
 	public function GetDisplay(WebPage $oPage, $sId, $aExtraParams = array()): UIContentBlock
 	{
 		$oHtml = new UIContentBlock($sId);
+
 		$oHtml->AddCSSClass("display_block");
 		$aExtraParams = array_merge($aExtraParams, $this->m_aParams);
 		$aExtraParams['currentId'] = $sId;
-		$sExtraParams = addslashes(str_replace('"', "'", json_encode($aExtraParams))); // JSON encode, change the style of the quotes and escape them
+		$sExtraParams = addslashes(str_replace('"', "'",
+			json_encode($aExtraParams))); // JSON encode, change the style of the quotes and escape them
 
 		if (isset($aExtraParams['query_params'])) {
 			$aQueryParams = $aExtraParams['query_params'];
@@ -493,7 +520,7 @@ HTML;
 	 * @throws MySQLException
 	 * @throws Exception
 	 */
-	public function GetRenderContent(WebPage $oPage, array $aExtraParams = [], string $sId = null): iUIBlock
+	public function GetRenderContent(WebPage $oPage, array $aExtraParams = [], string $sId = null)
 	{
 		$sHtml = '';
 		$oBlock = null;
@@ -585,23 +612,36 @@ HTML;
 				foreach($aTemp as $sTemp)
 				{
 					$aMatches = array();
-					if (preg_match('/^([+-])?(.+)$/', $sTemp, $aMatches))
-					{
+					if (preg_match('/^([+-])?(.+)$/', $sTemp, $aMatches)) {
 						$bAscending = true;
-						if ($aMatches[1] == '-')
-						{
-							$bAscending  = false;
+						if ($aMatches[1] == '-') {
+							$bAscending = false;
 						}
 						$aOrderBy[$aMatches[2]] = $bAscending;
-					}					
+					}
 				}
 			}
-			
+
+			$aExtraParams['query_params'] = $this->m_oFilter->GetInternalParams();
 			$this->m_oSet = new CMDBObjectSet($this->m_oFilter, $aOrderBy, $aQueryParams);
 		}
 		$this->m_oSet->SetShowObsoleteData($this->m_bShowObsoleteData);
-		switch($this->m_sStyle)
-		{
+
+		switch($this->m_sStyle) {
+			case 'list_search':
+			case 'list':
+				break;
+			default:
+				// N°3473: except for 'list_search' and 'list' (which have more granularity, see the other switch below),
+				// refuse to render if the user is not allowed to see the class.
+				if (! UserRights::IsActionAllowed($this->m_oSet->GetClass(), UR_ACTION_READ, $this->m_oSet) == UR_ALLOWED_YES) {
+					$sHtml .= $oPage->GetP(Dict::Format('UI:Error:ReadNotAllowedOn_Class', $this->m_oSet->GetClass()));
+
+					return new Html($sHtml);
+				}
+		}
+
+		switch ($this->m_sStyle) {
 			case 'count':
 				$oBlock = $this->RenderCount($aExtraParams);
 				break;
@@ -947,7 +987,7 @@ JS
 			if (isset($this->m_bShowObsoleteData)) {
 				$oGroupBySearch->SetShowObsoleteData($this->m_bShowObsoleteData);
 			}
-			$sCountGroupByQuery = $oGroupBySearch->MakeGroupByQuery(array(), $aGroupBy, false);
+			$sCountGroupByQuery = $oGroupBySearch->MakeGroupByQuery($aQueryParams, $aGroupBy, false);
 			$aCountGroupByResults = CMDBSource::QueryToArray($sCountGroupByQuery);
 			$aCountsQueryResults = array();
 			foreach ($aCountGroupByResults as $aCountGroupBySingleResult) {
@@ -977,18 +1017,29 @@ JS
 			}
 		}
 
-		$oBlock = new UIContentBlock(null, ["ibo-dashlet-header-dynamic--container"]);
+		$oBlock = new UIContentBlockWithJSRefreshCallback(null, ["ibo-dashlet-header-dynamic--container"]);
 		foreach ($aStateLabels as $sStateValue => $sStateLabel) {
 			$aCount = $aCounts[$sStateValue];
-			$oBadge = BadgeFactory::MakeForState($sClass, $sStateValue);
 			$sHyperlink = $aCount['link'];
 			$sCountLabel = $aCount['label'];
-			$sColor = $oBadge->GetColor();
-			$oBadge->AddHtml("<a class=\"ibo-dashlet-header-dynamic--count ibo-badge-is-{$sColor}\" href=\"$sHyperlink\">$sCountLabel</a>");
-			$oBadge->AddHtml("<span class=\"ibo-dashlet-header-dynamic--label ibo-badge-is-{$sColor}\">$sStateLabel</span>");
-			$oBlock->AddSubBlock($oBadge);
+			$oPill = PillFactory::MakeForState($sClass, $sStateValue)
+				->SetUrl($sHyperlink)
+				->SetTooltip($sStateLabel)
+				->AddHtml("<span class=\"ibo-dashlet-header-dynamic--count\">$sCountLabel</span>")
+				->AddHtml("<span class=\"ibo-dashlet-header-dynamic--label ibo-text-truncated-with-ellipsis\">$sStateLabel</span>");
+			$oBlock->AddSubBlock($oPill);
 		}
-
+		$aExtraParams['query_params'] = $this->m_oFilter->GetInternalParams();
+		$aRefreshParams = ['filter' => $this->m_oFilter->ToOQL(), "extra_params" => json_encode($aExtraParams)];
+		$oBlock->SetJSRefresh(
+			"$('#".$oBlock->GetId()."').block();
+				$.post('ajax.render.php?operation=refreshDashletSummary',
+				   ".json_encode($aRefreshParams).",
+				   function(data){
+					 $('#".$oBlock->GetId()."').html(data);
+					 $('#".$oBlock->GetId()."').unblock();
+					});
+				$('#".$oBlock->GetId()."').unblock();");
 
 		return $oBlock;
 	}
@@ -1042,12 +1093,19 @@ JS
 		$sClassIconUrl = MetaModel::GetClassIcon($sClass, false);
 		$sHyperlink = utils::GetAbsoluteUrlAppRoot().'pages/UI.php?operation=search&'.$oAppContext->GetForLink().'&filter='.rawurlencode($this->m_oFilter->serialize());
 
+		$aExtraParams['query_params'] = $this->m_oFilter->GetInternalParams();
+		$aRefreshParams = [
+			"filter" => $this->m_oFilter->ToOQL(),
+			"extra_params" => $aExtraParams,
+		];
+
 		if (UserRights::IsActionAllowed($sClass, UR_ACTION_MODIFY)) {
 			$sCreateActionUrl = utils::GetAbsoluteUrlAppRoot().'pages/UI.php?operation=new&class='.$sClass.'&'.$oAppContext->GetForLink();
 			$sCreateActionLabel = Dict::Format('UI:Button:Create');
-			$oBlock = DashletFactory::MakeForDashletBadge($sClassIconUrl, $sHyperlink, $iCount, $sClassLabel, $sCreateActionUrl, $sCreateActionLabel);
+			$oBlock = DashletFactory::MakeForDashletBadge($sClassIconUrl, $sHyperlink, $iCount, $sClassLabel, $sCreateActionUrl,
+				$sCreateActionLabel, $aRefreshParams);
 		} else {
-			$oBlock = DashletFactory::MakeForDashletBadge($sClassIconUrl, $sHyperlink, $iCount, $sClassLabel);
+			$oBlock = DashletFactory::MakeForDashletBadge($sClassIconUrl, $sHyperlink, $iCount, $sClassLabel, null, null, $aRefreshParams);
 		}
 
 		return $oBlock;
@@ -1113,7 +1171,10 @@ JS
 			);
 			$sFormat = isset($aExtraParams['format']) ? $aExtraParams['format'] : 'UI:Pagination:HeaderNoSelection';
 			$sTitle = Dict::Format($sFormat, $iTotalCount);
-			$oBlock = DataTableUIBlockFactory::MakeForStaticData($sTitle, $aAttribs, $aData);
+
+			$aExtraParams['query_params'] = $this->m_oFilter->GetInternalParams();
+			$aOption['dom'] = 'pl';
+			$oBlock = DataTableUIBlockFactory::MakeForStaticData($sTitle, $aAttribs, $aData, null, $aExtraParams, $this->m_oFilter->ToOQL(), $aOption);
 
 		} else {
 			// Simply count the number of elements in the set
@@ -1124,6 +1185,7 @@ JS
 			}
 			$oBlock = new Html('<p>'.Dict::Format($sFormat, $iCount).'</p>');
 		}
+
 		return $oBlock;
 }
 
@@ -1180,6 +1242,9 @@ JS
 		$oBlock->sDefault = '';
 		$oBlock->sEventAttachedData = '';
 		$oBlock->sAbsoluteUrlAppRoot = utils::GetAbsoluteUrlAppRoot();
+		$oBlock->aExtraParams = $aExtraParams;
+		$oBlock->sFilter = $this->m_oFilter->ToOQL();
+
 
 		if (count($aClasses) > 1) {
 			// Check the classes that can be read (i.e authorized) by this user...
@@ -1470,7 +1535,11 @@ JS
 				$sValue = $aRow['grouped_by_1'];
 				$sHtmlValue = $oGroupByExp->MakeValueLabel($this->m_oFilter, $sValue, $sValue);
 				$iTotalCount += $aRow['_itop_count_'];
-				$aValues[] = array('label' => html_entity_decode(strip_tags($sHtmlValue), ENT_QUOTES, 'UTF-8'), 'label_html' => $sHtmlValue, 'value' => (int)$aRow[$sFctVar]);
+				$aValues[] = array(
+					'label' => html_entity_decode(strip_tags($sHtmlValue), ENT_QUOTES, 'UTF-8'),
+					'label_html' => $sHtmlValue,
+					'value' => (int)$aRow[$sFctVar],
+				);
 
 				// Build the search for this subset
 				$oSubsetSearch = $this->m_oFilter->DeepClone();
@@ -1479,6 +1548,11 @@ JS
 				$aURLs[] = utils::GetAbsoluteUrlAppRoot()."pages/UI.php?operation=search&format=html&filter=".rawurlencode($oSubsetSearch->serialize()).'&'.$sContextParam;
 			}
 			$sJSURLs = json_encode($aURLs);
+		}
+		if (isset($aExtraParams['group_by_label'])) {
+			$sUrl = utils::GetAbsoluteUrlAppRoot()."pages/ajax.render.php?operation=chart&params[group_by]=$aExtraParams[group_by]&params[group_by_label]={$aExtraParams['group_by_label']}&params[chart_type]=$sChartType&params[currentId]=$aExtraParams[currentId]&params[order_direction]=$aExtraParams[order_direction]&params[order_by]=$aExtraParams[order_by]&params[limit]=$aExtraParams[limit]&params[aggregation_function]=$sAggregationFunction&params[aggregation_attribute]=$sAggregationAttr&id=$sId&filter=".rawurlencode($this->m_oFilter->ToOQL()).'&'.$sContextParam;
+		} else {
+			$sUrl = utils::GetAbsoluteUrlAppRoot()."pages/ajax.render.php?operation=chart&params[group_by]=$aExtraParams[group_by]&params[chart_type]=$sChartType&params[currentId]=$aExtraParams[currentId]&params[order_direction]=$aExtraParams[order_direction]&params[order_by]=$aExtraParams[order_by]&params[limit]=$aExtraParams[limit]&params[aggregation_function]=$sAggregationFunction&params[aggregation_attribute]=$sAggregationAttr&id=$sId&filter=".rawurlencode($this->m_oFilter->ToOQL()).'&'.$sContextParam;
 		}
 
 		switch ($sChartType) {
@@ -1492,6 +1566,7 @@ JS
 				$oBlock->sJson = json_encode($aValues);
 				$oBlock->sId = $sId;
 				$oBlock->sJSURLs = $sJSURLs;
+				$oBlock->sURLForRefresh = str_replace("'", "\'", $sUrl);
 				break;
 
 			case 'pie':
@@ -1506,6 +1581,7 @@ JS
 				$oBlock->sJSNames = json_encode($aNames);
 				$oBlock->sId = $sId;
 				$oBlock->sJSURLs = $sJSURLs;
+				$oBlock->sURLForRefresh = str_replace("'", "\'", $sUrl);
 				break;
 		}
 		return $oBlock;
@@ -1560,6 +1636,8 @@ JS
  * - list produces a table listing the objects
  * - count produces a paragraphs with a sentence saying 'cont' objects found
  * - details display (as  table) the details of each object found (best if only one)
+ *
+ * @deprecated 3.0.0 will be removed in 3.1, see N°3824
  */
 class HistoryBlock extends DisplayBlock
 {
@@ -1579,7 +1657,7 @@ class HistoryBlock extends DisplayBlock
 		$this->iLimitCount = $iCount;
 	}
 
-	public function GetRenderContent(WebPage $oPage, array $aExtraParams = [], string $sId = null): iUIBlock
+	public function GetRenderContent(WebPage $oPage, array $aExtraParams = [], string $sId = null)
 	{
 		$sHtml = '';
 		$bTruncated = false;
@@ -1717,7 +1795,7 @@ class MenuBlock extends DisplayBlock
 	 * @throws \OQLException
 	 * @throws \ReflectionException
 	 */
-	public function GetRenderContent(WebPage $oPage, array $aExtraParams = [], string $sId = null): iUIBlock
+	public function GetRenderContent(WebPage $oPage, array $aExtraParams = [], string $sId = null)
 	{
 		$oRenderBlock = new UIContentBlock();
 
@@ -1725,10 +1803,15 @@ class MenuBlock extends DisplayBlock
 		{
 			$this->m_sStyle = 'list';
 		}
+
 		$sClass = $this->m_oFilter->GetClass();
 		$oSet = new CMDBObjectSet($this->m_oFilter);
-		$sRefreshAction = $aExtraParams['sRefreshAction']??'';
-		$aActions = [];
+		$sRefreshAction = $aExtraParams['sRefreshAction'] ?? '';
+
+		/** @var array $aRegularActions Any action other than a transition */
+		$aRegularActions = [];
+		/** @var array $aTransitionActions Only transitions */
+		$aTransitionActions = [];
 		if ((!isset($aExtraParams['selection_mode']) || $aExtraParams['selection_mode'] == "") && $this->m_sStyle != 'listInObject') {
 			$oAppContext = new ApplicationContext();
 			$sContext = $oAppContext->GetForLink();
@@ -1760,9 +1843,9 @@ class MenuBlock extends DisplayBlock
 				case 0:
 					// No object in the set, the only possible action is "new"
 					if ($bIsCreationAllowed) {
-						$aActions['UI:Menu:New'] = array(
+						$aRegularActions['UI:Menu:New'] = array(
 								'label' => Dict::S('UI:Menu:New'),
-								'url' => "{$sRootUrl}pages/$sUIPage?operation=new&class=$sClass{$sContext}{$sDefault}"
+								'url' => "{$sRootUrl}pages/$sUIPage?operation=new&class=$sClass{$sContext}{$sDefault}",
 							) + $aActionParams;
 					}
 					break;
@@ -1772,9 +1855,9 @@ class MenuBlock extends DisplayBlock
 					if (is_null($oObj)) {
 						if (!isset($aExtraParams['link_attr'])) {
 							if ($bIsCreationAllowed) {
-								$aActions['UI:Menu:New'] = array(
+								$aRegularActions['UI:Menu:New'] = array(
 										'label' => Dict::S('UI:Menu:New'),
-										'url' => "{$sRootUrl}pages/$sUIPage?operation=new&class=$sClass{$sContext}{$sDefault}"
+										'url' => "{$sRootUrl}pages/$sUIPage?operation=new&class=$sClass{$sContext}{$sDefault}",
 									) + $aActionParams;
 							}
 						}
@@ -1797,44 +1880,43 @@ class MenuBlock extends DisplayBlock
 								//$aActions['concurrent_lock_unlock'] = array ('label' => Dict::S('UI:Menu:ReleaseConcurrentLock'), 'url' => "{$sRootUrl}pages/$sUIPage?operation=kill_lock&class=$sClass&id=$id{$sContext}");
 							}
 						}
-						$bRawModifiedAllowed = (UserRights::IsActionAllowed($sClass, UR_ACTION_MODIFY,
-									$oSet) == UR_ALLOWED_YES) && ($oReflectionClass->IsSubclassOf('cmdbAbstractObject'));
+						$bRawModifiedAllowed = (UserRights::IsActionAllowed($sClass, UR_ACTION_MODIFY, $oSet) == UR_ALLOWED_YES) && ($oReflectionClass->IsSubclassOf('cmdbAbstractObject'));
 						$bIsModifyAllowed = !$bLocked && $bRawModifiedAllowed;
 						$bIsDeleteAllowed = !$bLocked && UserRights::IsActionAllowed($sClass, UR_ACTION_DELETE, $oSet);
 						// Just one object in the set, possible actions are "new / clone / modify and delete"
 						if (!isset($aExtraParams['link_attr'])) {
 							if ($bIsModifyAllowed) {
-								$aActions['UI:Menu:Modify'] = array(
+								$aRegularActions['UI:Menu:Modify'] = array(
 										'label' => Dict::S('UI:Menu:Modify'),
-										'url' => "{$sRootUrl}pages/$sUIPage?operation=modify&class=$sClass&id=$id{$sContext}#"
+										'url' => "{$sRootUrl}pages/$sUIPage?operation=modify&class=$sClass&id=$id{$sContext}#",
 									) + $aActionParams;
 							}
 							if ($bIsCreationAllowed) {
-								$aActions['UI:Menu:New'] = array(
+								$aRegularActions['UI:Menu:New'] = array(
 										'label' => Dict::S('UI:Menu:New'),
-										'url' => "{$sRootUrl}pages/$sUIPage?operation=new&class=$sClass{$sContext}{$sDefault}"
+										'url' => "{$sRootUrl}pages/$sUIPage?operation=new&class=$sClass{$sContext}{$sDefault}",
 									) + $aActionParams;
 							}
 							if ($bIsDeleteAllowed) {
-								$aActions['UI:Menu:Delete'] = array(
+								$aRegularActions['UI:Menu:Delete'] = array(
 										'label' => Dict::S('UI:Menu:Delete'),
-										'url' => "{$sRootUrl}pages/$sUIPage?operation=delete&class=$sClass&id=$id{$sContext}"
+										'url' => "{$sRootUrl}pages/$sUIPage?operation=delete&class=$sClass&id=$id{$sContext}",
 									) + $aActionParams;
 							}
+
 							// Transitions / Stimuli
 							if (!$bLocked) {
 								$aTransitions = $oObj->EnumTransitions();
 								if (count($aTransitions)) {
-									$this->AddMenuSeparator($aActions);
 									$aStimuli = Metamodel::EnumStimuli(get_class($oObj));
 									foreach ($aTransitions as $sStimulusCode => $aTransitionDef) {
 										$iActionAllowed = (get_class($aStimuli[$sStimulusCode]) == 'StimulusUserAction') ? UserRights::IsStimulusAllowed($sClass,
 											$sStimulusCode, $oSet) : UR_ALLOWED_NO;
 										switch ($iActionAllowed) {
 											case UR_ALLOWED_YES:
-												$aActions[$sStimulusCode] = array(
+												$aTransitionActions[$sStimulusCode] = array(
 														'label' => $aStimuli[$sStimulusCode]->GetLabel(),
-														'url' => "{$sRootUrl}pages/UI.php?operation=stimulus&stimulus=$sStimulusCode&class=$sClass&id=$id{$sContext}"
+														'url' => "{$sRootUrl}pages/UI.php?operation=stimulus&stimulus=$sStimulusCode&class=$sClass&id=$id{$sContext}",
 													) + $aActionParams;
 												break;
 
@@ -1844,27 +1926,29 @@ class MenuBlock extends DisplayBlock
 									}
 								}
 							}
+
 							// Relations...
 							$aRelations = MetaModel::EnumRelationsEx($sClass);
 							if (count($aRelations)) {
-								$this->AddMenuSeparator($aActions);
+								$this->AddMenuSeparator($aRegularActions);
 								foreach ($aRelations as $sRelationCode => $aRelationInfo) {
 									if (array_key_exists('down', $aRelationInfo)) {
-										$aActions[$sRelationCode.'_down'] = array(
+										$aRegularActions[$sRelationCode.'_down'] = array(
 												'label' => $aRelationInfo['down'],
-												'url' => "{$sRootUrl}pages/$sUIPage?operation=view_relations&relation=$sRelationCode&direction=down&class=$sClass&id=$id{$sContext}"
+												'url' => "{$sRootUrl}pages/$sUIPage?operation=view_relations&relation=$sRelationCode&direction=down&class=$sClass&id=$id{$sContext}",
 											) + $aActionParams;
 									}
 									if (array_key_exists('up', $aRelationInfo)) {
-										$aActions[$sRelationCode.'_up'] = array(
+										$aRegularActions[$sRelationCode.'_up'] = array(
 												'label' => $aRelationInfo['up'],
-												'url' => "{$sRootUrl}pages/$sUIPage?operation=view_relations&relation=$sRelationCode&direction=up&class=$sClass&id=$id{$sContext}"
+												'url' => "{$sRootUrl}pages/$sUIPage?operation=view_relations&relation=$sRelationCode&direction=up&class=$sClass&id=$id{$sContext}",
 											) + $aActionParams;
 									}
 								}
 							}
+
+							// Add a special menu to kill the lock, but only to allowed users who can also modify this object
 							if ($bLocked && $bRawModifiedAllowed) {
-								// Add a special menu to kill the lock, but only to allowed users who can also modify this object
 								/** @var array $aAllowedProfiles */
 								$aAllowedProfiles = MetaModel::GetConfig()->Get('concurrent_lock_override_profiles');
 								$bCanKill = false;
@@ -1886,20 +1970,22 @@ class MenuBlock extends DisplayBlock
 								}
 
 								if ($bCanKill) {
-									$this->AddMenuSeparator($aActions);
-									$aActions['concurrent_lock_unlock'] = array(
+									$this->AddMenuSeparator($aRegularActions);
+									$aRegularActions['concurrent_lock_unlock'] = array(
 										'label' => Dict::S('UI:Menu:KillConcurrentLock'),
-										'url' => "{$sRootUrl}pages/$sUIPage?operation=kill_lock&class=$sClass&id=$id{$sContext}"
+										'url' => "{$sRootUrl}pages/$sUIPage?operation=kill_lock&class=$sClass&id=$id{$sContext}",
 									);
 								}
 							}
 						}
-						$this->AddMenuSeparator($aActions);
+
+						$this->AddMenuSeparator($aRegularActions);
+
 						/** @var \iApplicationUIExtension $oExtensionInstance */
 						foreach (MetaModel::EnumPlugins('iApplicationUIExtension') as $oExtensionInstance) {
 							$oSet->Rewind();
 							foreach ($oExtensionInstance->EnumAllowedActions($oSet) as $sLabel => $sUrl) {
-								$aActions[$sLabel] = array('label' => $sLabel, 'url' => $sUrl) + $aActionParams;
+								$aRegularActions[$sLabel] = array('label' => $sLabel, 'url' => $sUrl) + $aActionParams;
 							}
 						}
 					}
@@ -1919,36 +2005,36 @@ class MenuBlock extends DisplayBlock
 						$oAttDef = MetaModel::GetAttributeDef($sClass, $sTargetAttr);
 						$sTargetClass = $oAttDef->GetTargetClass();
 						if ($bIsModifyAllowed) {
-							$aActions['UI:Menu:Add'] = array(
+							$aRegularActions['UI:Menu:Add'] = array(
 									'label' => Dict::S('UI:Menu:Add'),
-									'url' => "{$sRootUrl}pages/$sUIPage?operation=modify_links&class=$sClass&link_attr=".$aExtraParams['link_attr']."&target_class=$sTargetClass&id=$id&addObjects=true{$sContext}"
+									'url' => "{$sRootUrl}pages/$sUIPage?operation=modify_links&class=$sClass&link_attr=".$aExtraParams['link_attr']."&target_class=$sTargetClass&id=$id&addObjects=true{$sContext}",
 								) + $aActionParams;
 						}
 						if ($bIsBulkModifyAllowed) {
-							$aActions['UI:Menu:Manage'] = array(
+							$aRegularActions['UI:Menu:Manage'] = array(
 									'label' => Dict::S('UI:Menu:Manage'),
-									'url' => "{$sRootUrl}pages/$sUIPage?operation=modify_links&class=$sClass&link_attr=".$aExtraParams['link_attr']."&target_class=$sTargetClass&id=$id{$sContext}"
+									'url' => "{$sRootUrl}pages/$sUIPage?operation=modify_links&class=$sClass&link_attr=".$aExtraParams['link_attr']."&target_class=$sTargetClass&id=$id{$sContext}",
 								) + $aActionParams;
 						}
 						//if ($bIsBulkDeleteAllowed) { $aActions[] = array ('label' => 'Remove All...', 'url' => "#") + $aActionParams; }
 					} else {
 						// many objects in the set, possible actions are: new / modify all / delete all
 						if ($bIsCreationAllowed) {
-							$aActions['UI:Menu:New'] = array(
+							$aRegularActions['UI:Menu:New'] = array(
 									'label' => Dict::S('UI:Menu:New'),
-									'url' => "{$sRootUrl}pages/$sUIPage?operation=new&class=$sClass{$sContext}{$sDefault}"
+									'url' => "{$sRootUrl}pages/$sUIPage?operation=new&class=$sClass{$sContext}{$sDefault}",
 								) + $aActionParams;
 						}
 						if ($bIsBulkModifyAllowed) {
-							$aActions['UI:Menu:ModifyAll'] = array(
+							$aRegularActions['UI:Menu:ModifyAll'] = array(
 									'label' => Dict::S('UI:Menu:ModifyAll'),
-									'url' => "{$sRootUrl}pages/$sUIPage?operation=select_for_modify_all&class=$sClass&filter=".urlencode($sFilter)."{$sContext}"
+									'url' => "{$sRootUrl}pages/$sUIPage?operation=select_for_modify_all&class=$sClass&filter=".urlencode($sFilter)."{$sContext}",
 								) + $aActionParams;
 						}
 						if ($bIsBulkDeleteAllowed) {
-							$aActions['UI:Menu:BulkDelete'] = array(
+							$aRegularActions['UI:Menu:BulkDelete'] = array(
 									'label' => Dict::S('UI:Menu:BulkDelete'),
-									'url' => "{$sRootUrl}pages/$sUIPage?operation=select_for_deletion&filter=".urlencode($sFilter)."{$sContext}"
+									'url' => "{$sRootUrl}pages/$sUIPage?operation=select_for_deletion&filter=".urlencode($sFilter)."{$sContext}",
 								) + $aActionParams;
 						}
 
@@ -1967,6 +2053,7 @@ class MenuBlock extends DisplayBlock
 							if (isset($aExtraParams['query_params'])) {
 								$aQueryParams = $aExtraParams['query_params'];
 							}
+
 							$sSql = $this->m_oFilter->MakeGroupByQuery($aQueryParams, $aGroupBy);
 							$aRes = CMDBSource::QueryToArray($sSql);
 							if (count($aRes) == 1) {
@@ -1974,7 +2061,6 @@ class MenuBlock extends DisplayBlock
 								$sState = $aRes[0]['__state__'];
 								$aTransitions = Metamodel::EnumTransitions($sClass, $sState);
 								if (count($aTransitions)) {
-									$this->AddMenuSeparator($aActions);
 									$aStimuli = Metamodel::EnumStimuli($sClass);
 									foreach ($aTransitions as $sStimulusCode => $aTransitionDef) {
 										$oSet->Rewind();
@@ -1985,9 +2071,9 @@ class MenuBlock extends DisplayBlock
 										switch ($iActionAllowed) {
 											case UR_ALLOWED_YES:
 											case UR_ALLOWED_DEPENDS:
-												$aActions[$sStimulusCode] = array(
+												$aTransitionActions[$sStimulusCode] = array(
 														'label' => $aStimuli[$sStimulusCode]->GetLabel(),
-														'url' => "{$sRootUrl}pages/UI.php?operation=select_bulk_stimulus&stimulus=$sStimulusCode&state=$sState&class=$sClass&filter=".urlencode($sFilter)."{$sContext}"
+														'url' => "{$sRootUrl}pages/UI.php?operation=select_bulk_stimulus&stimulus=$sStimulusCode&state=$sState&class=$sClass&filter=".urlencode($sFilter)."{$sContext}",
 													) + $aActionParams;
 												break;
 
@@ -2001,7 +2087,8 @@ class MenuBlock extends DisplayBlock
 					}
 			}
 
-			$this->AddMenuSeparator($aActions);
+			$this->AddMenuSeparator($aRegularActions);
+
 			/** @var \iApplicationUIExtension $oExtensionInstance */
 			foreach (MetaModel::EnumPlugins('iApplicationUIExtension') as $oExtensionInstance) {
 				$oSet->Rewind();
@@ -2009,17 +2096,18 @@ class MenuBlock extends DisplayBlock
 					if (is_array($data)) {
 						// New plugins can provide javascript handlers via the 'onclick' property
 						//TODO: enable extension of different menus by checking the 'target' property ??
-						$aActions[$sLabel] = [
+						$aRegularActions[$sLabel] = [
 							'label' => $sLabel,
 							'url' => isset($data['url']) ? $data['url'] : '#',
-							'onclick' => isset($data['onclick']) ? $data['onclick'] : ''
+							'onclick' => isset($data['onclick']) ? $data['onclick'] : '',
 						];
 					} else {
 						// Backward compatibility with old plugins
-						$aActions[$sLabel] = ['label' => $sLabel, 'url' => $data] + $aActionParams;
+						$aRegularActions[$sLabel] = ['label' => $sLabel, 'url' => $data] + $aActionParams;
 					}
 				}
 			}
+
 			if (empty($sRefreshAction) && $this->m_sStyle == 'list') {
 				//for the detail page this var is defined way beyond this line
 				$sRefreshAction = "window.location.reload();";
@@ -2046,8 +2134,7 @@ class MenuBlock extends DisplayBlock
 				}
 				if ($bToolkitMenu) {
 					$sLabel = Dict::S('UI:ConfigureThisList');
-					$aActions['iTop::ConfigureList'] = ['label' => $sLabel, 'url' => '#', 'onclick' => "$('#datatable_dlg_datatable_{$sId}').dialog('open');"];
-					$oRenderBlock->AddSubBlock(utils::GetPopupMenuItemsBlock(iPopupMenuExtension::MENU_OBJLIST_TOOLKIT, $param,$aActions, $sId));
+					$aRegularActions['iTop::ConfigureList'] = ['label' => $sLabel, 'url' => '#', 'onclick' => "$('#datatable_dlg_datatable_{$sId}').dialog('open'); return false;"];
 				}
 				break;
 
@@ -2058,72 +2145,83 @@ class MenuBlock extends DisplayBlock
 				break;
 
 		}
-		$oRenderBlock->AddSubBlock(utils::GetPopupMenuItemsBlock($iMenuId, $param, $aActions, $sId));
+		$oRenderBlock->AddSubBlock(utils::GetPopupMenuItemsBlock($iMenuId, $param, $aRegularActions, $sId));
 
-		$aFavoriteActions = array();
-		$aCallSpec = array($sClass, 'GetShortcutActions');
+		// Extract favorite actions from their menus
+		$aFavoriteRegularActions = [];
+		$aFavoriteTransitionActions = [];
+		$aCallSpec = [$sClass, 'GetShortcutActions'];
 		if (is_callable($aCallSpec)) {
 			$aShortcutActions = call_user_func($aCallSpec, $sClass);
 			foreach ($aShortcutActions as $key) {
-				if (isset($aActions[$key])) {
-					$aFavoriteActions[$key] = $aActions[$key];
-					unset($aActions[$key]);
+				// Regular actions
+				if (isset($aRegularActions[$key])) {
+					$aFavoriteRegularActions[$key] = $aRegularActions[$key];
+					unset($aRegularActions[$key]);
+				}
+
+				// Transitions
+				if (isset($aTransitionActions[$key])) {
+					$aFavoriteTransitionActions[$key] = $aTransitionActions[$key];
+					unset($aTransitionActions[$key]);
 				}
 			}
 		}
 
-		$oActionsBlock = new Toolbar("ibo-action-toolbar-{$sId}", ['ibo-action-toolbar']);
-		$oRenderBlock->AddSubBlock($oActionsBlock);
-		$sMenuTogglerId = "ibo-actions-menu-toggler-{$sId}";
-		$sPopoverMenuId = "ibo-other-action-popover-{$sId}";
+		$oActionsToolbar = ToolbarUIBlockFactory::MakeForAction("ibo-actions-toolbar-{$sId}");
+		$oRenderBlock->AddSubBlock($oActionsToolbar);
+		$sRegularActionsMenuTogglerId = "ibo-regular-actions-menu-toggler-{$sId}";
+		$sRegularActionsPopoverMenuId = "ibo-regular-actions-popover-{$sId}";
+		$sTransitionActionsMenuTogglerId = "ibo-transition-actions-menu-toggler-{$sId}";
+		$sTransitionActionsPopoverMenuId = "ibo-transition-actions-popover-{$sId}";
 
 		if (!$oPage->IsPrintableVersion()) {
-			if (!empty($aActions)) {
-				if (count($aFavoriteActions) > 0) {
-					$sName = 'UI:Menu:OtherActions';
-				} else {
-					$sName = 'UI:Menu:Actions';
+
+			// Transitions actions
+			// - Favorites
+			foreach ($aFavoriteTransitionActions as $sActionId => $aAction) {
+				$sIconClass = '';
+				$sLabel = $aAction['label'];
+				$sUrl = $aAction['url'];
+
+				$sTarget = isset($aAction['target']) ? $aAction['target'] : '';
+				$oActionButton = ButtonUIBlockFactory::MakeLinkNeutral($sUrl, $sLabel, $sIconClass, $sTarget, $sActionId);
+				$oActionButton->AddCSSClasses(['ibo-action-button', 'ibo-transition-action-button']);
+
+				if (empty($sLabel)) {
+					$oActionButton->SetTooltip(Dict::S($sActionId));
 				}
-				$oActionButton = ButtonUIBlockFactory::MakeLinkNeutral('', '', 'fas fa-ellipsis-v', $sName, '', $sMenuTogglerId);
-				// TODO Add Js
-				$oActionsBlock->AddSubBlock($oActionButton)
-					->AddSubBlock($oPage->GetPopoverMenu($sPopoverMenuId, $aActions));
-				$oActionButton->AddCSSClass('ibo-action-button')
-					->SetJsCode(<<<JS
-$("#{$sPopoverMenuId}").popover_menu({toggler: "#{$sMenuTogglerId}"});
-$('#{$sMenuTogglerId}').on('click', function(oEvent) {
-	var oEventTarget = $('#{$sMenuTogglerId}');
-	var aEventTargetPos = oEventTarget.position();
-	var popover = $("#{$sPopoverMenuId}");
-	
-	popover.css({
-		'top': (aEventTargetPos.top + oEventTarget.outerHeight(true)) + 'px',
-		'left': (aEventTargetPos.left + oEventTarget.outerWidth(true) - popover.width()) + 'px',
-		'z-index': 10060
-	});
-	popover.popover_menu("togglePopup");
-});
-JS
-					);
+
+				$oActionsToolbar->AddSubBlock($oActionButton);
 			}
 
-			if ($this->m_sStyle == 'details') {
-				$oActionButton = ButtonUIBlockFactory::MakeLinkNeutral("{$sRootUrl}pages/UI.php?operation=search_form&do_search=0&class=$sClass{$sContext}", '', 'fas fa-search', 'UI:SearchFor_Class');
-				$oActionButton->SetTooltip(Dict::Format('UI:SearchFor_Class', MetaModel::GetName($sClass)))
-					->AddCSSClass('ibo-action-button');
-				$oActionsBlock->AddSubBlock($oActionButton);
+			// - Others
+			if (!empty($aTransitionActions)) {
+				if (count($aFavoriteTransitionActions) > 0) {
+					$sName = 'UI:Menu:OtherTransitions';
+				} else {
+					$sName = 'UI:Menu:Transitions';
+				}
+				$oActionButton = ButtonUIBlockFactory::MakeIconAction('fas fa-map-signs', Dict::S($sName), $sName, '', false, $sTransitionActionsMenuTogglerId)
+					->AddCSSClasses(['ibo-action-button', 'ibo-transition-action-button']);
+
+				$oTransitionActionsMenu = $oPage->GetPopoverMenu($sTransitionActionsPopoverMenuId, $aTransitionActions)
+					->SetTogglerJSSelector("#$sTransitionActionsMenuTogglerId")
+					->AddVisualHintToToggler();
+
+				$oActionsToolbar->AddSubBlock($oActionButton)
+					->AddSubBlock($oTransitionActionsMenu);
 			}
 
-			if (!$oPage->IsPrintableVersion() && ($sRefreshAction != '')) {
-				$oActionButton = ButtonUIBlockFactory::MakeAlternativeNeutral('', 'UI:Button:Refresh');
-				$oActionButton->SetIconClass('fas fa-sync')
-					->SetOnClickJsCode($sRefreshAction)
-					->SetTooltip(Dict::S('UI:Button:Refresh'))
-					->AddCSSClass('ibo-action-button');
-				$oActionsBlock->AddSubBlock($oActionButton);
+			// Separator between transitions and regulars
+			if ((!empty($aFavoriteTransitionActions) || !empty($aTransitionActions)) &&
+				(!empty($aFavoriteRegularActions) || !empty($aRegularActions))) {
+				$oActionsToolbar->AddSubBlock(ToolbarSeparatorUIBlockFactory::MakeVertical());
 			}
 
-			foreach (array_reverse($aFavoriteActions) as $sActionId => $aAction) {
+			// Regular actions
+			// - Favorites
+			foreach ($aFavoriteRegularActions as $sActionId => $aAction) {
 				$sIconClass = '';
 				$sLabel = $aAction['label'];
 				$sUrl = $aAction['url'];
@@ -2149,18 +2247,50 @@ JS
 						$sIconClass = 'fas fa-share-alt';
 						$sLabel = '';
 						break;
-
-//					case 'iTop::ConfigureList':
-//						$sIconClass = 'fas fa-cog';
-//						$sLabel = '';
-//						$sUrl = '';
-//						break;
 				}
 
 				$sTarget = isset($aAction['target']) ? $aAction['target'] : '';
-				$oActionButton = ButtonUIBlockFactory::MakeLinkNeutral($sUrl, $sLabel, $sIconClass, $sActionId, $sTarget);
-				$oActionButton->AddCSSClass('ibo-action-button');
-				$oActionsBlock->AddSubBlock($oActionButton);
+				$oActionButton = ButtonUIBlockFactory::MakeLinkNeutral($sUrl, $sLabel, $sIconClass, $sTarget, $sActionId);
+				$oActionButton->AddCSSClasses(['ibo-action-button', 'ibo-regular-action-button']);
+				if (empty($sLabel)) {
+					$oActionButton->SetTooltip(Dict::S($sActionId));
+				}
+				$oActionsToolbar->AddSubBlock($oActionButton);
+			}
+
+			// - Refresh
+			if ($sRefreshAction != '') {
+				$oActionButton = ButtonUIBlockFactory::MakeAlternativeNeutral('', 'UI:Button:Refresh');
+				$oActionButton->SetIconClass('fas fa-sync')
+					->SetOnClickJsCode($sRefreshAction)
+					->SetTooltip(Dict::S('UI:Button:Refresh'))
+					->AddCSSClasses(['ibo-action-button', 'ibo-regular-action-button']);
+				$oActionsToolbar->AddSubBlock($oActionButton);
+			}
+
+			// - Search
+			if ($this->m_sStyle == 'details') {
+				$oActionButton = ButtonUIBlockFactory::MakeIconLink('fas fa-search', Dict::Format('UI:SearchFor_Class', MetaModel::GetName($sClass)), "{$sRootUrl}pages/UI.php?operation=search_form&do_search=0&class=$sClass{$sContext}", '', 'UI:SearchFor_Class');
+				$oActionButton->AddCSSClasses(['ibo-action-button', 'ibo-regular-action-button']);
+				$oActionsToolbar->AddSubBlock($oActionButton);
+			}
+
+			// - Others
+			if (!empty($aRegularActions)) {
+				if (count($aFavoriteRegularActions) > 0) {
+					$sName = 'UI:Menu:OtherActions';
+				} else {
+					$sName = 'UI:Menu:Actions';
+				}
+				$oActionButton = ButtonUIBlockFactory::MakeIconAction('fas fa-ellipsis-v', Dict::S($sName), $sName, '', false, $sRegularActionsMenuTogglerId)
+					->AddCSSClasses(['ibo-action-button', 'ibo-regular-action-button']);
+
+				$oRegularActionsMenu = $oPage->GetPopoverMenu($sRegularActionsPopoverMenuId, $aRegularActions)
+					->SetTogglerJSSelector("#$sRegularActionsMenuTogglerId")
+					->SetContainer(PopoverMenu::ENUM_CONTAINER_BODY);
+
+				$oActionsToolbar->AddSubBlock($oActionButton)
+					->AddSubBlock($oRegularActionsMenu);
 			}
 		}
 

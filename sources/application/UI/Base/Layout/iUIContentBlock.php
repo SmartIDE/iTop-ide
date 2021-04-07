@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -63,6 +63,11 @@ interface iUIContentBlock {
 	 * @return \Combodo\iTop\Application\UI\Base\iUIBlock|null
 	 */
 	public function GetSubBlock(string $sId): ?iUIBlock;
+
+	/**
+	 * @return bool True if there is at least 1 sub-block
+	 */
+	public function HasSubBlocks(): bool;
 
 	/**
 	 * Return an array of all the sub blocks

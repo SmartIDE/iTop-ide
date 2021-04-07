@@ -1,5 +1,5 @@
 /*!
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -56,6 +56,13 @@ $ibo-activity-entry--sub-information--margin-top: 4px !default;
 $ibo-activity-entry--sub-information--margin-bottom: $ibo-activity-entry--sub-information--margin-top !default;
 $ibo-activity-entry--sub-information--text-color: $ibo-color-grey-700 !default;
 
+$ibo-activity-entry--author-name--sibling-spacing: 0.2rem !default;
+
+$ibo-activity-panel--load-more-entries--size: 32px !default;
+$ibo-activity-panel--load-more-entries--border-radius: $ibo-border-radius-full !default;
+$ibo-activity-panel--load-more-entries--background-color: $ibo-activity-entry--main-information--background-color !default;
+$ibo-activity-panel--load-more-entries--border: $ibo-content-block--border !default;
+
 /* Entry group */
 .ibo-activity-panel--entry-group{
 	&:not(:last-child){
@@ -64,7 +71,7 @@ $ibo-activity-entry--sub-information--text-color: $ibo-color-grey-700 !default;
 }
 
 /* Entry */
-.ibo-activity-entry{
+.ibo-activity-entry {
 	display: flex;
 	flex-direction: row;
 	align-items: flex-end;
@@ -207,13 +214,37 @@ $ibo-activity-entry--sub-information--text-color: $ibo-color-grey-700 !default;
 	color: $ibo-activity-entry--main-information-icon--text-color;
 	font-size: $ibo-activity-entry--main-information-icon--font-size;
 }
-.ibo-activity-entry--main-information-content{
+
+.ibo-activity-entry--main-information-content {
 
 }
-.ibo-activity-entry--sub-information{
-	margin-top: $ibo-activity-entry--sub-information--margin-top;
-	text-align: left;
-	color: $ibo-activity-entry--sub-information--text-color;
 
-	@extend %ibo-font-ral-nor-50;
+.ibo-activity-entry--sub-information {
+  margin-top: $ibo-activity-entry--sub-information--margin-top;
+  text-align: left;
+  color: $ibo-activity-entry--sub-information--text-color;
+
+  @extend %ibo-font-ral-nor-50;
+}
+
+.ibo-activity-entry--author-name {
+  &:after {
+    content: "-";
+    margin-left: $ibo-activity-entry--author-name--sibling-spacing;
+    margin-right: $ibo-activity-entry--author-name--sibling-spacing;
+  }
+}
+
+.ibo-activity-panel--load-more-entries-container {
+  @extend %ibo-fully-centered-content;
+}
+
+.ibo-activity-panel--load-more-entries {
+  width: $ibo-activity-panel--load-more-entries--size;
+  height: $ibo-activity-panel--load-more-entries--size;
+  border-radius: $ibo-activity-panel--load-more-entries--border-radius;
+  background-color: $ibo-activity-panel--load-more-entries--background-color;
+  border: $ibo-activity-panel--load-more-entries--border;
+  @extend %ibo-fully-centered-content;
+  @extend %ibo-hyperlink-inherited-colors;
 }

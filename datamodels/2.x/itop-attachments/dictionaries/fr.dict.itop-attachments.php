@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -36,6 +36,7 @@ Soit vous avez attaché un fichier vide,
 Soit demandez à votre administrateur système s\'il reste de la place disque disponible sur le serveur',
 	'Attachments:Render:Icons' => 'Affichage en icônes',
 	'Attachments:Render:Table' => 'Affichage en liste',
+	'UI:Attachments:DropYourFileHint' => 'Déposez vos fichiers dans cet espace',
 ));
 
 //

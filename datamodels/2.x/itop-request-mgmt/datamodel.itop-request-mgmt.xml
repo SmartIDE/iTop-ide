@@ -7,7 +7,7 @@
                 <comment><![CDATA[/**
  * Persistent classes for a CMDB
  *
- * @copyright   Copyright (C) 2010-2012 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */]]></comment>
                 <category>bizmodel,searchable,requestmgmt</category>
@@ -26,7 +26,7 @@
                 </fields_semantic>
                 <style>
                     <icon>images/user-request.png</icon>
-                    <main_color>red</main_color>
+                    <main_color>blue</main_color>
                 </style>
                 <reconciliation>
                     <attributes>
@@ -1787,16 +1787,22 @@
                                         <item id="sla_tto_over">
                                             <rank>20</rank>
                                         </item>
-                                        <item id="sla_ttr_passed">
-                                            <rank>30</rank>
-                                        </item>
-                                        <item id="sla_ttr_over">
-                                            <rank>40</rank>
-                                        </item>
+                                      <item id="sla_ttr_passed">
+                                        <rank>30</rank>
+                                      </item>
+                                      <item id="sla_ttr_over">
+                                        <rank>40</rank>
+                                      </item>
                                     </items>
                                 </item>
                             </items>
                         </item>
+                      <item id="public_log">
+                        <rank>100</rank>
+                      </item>
+                      <item id="private_log">
+                        <rank>110</rank>
+                      </item>
                     </items>
                 </details>
                 <search>

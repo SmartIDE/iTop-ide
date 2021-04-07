@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -141,27 +141,24 @@ class ThemeHandler
 	 * @throws \CoreException
 	 * @return boolean: indicate whether theme compilation occured
 	 */
-	public static function CompileTheme($sThemeId, $bSetup=false, $sSetupCompilationTimestamp="", $aThemeParameters = null, $aImportsPaths = null, $sWorkingPath = null)
-	{
-		if ($sSetupCompilationTimestamp==="")
-		{
+	public static function CompileTheme($sThemeId, $bSetup=false, $sSetupCompilationTimestamp="", $aThemeParameters = null, $aImportsPaths = null, $sWorkingPath = null) {
+		if ($sSetupCompilationTimestamp === "") {
 			$sSetupCompilationTimestamp = microtime(true);
 		}
 
-		$sSetupCompilationTimestampInSecunds = (strpos($sSetupCompilationTimestamp, '.') !==false) ? explode('.', $sSetupCompilationTimestamp)[0] : $sSetupCompilationTimestamp;
+		$sSetupCompilationTimestampInSecunds = (strpos($sSetupCompilationTimestamp, '.') !== false) ? explode('.',
+			$sSetupCompilationTimestamp)[0] : $sSetupCompilationTimestamp;
 
 		$sEnv = APPROOT.'env-'.utils::GetCurrentEnvironment().'/';
 
 		// Default working path
-		if($sWorkingPath === null)
-		{
+		if ($sWorkingPath === null) {
 			$sWorkingPath = $sEnv;
 		}
 
 		// Default import paths (env-*)
-		if($aImportsPaths === null)
-		{
-			$aImportsPaths = [ $sEnv];
+		if ($aImportsPaths === null) {
+			$aImportsPaths = [$sEnv];
 		}
 
 		// Note: We do NOT check that the folder exists!
@@ -169,53 +166,46 @@ class ThemeHandler
 		$sThemeCssPath = $sThemeFolderPath.'main.css';
 
 		// Save parameters if passed... (typically during DM compilation)
-		if(is_array($aThemeParameters))
-		{
-			if (!is_dir($sThemeFolderPath))
-			{
+		if (is_array($aThemeParameters)) {
+			if (!is_dir($sThemeFolderPath)) {
 				mkdir($sWorkingPath.'/branding/');
 				mkdir($sWorkingPath.'/branding/themes/');
 			}
 			file_put_contents($sThemeFolderPath.'/theme-parameters.json', json_encode($aThemeParameters));
-		}
-		// ... Otherwise, retrieve them from compiled DM (typically when switching current theme in the config. file)
-		else
-		{
+		} // ... Otherwise, retrieve them from compiled DM (typically when switching current theme in the config. file)
+		else {
 			$aThemeParameters = json_decode(@file_get_contents($sThemeFolderPath.'theme-parameters.json'), true);
-			if ($aThemeParameters === null)
-			{
+			if ($aThemeParameters === null) {
 				throw new CoreException('Could not load "'.$sThemeId.'" theme parameters from file, check that it has been compiled correctly');
 			}
 		}
 
 		$aThemeParametersWithVersion = self::CloneThemeParameterAndIncludeVersion($aThemeParameters, $sSetupCompilationTimestampInSecunds);
 
-		$sTmpThemeScssContent = '';
-		$iStyleLastModified = 0;
 		clearstatcache();
+
 		// Loading files to import and stylesheet to compile, also getting most recent modification time on overall files
-
-		$aStylesheetFiles = [];
-		foreach ($aThemeParameters['imports'] as $sImport)
-		{
-			$sTmpThemeScssContent .= '@import "'.$sImport.'";'."\n";
-
-			$sFile = static::FindStylesheetFile($sImport, $aImportsPaths);
-			$iImportLastModified = @filemtime($sFile);
-			$aStylesheetFiles[] = $sFile;
-			$iStyleLastModified = $iStyleLastModified < $iImportLastModified ? $iImportLastModified : $iStyleLastModified;
+		$sTmpThemeScssContent = '';
+		$oFindStylesheetObject = new FindStylesheetObject();
+		if (isset($aThemeParameters['imports_utility'])) {
+			foreach ($aThemeParameters['imports_utility'] as $sImport) {
+				static::FindStylesheetFile($sImport, $aImportsPaths, $oFindStylesheetObject);
+			}
 		}
-		foreach ($aThemeParameters['stylesheets'] as $sStylesheet)
-		{
+
+		if (isset($aThemeParameters['stylesheets'])) {
+			foreach ($aThemeParameters['stylesheets'] as $sStylesheet) {
+				static::FindStylesheetFile($sStylesheet, $aImportsPaths, $oFindStylesheetObject);
+			}
+		}
+
+		foreach ($oFindStylesheetObject->GetStylesheetFileURIs() as $sStylesheet){
 			$sTmpThemeScssContent .= '@import "'.$sStylesheet.'";'."\n";
-
-			$sFile = static::FindStylesheetFile($sStylesheet, $aImportsPaths);
-			$iStylesheetLastModified = @filemtime($sFile);
-			$aStylesheetFiles[] = $sFile;
-			$iStyleLastModified = $iStyleLastModified < $iStylesheetLastModified ? $iStylesheetLastModified : $iStyleLastModified;
 		}
 
-		$aIncludedImages=static::GetIncludedImages($aThemeParametersWithVersion, $aStylesheetFiles, $sThemeId);
+		$iStyleLastModified = $oFindStylesheetObject->GetLastModified();
+
+		$aIncludedImages=static::GetIncludedImages($aThemeParametersWithVersion, $oFindStylesheetObject->GetAllStylesheetPaths(), $sThemeId);
 		foreach ($aIncludedImages as $sImage)
 		{
 			if (is_file($sImage))
@@ -284,6 +274,7 @@ CSS;
 	}
 
 	/**
+	 * @since 3.0.0 N°2982
 	 * Compute the signature of a theme defined by its theme parameters. The signature is a JSON structure of
 	 * 1) one MD5 of all the variables/values (JSON encoded)
 	 * 2) the MD5 of each stylesheet file
@@ -297,8 +288,7 @@ CSS;
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function ComputeSignature($aThemeParameters, $aImportsPaths, $aIncludedImages)
-	{
+	public static function ComputeSignature($aThemeParameters, $aImportsPaths, $aIncludedImages) {
 		$aSignature = [
 			'variables' => md5(json_encode($aThemeParameters['variables'])),
 			'stylesheets' => [],
@@ -306,16 +296,44 @@ CSS;
 			'images' => []
 		];
 
-		foreach ($aThemeParameters['imports'] as $key => $sImport)
-		{
-			$sFile = static::FindStylesheetFile($sImport, $aImportsPaths);
-			$aSignature['stylesheets'][$key] = md5_file($sFile);
+		$oFindStylesheetObject = new FindStylesheetObject();
+
+		if (isset($aThemeParameters['imports_variable'])) {
+			foreach ($aThemeParameters['imports_variable'] as $key => $sImport) {
+				static::FindStylesheetFile($sImport, $aImportsPaths, $oFindStylesheetObject);
+				$sFile = $oFindStylesheetObject->GetLastStylesheetFile();
+				if (!empty($sFile)) {
+					$aSignature['stylesheets'][$key] = md5_file($sFile);
+				}
+			}
 		}
-		foreach ($aThemeParameters['stylesheets'] as $key => $sStylesheet)
-		{
-			$sFile = static::FindStylesheetFile($sStylesheet, $aImportsPaths);
-			$aSignature['stylesheets'][$key] = md5_file($sFile);
+		if (isset($aThemeParameters['imports_utility'])) {
+			foreach ($aThemeParameters['imports_utility'] as $key => $sImport) {
+				static::FindStylesheetFile($sImport, $aImportsPaths, $oFindStylesheetObject);
+				$sFile = $oFindStylesheetObject->GetLastStylesheetFile();
+				if (!empty($sFile)) {
+					$aSignature['stylesheets'][$key] = md5_file($sFile);
+				}
+			}
 		}
+		if (isset($aThemeParameters['stylesheets'])) {
+			foreach ($aThemeParameters['stylesheets'] as $key => $sStylesheet) {
+				static::FindStylesheetFile($sStylesheet, $aImportsPaths, $oFindStylesheetObject);
+				$sFile = $oFindStylesheetObject->GetLastStylesheetFile();
+
+				if (!empty($sFile)) {
+					$aSignature['stylesheets'][$key] = md5_file($sFile);
+				}
+			}
+		}
+
+		$aFiles = $oFindStylesheetObject->GetImportPaths();
+		if (count($aFiles) !== 0) {
+			foreach ($aFiles as $sFileURI => $sFilePath) {
+				$aSignature['imports_utility'][$sFileURI] = md5_file($sFilePath);
+			}
+		}
+
 		foreach ($aIncludedImages as $sImage)
 		{
 			if (is_file($sImage)) {
@@ -335,7 +353,7 @@ CSS;
 	 * @param string $sThemeId : used only for logging purpose
 	 *
 	 * @return array complete path of the images, but with slashes as dir separator instead of DIRECTORY_SEPARATOR
-	 * @since 3.0.0
+	 * @since 3.0.0 N°2982
 	 */
 	public static function GetIncludedImages($aThemeParametersVariables, $aStylesheetFiles, $sThemeId)
 	{
@@ -430,6 +448,7 @@ CSS;
 	}
 
 	/**
+	 * @since 3.0.0 N°2982
 	 * Complete url using provided variables. Example with $var=1: XX + $var => XX1
 	 * @param $aMap
 	 * @param $aThemeParametersVariables
@@ -462,6 +481,7 @@ CSS;
 	}
 
 	/**
+	 * @since 3.0.0 N°2982
 	 * Find missing variable values from SCSS content based on their name.
 	 *
 	 * @param $aThemeParametersVariables
@@ -520,6 +540,7 @@ CSS;
 	}
 
 	/**
+	 * @since 3.0.0 N°2982
 	 * @param $aFoundVariables
 	 * @param array $aToCompleteUrls
 	 * @param array $aCompleteUrls
@@ -564,6 +585,7 @@ CSS;
 	}
 
 	/**
+	 * @since 3.0.0 N°2982
 	 * Find all referenced URLs from a SCSS file.
 	 * @param $aThemeParametersVariables
 	 * @param $sStylesheetFile
@@ -584,6 +606,10 @@ CSS;
 			{
 				foreach ($aMatches[1] as $path)
 				{
+					$iRemainingClosingParenthesisPos = strpos($path, ')');
+					if ($iRemainingClosingParenthesisPos !== false){
+						$path = substr($path, 0, $iRemainingClosingParenthesisPos);
+					}
 					if (!array_key_exists($path, $aCompleteUrls)
 						&& !array_key_exists($path, $aToCompleteUrls))
 					{
@@ -622,6 +648,7 @@ CSS;
 	}
 
 	/**
+	 * @since 3.0.0 N°2982
 	 * Calculate url based on its template + variables.
 	 * @param $sUrlTemplate
 	 * @param $aFoundVariables
@@ -672,8 +699,10 @@ CSS;
 
 
 	/**
-	 * Extract the signature for a generated CSS file. The signature MUST be alone one line immediately
-	 * followed (on the next line) by the === SIGNATURE END === pattern
+	 * @since 3.0.0 N°2982
+	 * Extract the signature for a generated CSS file.
+	 * The signature MUST be alone one line immediately followed (on the next line) by the === SIGNATURE END === pattern
+	 * The signature MUST be in the first 100th lines of the file.
 	 *
 	 * Note the signature can be place anywhere in the CSS file (obviously inside a CSS comment !) but the
 	 * function will be faster if the signature is at the beginning of the file (since the file is scanned from the start)
@@ -684,6 +713,7 @@ CSS;
 	 */
 	public static function GetSignature($sFilepath)
 	{
+		$iCount = 0;
 		$sPreviousLine = '';
 		$hFile = @fopen($sFilepath, "r");
 		if ($hFile !== false)
@@ -691,15 +721,22 @@ CSS;
 			$sLine = '';
 			do
 			{
+				$iCount++;
 				$sPreviousLine = $sLine;
 				$sLine = rtrim(fgets($hFile)); // Remove the trailing \n
 			}
-			while (($sLine !== false) && ($sLine != '=== SIGNATURE END ==='));
+			while (($sLine !== false) && ($sLine != '=== SIGNATURE END ===') && ($iCount <= 100));
 			fclose($hFile);
 		}
 		return $sPreviousLine;
 	}
 
+	/**
+	 * @since 3.0.0 N°2982
+	 * @param $JsonSignature
+	 *
+	 * @return false|mixed
+	 */
 	public static function GetVarSignature($JsonSignature)
 	{
 		$aJsonArray = json_decode($JsonSignature, true);
@@ -711,31 +748,102 @@ CSS;
 	}
 
 	/**
-	 * Find the given file in the list of ImportsPaths directory
-	 * @param string $sFile
+	 * @param string $sFileURI
 	 * @param string[] $aImportsPaths
-	 * @throws Exception
-	 * @return string
+	 * @param FindStylesheetObject $oFindStylesheetObject
+	 * @param bool $bImports
+	 *
+	 * @throws \Exception
+	 *@since 3.0.0 N°2982
+	 * Find the given file in the list '$aImportsPaths' of directory and all included stylesheets as well
+	 * Compute latest timestamp found among all found stylesheets
+	 *
 	 */
-	public static function FindStylesheetFile($sFile, $aImportsPaths)
+	public static function FindStylesheetFile(string $sFileURI, array $aImportsPaths, $oFindStylesheetObject, $bImports = false)
 	{
+		if (! $bImports) {
+			$oFindStylesheetObject->ResetLastStyleSheet();
+		}
+
 		foreach($aImportsPaths as $sPath)
 		{
-			$sImportedFile = realpath($sPath.'/'.$sFile);
-			if (file_exists($sImportedFile))
+			$sFilePath = $sPath.'/'.$sFileURI;
+			$sImportedFile = realpath($sFilePath);
+			if ($sImportedFile === false){
+				// Handle shortcut syntax : @import "typo" ;
+				// file matched: typo.scss
+				$sFilePath2 = "$sFilePath.scss";
+				$sImportedFile = realpath($sFilePath2);
+				if ($sImportedFile){
+					self::FindStylesheetFile("$sFileURI.scss", [ $sPath ], $oFindStylesheetObject, $bImports);
+					$sImportedFile = false;
+				}
+			}
+
+			if ($sImportedFile === false){
+				// Handle shortcut syntax : @import "typo" ;
+				// file matched: _typo.scss
+				$sShortCut = substr($sFilePath, strrpos($sFilePath, '/') + 1);
+				$sFilePath = static::ReplaceLastOccurrence($sShortCut, "_$sShortCut.scss", $sFilePath);
+				$sFileURI = static::ReplaceLastOccurrence($sShortCut, "_$sShortCut.scss", $sFileURI);
+				$sImportedFile = realpath($sFilePath);
+			}
+
+			if ((file_exists($sImportedFile))
+				&& (!$oFindStylesheetObject->AlreadyFetched($sImportedFile)))
 			{
-				return $sImportedFile;
+				if ($bImports){
+					$oFindStylesheetObject->AddImport($sFileURI, $sImportedFile);
+				}else{
+					$oFindStylesheetObject->AddStylesheet($sFileURI, $sImportedFile);
+				}
+				$oFindStylesheetObject->UpdateLastModified($sImportedFile);
+
+				//Regexp matching on all included scss files : @import 'XXX.scss';
+				$sDirUri = dirname($sFileURI);
+				preg_match_all('/@import \s*[\"\']([^\"\']*)\s*[\"\']\s*;/', file_get_contents($sImportedFile), $aMatches);
+				if ( (is_array($aMatches)) && (count($aMatches)!==0) ){
+					foreach ($aMatches[1] as $sImportedFile){
+						self::FindStylesheetFile("$sDirUri/$sImportedFile", [ $sPath ], $oFindStylesheetObject, true);
+					}
+				}
 			}
 		}
-		return ''; // Not found, fail silently, maybe the SCSS compiler knowns better...
 	}
 
+	/**
+	 * @param $search
+	 * @param $replace
+	 * @param $subject
+	 *
+	 * @since 3.0.0 N°2982
+	 * Replaces last occurrence of the string
+	 * @return string|string[]
+	 */
+	public static function ReplaceLastOccurrence($sSearch, $sReplace, $sSubject)
+	{
+		$iPos = strrpos($sSubject, $sSearch);
+
+		if($iPos !== false)
+		{
+			$sSubject = substr_replace($sSubject, $sReplace, $iPos, strlen($sSearch));
+		}
+
+		return $sSubject;
+	}
+
+	/**
+	 * @since 3.0.0 N°2982
+	 * Used for testing purpose
+	 * @param $oCompileCSSServiceMock
+	 */
 	public static function MockCompileCSSService($oCompileCSSServiceMock)
 	{
 		static::$oCompileCSSService = $oCompileCSSServiceMock;
 	}
 
 	/**
+	 * @since 3.0.0 N°2982
 	 * Clone variable array and include $version with bSetupCompilationTimestamp value
 	 * @param $aThemeParameters
 	 * @param $bSetupCompilationTimestamp
@@ -751,24 +859,38 @@ CSS;
 			{
 				$aThemeParametersVariable = array_merge([], $aThemeParameters['variables']);
 			}
+		}		
+		if (array_key_exists('imports_variable', $aThemeParameters))
+		{
+			if (is_array($aThemeParameters['imports_variable']))
+			{
+				$aThemeParametersVariable = array_merge($aThemeParametersVariable, static::GetVariablesFromFile($aThemeParameters['imports_variable']));
+			}
 		}
 
 		$aThemeParametersVariable['$version'] = $bSetupCompilationTimestamp;
 		return $aThemeParametersVariable;
 	}
-}
 
-class CompileCSSService
-{
 	/**
-	 * CompileCSSService constructor.
+	 * @param $aVariableFiles
+	 *
+	 * @return array
+	 * @since 3.0.0 N°3593
 	 */
-	public function __construct()
-	{
-	}
-
-	public function CompileCSSFromSASS($sSassContent, $aImportPaths =  [], $aVariables = []){
-		return utils::CompileCSSFromSASS($sSassContent, $aImportPaths, $aVariables);
+	public static function GetVariablesFromFile($aVariableFiles){
+		$aVariablesResults = [];
+		foreach ($aVariableFiles as $sVariableFile)
+		{
+			$sFileContent = file_get_contents(APPROOT.'env-'.utils::GetCurrentEnvironment().'/'.$sVariableFile);
+			$aVariableMatches = [];
+			
+			preg_match_all( '/\$(.*?):(.*?);/', $sFileContent,$aVariableMatches);
+			$aVariableMatches =  array_combine( $aVariableMatches[1], array_map( function($sVariableValue) { return ltrim($sVariableValue); }, $aVariableMatches[2] ) );
+			$aVariablesResults = array_merge($aVariablesResults, $aVariableMatches);
+		}
+		array_map( function($sVariableValue) { return ltrim($sVariableValue); }, $aVariablesResults );
+		return $aVariablesResults;
 	}
 
 }

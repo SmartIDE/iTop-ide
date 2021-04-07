@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -160,9 +160,41 @@ abstract class FormManager
 	/**
 	 * @param array|null $aArgs
 	 *
-	 * @return mixed
+	 * @return array
+	 *
+	 * @since 2.7.4 3.0.0 N°3430
 	 */
-	abstract public function OnSubmit($aArgs = null);
+	public function OnSubmit($aArgs = null)
+	{
+		$aData = array(
+			'valid' => true,
+			'messages' => array(
+				'success' => array(),
+				'warnings' => array(), // Not used as of today, just to show that the structure is ready for change like this.
+				'error' => array(),
+			),
+		);
+
+		$this->CheckTransaction($aData);
+
+		return $aData;
+	}
+
+	/**
+	 * @param array $aData
+	 *
+	 * @since 2.7.4 3.0.0 N°3430
+	 */
+	public function CheckTransaction(&$aData)
+	{
+		$isTransactionValid = \utils::IsTransactionValid($this->oForm->GetTransactionId(), false); //The transaction token is kept in order to preserve BC with ajax forms (the second call would fail if the token is deleted). (The GC will take care of cleaning the token for us later on)
+		if (!$isTransactionValid) {
+			$aData['messages']['error'] += [
+				'_main' => [\Dict::S('UI:Error:InvalidToken')] //This message is generic, if you override this method you should use a more precise message. @see \Combodo\iTop\Portal\Form\ObjectFormManager::CheckTransaction
+			];
+			$aData['valid'] = false;
+		}
+	}
 
 	/**
 	 * @param array|null $aArgs

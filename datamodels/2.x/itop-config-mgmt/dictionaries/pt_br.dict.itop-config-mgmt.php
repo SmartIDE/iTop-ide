@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2012 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -18,7 +18,7 @@
 /**
  * Localized data
  *
- * @copyright   Copyright (C) 2010-2018 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 //////////////////////////////////////////////////////////////////////
@@ -1211,23 +1211,6 @@ Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
 ));
 
 //
-// Class: lnkDocumentToFunctionalCI
-//
-
-Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
-	'Class:lnkDocumentToFunctionalCI' => 'Link Documento / CI',
-	'Class:lnkDocumentToFunctionalCI+' => '',
-	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_id' => 'CIs',
-	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_id+' => '',
-	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_name' => 'Nome CI',
-	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_name+' => '',
-	'Class:lnkDocumentToFunctionalCI/Attribute:document_id' => 'Documento',
-	'Class:lnkDocumentToFunctionalCI/Attribute:document_id+' => '',
-	'Class:lnkDocumentToFunctionalCI/Attribute:document_name' => 'Nome documento',
-	'Class:lnkDocumentToFunctionalCI/Attribute:document_name+' => '',
-));
-
-//
 // Class: Subnet
 //
 
@@ -1361,6 +1344,7 @@ Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
 	'Class:lnkPhysicalInterfaceToVLAN/Attribute:vlan_tag' => 'Nome VLAN',
 	'Class:lnkPhysicalInterfaceToVLAN/Attribute:vlan_tag+' => '',
 ));
+
 
 //
 // Class: LogicalInterface
@@ -1510,9 +1494,7 @@ Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
 	'Class:lnkGroupToCI/Attribute:reason+' => '',
 ));
 
-//
 // Add translation for Fieldsets
-//
 
 Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
 	'Server:baseinfo' => 'Informações gerais',
@@ -1526,6 +1508,24 @@ Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
 	'Class:Subnet/Tab:FreeIPs-count' => 'IPs livres: %1$s',
 	'Class:Subnet/Tab:FreeIPs-explain' => 'Aqui uma faixa de 10 endereços IPs livres',
 	'Class:Document:PreviewTab' => 'Visualização',
+));
+
+
+//
+// Class: lnkDocumentToFunctionalCI
+//
+
+Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
+	'Class:lnkDocumentToFunctionalCI' => 'Link Documento / CI',
+	'Class:lnkDocumentToFunctionalCI+' => '',
+	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_id' => 'CIs',
+	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_id+' => '',
+	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_name' => 'Nome CI',
+	'Class:lnkDocumentToFunctionalCI/Attribute:functionalci_name+' => '',
+	'Class:lnkDocumentToFunctionalCI/Attribute:document_id' => 'Documento',
+	'Class:lnkDocumentToFunctionalCI/Attribute:document_id+' => '',
+	'Class:lnkDocumentToFunctionalCI/Attribute:document_name' => 'Nome documento',
+	'Class:lnkDocumentToFunctionalCI/Attribute:document_name+' => '',
 ));
 
 //
@@ -1578,3 +1578,4 @@ Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
 	'Menu:Software' => 'Catálogo software',
 	'Menu:Software+' => 'Catálogo software',
 ));
+?>

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  * This file is part of iTop.
  * iTop is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -40,11 +40,12 @@ class DictionariesConsistencyTest extends ItopTestCase
 			'it' => array('IT IT', 'Italian', 'Italiano'),
 			'ja' => array('JA JP', 'Japanese', '日本語'),
 			'nl' => array('NL NL', 'Dutch', 'Nederlands'),
+			'pl' => array('PL PL', 'Polish', 'Polski'),
 			'pt_br' => array('PT BR', 'Brazilian', 'Brazilian'),
 			'ru' => array('RU RU', 'Russian', 'Русский'),
 			'sk' => array('SK SK', 'Slovak', 'Slovenčina'),
 			'tr' => array('TR TR', 'Turkish', 'Türkçe'),
-			'zh_cn' => array('ZH CN', 'Chinese', '简体中文')
+			'zh_cn' => array('ZH CN', 'Chinese', '简体中文'),
 		);
 
 		if (!preg_match('/^(.*)\\.dict/', basename($sDictFile), $aMatches))
@@ -99,10 +100,54 @@ class DictionariesConsistencyTest extends ItopTestCase
 			glob(APPROOT.'dictionaries/*.dict*.php') // framework
 		);
 		$aTestCases = array();
-		foreach ($aDictFiles as $sDictFile)
-		{
+		foreach ($aDictFiles as $sDictFile) {
 			$aTestCases[$sDictFile] = array('sDictFile' => $sDictFile);
 		}
+
 		return $aTestCases;
+	}
+
+	/**
+	 * @dataProvider DictionaryFileProvider
+	 *
+	 * @param string $sDictFile
+	 *
+	 * @group beforeSetup
+	 *
+	 * @uses         CheckDictionarySyntax
+	 */
+	public function testStandardDictionariesPhpSyntax(string $sDictFile): void
+	{
+		$this->CheckDictionarySyntax($sDictFile);
+	}
+
+	/**
+	 * Checks that {@see CheckDictionarySyntax} works as expected by passing 2 test dictionaries
+	 *
+	 * @uses CheckDictionarySyntax
+	 */
+	public function testPlaygroundDictionariesPhpSyntax(): void
+	{
+		$this->CheckDictionarySyntax(__DIR__.'/dictionaries-test/fr.dictionary.itop.core.KO.wrong_php', false);
+		/** @noinspection PhpRedundantOptionalArgumentInspection */
+		$this->CheckDictionarySyntax(__DIR__.'/dictionaries-test/fr.dictionary.itop.core.OK.php', true);
+	}
+
+	/**
+	 * @param string $sDictFile complete path for the file to check
+	 * @param bool $bIsSyntaxValid expected assert value
+	 *
+	 * @uses `php -l`
+	 * @uses \assertEquals()
+	 */
+	private function CheckDictionarySyntax(string $sDictFile, $bIsSyntaxValid = true): void
+	{
+		exec("php -l {$sDictFile}", $output, $return);
+
+		var_dump($sDictFile, $return, $output);
+		$bDictFileSyntaxOk = ($return === 0);
+
+		$sMessage = "File `{$sDictFile}` syntax didn't matched expectations\nparsing results=".var_export($output, true);
+		$this->assertEquals($bIsSyntaxValid, $bDictFileSyntaxOk, $sMessage);
 	}
 }

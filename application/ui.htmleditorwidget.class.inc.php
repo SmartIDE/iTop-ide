@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2016 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -21,7 +21,7 @@
  * UI wdiget for displaying and editing one-way encrypted passwords
  *
  * @author      Romain Quetiez
- * @copyright   Copyright (C) 2010-2016 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -93,10 +93,10 @@ class UIHTMLEditorWidget
 		// The most relevant solution would be to implement a plugin to CKEdit, and handle the internal events like: setData, insertHtml, insertElement, loadSnapshot, key, afterUndo, afterRedo
 
 		// Could also be bound to 'instanceReady.ckeditor'
-		$oPage->add_ready_script("$('#$iId').bind('validate', function(evt, sFormId) { return ValidateCKEditField('$iId', '', {$this->m_sMandatory}, sFormId, '') } );\n");
+		$oPage->add_ready_script("$('#$iId').on('validate', function(evt, sFormId) { return ValidateCKEditField('$iId', '', {$this->m_sMandatory}, sFormId, '') } );\n");
 		$oPage->add_ready_script(
 				<<<EOF
-$('#$iId').bind('update', function(evt){
+$('#$iId').on('update', function(evt){
 	BlockField('cke_$iId', $('#$iId').prop('disabled'));
 	//Delayed execution - ckeditor must be properly initialized before setting readonly
 	var retryCount = 0;

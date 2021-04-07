@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2012 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -20,7 +20,7 @@
  * Class UIPasswordWidget
  * UI wdiget for displaying and editing one-way encrypted passwords
  *
- * @copyright   Copyright (C) 2010-2012 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -67,10 +67,10 @@ class UIPasswordWidget
 
 		$sHtmlValue .= '<span class="form_validation ibo-field-validation" id="v_'.$this->iId.'"></span><span class="field_status" id="fstatus_'.$this->iId.'"></span>';
 
-		$oPage->add_ready_script("$('#$this->iId').bind('keyup change', function(evt) { return PasswordFieldChanged('$this->iId') } );"); // Bind to a custom event: validate
-		$oPage->add_ready_script("$('#$this->iId').bind('keyup change validate', function(evt, sFormId) { return ValidatePasswordField('$this->iId', sFormId) } );"); // Bind to a custom event: validate
-		$oPage->add_ready_script("$('#{$this->iId}_confirm').bind('keyup change', function(evt, sFormId) { return ValidatePasswordField('$this->iId', sFormId) } );"); // Bind to a custom event: validate
-		$oPage->add_ready_script("$('#{$this->iId}').bind('update', function(evt, sFormId)
+		$oPage->add_ready_script("$('#$this->iId').on('keyup change', function(evt) { return PasswordFieldChanged('$this->iId') } );"); // Bind to a custom event: validate
+		$oPage->add_ready_script("$('#$this->iId').on('keyup change validate', function(evt, sFormId) { return ValidatePasswordField('$this->iId', sFormId) } );"); // Bind to a custom event: validate
+		$oPage->add_ready_script("$('#{$this->iId}_confirm').on('keyup change', function(evt, sFormId) { return ValidatePasswordField('$this->iId', sFormId) } );"); // Bind to a custom event: validate
+		$oPage->add_ready_script("$('#{$this->iId}').on('update', function(evt, sFormId)
 			{
 				if ($(this).prop('disabled'))
 				{

@@ -1,31 +1,24 @@
 <?php
-/**
- * Copyright (C) 2013-2019 Combodo SARL
- *
- * This file is part of iTop.
- *
- * iTop is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * iTop is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
 use Combodo\iTop\Application\UI\Base\Component\Button\ButtonUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\FieldSet\FieldSetUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Form\Form;
 use Combodo\iTop\Application\UI\Base\Component\Html\Html;
 use Combodo\iTop\Application\UI\Base\Component\Input\InputUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Input\Select\SelectOptionUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\Input\SelectUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Panel\Panel;
+use Combodo\iTop\Application\UI\Base\Component\Panel\PanelUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Title\TitleUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\Toolbar\ToolbarUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\iUIBlock;
+use Combodo\iTop\Application\UI\Base\Layout\MultiColumn\Column\Column;
+use Combodo\iTop\Application\UI\Base\Layout\MultiColumn\MultiColumn;
 use Combodo\iTop\Application\UI\Base\Layout\PageContent\PageContentFactory;
-use Combodo\iTop\Application\UI\Base\Layout\UIContentBlock;
 use Combodo\iTop\Application\UI\Preferences\BlockShortcuts\BlockShortcuts;
 
 require_once('../approot.inc.php');
@@ -46,59 +39,73 @@ function DisplayPreferences($oP)
 
 	//////////////////////////////////////////////////////////////////////////
 	//
-	// User Language selection
+	// User interface
 	//
 	//////////////////////////////////////////////////////////////////////////
-	$oUserLanguageBlock = new Panel(Dict::S('UI:FavoriteLanguage'), array(), 'grey', 'ibo-user-language-selection');
-	$oUserLanguageForm = GetUserLanguageForm($oAppContext, $sURL);
-	$oUserLanguageBlock->AddSubBlock($oUserLanguageForm);
-	$oContentLayout->AddMainBlock($oUserLanguageBlock);
+	// Create panel
+	$oUIPanel = PanelUIBlockFactory::MakeNeutral(Dict::S('UI:Preferences:UserInterface:Title'));
+	$oContentLayout->AddMainBlock($oUIPanel);
 
-	//////////////////////////////////////////////////////////////////////////
-	//
-	// Other (miscellaneous) settings
-	//
-	//////////////////////////////////////////////////////////////////////////
+	// Create form
+	$oUIForm = new Form('ibo-form-for-user-interface-preferences');
+	$oUIPanel->AddSubBlock($oUIForm);
 
-	$oMiscSettingsBlock = new Panel(Dict::S('UI:FavoriteOtherSettings'), array(), 'grey', 'ibo-misc-settings');
+	// Prepare form
+	$oUIForm->AddSubBlock(InputUIBlockFactory::MakeForHidden('operation', 'apply_user_interface'))
+		->AddSubBlock($oAppContext->GetForFormBlock())
+		->SetOnSubmitJsCode('return ValidateOtherSettings();');
 
-	$oMiscSettingsStartForm = new Html('<form method="post" onsubmit="return ValidateOtherSettings()">');
+	$oMultiColContainer = new MultiColumn();
+	$oUIForm->AddSubBlock($oMultiColContainer);
 
-	$iDefaultPageSize = appUserPreferences::GetPref('default_page_size', MetaModel::GetConfig()->GetMinDisplayLimit());
+	$oFirstColumn = new Column();
+	$oMultiColContainer->AddColumn($oFirstColumn);
 
-	$bShow = utils::IsArchiveMode() || appUserPreferences::GetPref('show_obsolete_data',
-			MetaModel::GetConfig()->Get('obsolescence.show_obsolete_data'));
-	$sObsoleteSelected = $bShow ? ' checked="checked"' : '';
-	$sObsoleteDisabled = utils::IsArchiveMode() ? 'disabled="disabled"' : '';
+	$oSecondColumn = new Column();
+	$oMultiColContainer->AddColumn($oSecondColumn);
 
-
-	$sMiscSettingsHtml = '';
-	$sMiscSettingsHtml .= '<p>'.Dict::Format('UI:Favorites:Default_X_ItemsPerPage',
-			'<input id="default_page_size" name="default_page_size" type="text" size="3" value="'.$iDefaultPageSize.'"/><span id="v_default_page_size"></span>').'</p>';
-	$sObsoleteLabel = Dict::S('UI:Favorites:ShowObsoleteData');
-	$sObsoleteLabelPlus = Dict::S('UI:Favorites:ShowObsoleteData+');
-	$sMiscSettingsHtml .= <<<HTML
-<p><input type="checkbox" id="show_obsolete_data" name="show_obsolete_data" value="1"{$sObsoleteSelected}{$sObsoleteDisabled}
->&nbsp;<label for="show_obsolete_data" title="{$sObsoleteLabelPlus}">{$sObsoleteLabel}</label></p>
-HTML;
-	$sMiscSettingsHtml .= $oAppContext->GetForForm();
-	$oMiscSettingsHtml = new Html($sMiscSettingsHtml);
+	// Prepare buttons
+	$oUIToolbar = ToolbarUIBlockFactory::MakeForButton(null, ['ibo-is-fullwidth']);
+	$oUIForm->AddSubBlock($oUIToolbar);
 
 	// - Cancel button
-	$oMiscSettingsCancelButton = ButtonUIBlockFactory::MakeForSecondaryAction(Dict::S('UI:Button:Cancel'));
-	$oMiscSettingsCancelButton->SetOnClickJsCode("window.location.href = '$sURL'");
+	$oUICancelButton = ButtonUIBlockFactory::MakeForCancel();
+	$oUIToolbar->AddSubBlock($oUICancelButton);
+	$oUICancelButton->SetOnClickJsCode("window.location.href = '$sURL'");
 	// - Submit button
-	$oMiscSettingsSubmitButton = ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Apply'), 'operation', 'apply_others', true);
+	$oUISubmitButton = ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Apply'), 'operation', 'apply_user_interface', true);
+	$oUIToolbar->AddSubBlock($oUISubmitButton);
 
-	$oMiscSettingsEndHtmlBlock = new Html('</form>');
+	// Language
+	$oLanguageFieldset = FieldSetUIBlockFactory::MakeStandard(Dict::S('UI:FavoriteLanguage'), 'ibo-fieldset-for-language-preferences');
+	$oLanguageFieldset->AddSubBlock(GetLanguageFieldBlock());
+	$oFirstColumn->AddSubBlock($oLanguageFieldset);
 
-	$oMiscSettingsBlock->AddSubBlock($oMiscSettingsStartForm);
-	$oMiscSettingsBlock->AddSubBlock($oMiscSettingsHtml);
-	$oMiscSettingsBlock->AddSubBlock($oMiscSettingsCancelButton);
-	$oMiscSettingsBlock->AddSubBlock($oMiscSettingsSubmitButton);
-	$oMiscSettingsBlock->AddSubBlock($oMiscSettingsEndHtmlBlock);
+	// Lists
+	$oListsFieldset = FieldSetUIBlockFactory::MakeStandard(Dict::S('UI:Preferences:Lists:Title'), 'ibo-fieldset-for-lists-preferences');
+	$oFirstColumn->AddSubBlock($oListsFieldset);
+	$oListsFieldset->AddSubBlock(GetListPageSizeFieldBlock());
 
-	$oContentLayout->AddMainBlock($oMiscSettingsBlock);
+	// Tabs
+	$oTabsFieldset = FieldSetUIBlockFactory::MakeStandard(Dict::S('UI:Preferences:Tabs:Title'), 'ibo-fieldset-for-tabs-preferences');
+	$oFirstColumn->AddSubBlock($oTabsFieldset);
+	$oTabsFieldset->AddSubBlock(GetTabsLayoutFieldBlock());
+	$oTabsFieldset->AddSubBlock(GetTabsNavigationFieldBlock());
+
+	// Rich text editor
+	$oRichTextFieldset = FieldSetUIBlockFactory::MakeStandard(Dict::S('UI:Preferences:RichText:Title'), 'ibo-fieldset-for-rich-text-preferences');
+	$oSecondColumn->AddSubBlock($oRichTextFieldset);
+	$oRichTextFieldset->AddSubBlock(GetRichTextToolbarExpandedFieldBlock());
+
+	// Activity panel
+	$oActivityPanelfieldset = FieldSetUIBlockFactory::MakeStandard(Dict::S('UI:Preferences:ActivityPanel:Title'), 'ibo-fieldset-for-activity-panel');
+	$oSecondColumn->AddSubBlock($oActivityPanelfieldset);
+	$oActivityPanelfieldset->AddSubBlock(GetActivityPanelEntryFormOpenedFieldBlock());
+
+	// Misc. options
+	$oMiscOptionsFieldset = FieldSetUIBlockFactory::MakeStandard(Dict::S('UI:FavoriteOtherSettings'), 'ibo-fieldset-for-misc-options');
+	$oSecondColumn->AddSubBlock($oMiscOptionsFieldset);
+	$oMiscOptionsFieldset->AddSubBlock(GetObsoleteDataFieldBlock());
 
 	$oP->add_script(
 		<<<JS
@@ -150,26 +157,29 @@ JS
 	]));
 	$oFavoriteOrganizationsForm->AddSubBlock($oAppContext->GetForFormBlock());
 
-	$oFavoriteOrganizationsToolBar = new UIContentBlock(null, ['ibo-datatable--selection-validation-buttons-toolbar']);
+	// Button toolbar
+	$oFavoriteOrganizationsToolBar = ToolbarUIBlockFactory::MakeForButton(null, ['ibo-is-fullwidth']);
 	$oFavoriteOrganizationsForm->AddSubBlock($oFavoriteOrganizationsToolBar);
+
 	// - Cancel button
-	$oFavoriteOrganizationsCancelButton = ButtonUIBlockFactory::MakeForSecondaryAction(Dict::S('UI:Button:Cancel'));
+	$oFavoriteOrganizationsCancelButton = ButtonUIBlockFactory::MakeForCancel(Dict::S('UI:Button:Cancel'));
 	$oFavoriteOrganizationsToolBar->AddSubBlock($oFavoriteOrganizationsCancelButton);
 	$oFavoriteOrganizationsCancelButton->SetOnClickJsCode("window.location.href = '$sURL'");
 	// - Submit button
 	$oFavoriteOrganizationsSubmitButton = ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Apply'), 'operation', 'apply', true);
 	$oFavoriteOrganizationsToolBar->AddSubBlock($oFavoriteOrganizationsSubmitButton);
 
-	if ($aFavoriteOrgs == null) {
-		// All checked
-		$oP->add_ready_script(
-			<<<JS
-	$('#$sIdFavoriteOrganizations .checkAll').prop('checked', true);
-	checkAllDataTable('datatable_$sIdFavoriteOrganizations',true,'$sIdFavoriteOrganizations');
-JS
-		);
-
-	}
+	// TODO 3.0 have this code work again, currently it prevents the display of favorite organizations and shortcuts.
+	//	if ($aFavoriteOrgs == null) {
+	//		// All checked
+	//		$oP->add_ready_script(
+	//			<<<JS
+	//	$('#$sIdFavoriteOrganizations.checkAll').prop('checked', true);
+	//	checkAllDataTable('datatable_$sIdFavoriteOrganizations',true,'$sIdFavoriteOrganizations');
+	//JS
+	//		);
+	//
+	//	}
 
 	$oContentLayout->AddMainBlock($oFavoriteOrganizationsBlock);
 
@@ -197,7 +207,7 @@ JS
 
 	$oSet = new DBObjectSet($oShortcutsFilter);
 	if ($oSet->Count() > 0) {
-		$oShortcutsToolBar = new UIContentBlock(null, ['ibo-datatable--selection-validation-buttons-toolbar']);
+		$oShortcutsToolBar = ToolbarUIBlockFactory::MakeForButton();
 		$oShortcutsBlock->AddSubBlock($oShortcutsToolBar);
 		// - Rename button
 		$oShortcutsRenameButton = ButtonUIBlockFactory::MakeForSecondaryAction(Dict::S('UI:Button:Rename'), null, null, false,
@@ -238,7 +248,7 @@ JS
 		if ($iNewsroomDisplaySize < 1) $iNewsroomDisplaySize = 1;
 		if ($iNewsroomDisplaySize > 20) $iNewsroomDisplaySize = 20;
 		$sInput = '<input min="1" max="20" id="newsroom_display_size" type="number" size="2" name="newsroom_display_size" value="'.$iNewsroomDisplaySize.'">';
-		$sIcon = '<i id="newsroom_menu_icon" class="top-right-icon icon-additional-arrow fas fa-comment-dots" style="top: 0;"></i>';
+		$sIcon = '<i id="newsroom_menu_icon" class="top-right-icon icon-additional-arrow fas fa-bell" style="top: 0;"></i>';
 		$sNewsroomHtml .= Dict::Format('UI:Newsroom:DisplayAtMost_X_Messages', $sInput, $sIcon);
 		
 		/**
@@ -272,15 +282,20 @@ JS
 
 		$sNewsroomHtml .= $oAppContext->GetForForm();
 
+		$oNewsroomToolbar = ToolbarUIBlockFactory::MakeForButton();
+
 		// - Reset button
 		$oNewsroomResetCacheButton = ButtonUIBlockFactory::MakeForAlternativeDestructiveAction(Dict::S('UI:Newsroom:ResetCache'));
 		$oNewsroomResetCacheButton->SetOnClickJsCode("$('#ibo-navigation-menu--notifications-menu').newsroom_menu('clearCache')");
+		$oNewsroomToolbar->AddSubBlock($oNewsroomResetCacheButton);
 		// - Cancel button
-		$oNewsroomCancelButton = ButtonUIBlockFactory::MakeForSecondaryAction(Dict::S('UI:Button:Cancel'));
+		$oNewsroomCancelButton = ButtonUIBlockFactory::MakeForCancel(Dict::S('UI:Button:Cancel'));
 		$oNewsroomCancelButton->SetOnClickJsCode("window.location.href = '$sURL'");
+		$oNewsroomToolbar->AddSubBlock($oNewsroomCancelButton);
 		// - Submit button
 		$oNewsroomSubmitButton = ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Apply'), 'operation',
 			'apply_newsroom_preferences', true);
+		$oNewsroomToolbar->AddSubBlock($oNewsroomSubmitButton);
 
 
 		$sNewsroomEndHtml = '</form>';
@@ -288,75 +303,77 @@ JS
 
 		$oNewsroomHtmlBlock = new Html($sNewsroomHtml);
 		$oNewsroomBlock->AddSubBlock($oNewsroomHtmlBlock);
-		$oNewsroomBlock->AddSubBlock($oNewsroomResetCacheButton);
-		$oNewsroomBlock->AddSubBlock($oNewsroomCancelButton);
-		$oNewsroomBlock->AddSubBlock($oNewsroomSubmitButton);
+		$oNewsroomBlock->AddSubBlock($oNewsroomToolbar);
 		$oNewsroomBlock->AddSubBlock($oNewsroomEndHtmlBlock);
 		$oContentLayout->AddMainBlock($oNewsroomBlock);
 	}
+	
 	//////////////////////////////////////////////////////////////////////////
 	//
-	// Rich text editor preferences
+	// User defined keyboard shortcut
 	//
 	//////////////////////////////////////////////////////////////////////////
-	$oRichTextBlock = new Panel(Dict::S('UI:RichText:Preferences'), array(), 'grey', 'ibo-richtext');
 
-	$oRichTextForm = new Form();
-	$oRichTextForm->AddSubBlock(InputUIBlockFactory::MakeForHidden('operation', 'apply_richtext_config'));
+	// Panel
+	$oKeyboardShortcutBlock = new Panel(Dict::S('UI:Preferences:PersonalizeKeyboardShortcuts:Title'), array(), 'grey', 'ibo_keyboard_shortcuts');
+	// Form
+	$oKeyboardShortcutForm = new Form('ibo-form-for-user-interface-preferences');
+	$oKeyboardShortcutForm->AddSubBlock(InputUIBlockFactory::MakeForHidden('operation', 'apply_keyboard_shortcuts'))
+		->AddSubBlock($oAppContext->GetForFormBlock());
 
-	$sRichTextToolbarDefaultState = isset(utils::GetCkeditorPref()['toolbarStartupExpanded']) ? (bool)utils::GetCkeditorPref()['toolbarStartupExpanded'] : false;
-	$oRichTextToolbarDefaultStateInput = InputUIBlockFactory::MakeForSelectWithLabel('toolbarexpanded', Dict::S('UI:RichText:ToolbarState'));
-	$oRichTextToolbarDefaultStateInput->GetInput()->AddOption(SelectOptionUIBlockFactory::MakeForSelectOption('true', Dict::S('UI:RichText:ToolbarState:Expanded'), $sRichTextToolbarDefaultState));
-	$oRichTextToolbarDefaultStateInput->GetInput()->AddOption(SelectOptionUIBlockFactory::MakeForSelectOption('false', Dict::S('UI:RichText:ToolbarState:Collapsed'), !$sRichTextToolbarDefaultState));
-	$oRichTextForm->AddSubBlock($oRichTextToolbarDefaultStateInput);
+	$oKeyboardShortcutBlock->AddSubBlock($oKeyboardShortcutForm);
+
+	$sKeyboardShortcutBlockId = $oKeyboardShortcutBlock->GetId();
+	// JS keyboard listener
+	$oP->add_script(
+		<<<JS
+    function recordSequence$sKeyboardShortcutBlockId(fCallback) {
+         Mousetrap.record(function(sequence) {
+            fCallback(sequence.join(' '));
+        });
+    }
+JS
+	);
+	// For each existing shortcut keyboard existing in iTop
+	$aKeyboardShortcuts = utils::GetKeyboardShortcutPref();
+	$sKeyboardShortcutsInputHint = Dict::S('UI:Preferences:PersonalizeKeyboardShortcuts:Input:Hint');
+	$sKeyboardShortcutsButtonTooltip = Dict::S('UI:Preferences:PersonalizeKeyboardShortcuts:Button:Tooltip');
+	foreach($aKeyboardShortcuts as $sKeyboardShortcutId => $aKeyboardShortcut){
+			// Recording button
+			$oButton = ButtonUIBlockFactory::MakeForAlternativeSecondaryAction('');
+			$oButton->SetIconClass('fas fa-pen')->SetTooltip($sKeyboardShortcutsButtonTooltip)->SetOnClickJsCode(
+				<<<JS
+let oPanel = $(this).siblings('input');
+var fCallback = function(sVal){
+	oPanel.removeClass('ibo-is-focus').val(sVal);
+}
+oPanel.addClass('ibo-is-focus').val('$sKeyboardShortcutsInputHint')
+recordSequence$sKeyboardShortcutBlockId(fCallback);
+JS
+			);
+			
+			$oInput = InputUIBlockFactory::MakeForInputWithLabel(Dict::S($aKeyboardShortcut['label']), $sKeyboardShortcutId, $aKeyboardShortcut['key'], $sKeyboardShortcutId, 'text');
+			$oInput->GetInput()->AddCSSClasses(['ibo-keyboard-shortcut--input']);
+			$oKeyboardShortcutForm->AddSubBlock(new Html('<div class="ibo-keyboard-shortcut--shortcut">'));
+			$oKeyboardShortcutForm->AddSubBlock($oInput);
+			$oKeyboardShortcutForm->AddSubBlock($oButton);
+			$oKeyboardShortcutForm->AddSubBlock(new Html('</div>'));
+	}
+
+	// Prepare buttons
+	$oKeyboardShortcutToolbar = ToolbarUIBlockFactory::MakeForButton(null, ['ibo-is-fullwidth']);
+	$oKeyboardShortcutForm->AddSubBlock($oKeyboardShortcutToolbar);
 
 	// - Cancel button
-	$oRichTextCancelButton = ButtonUIBlockFactory::MakeForSecondaryAction(Dict::S('UI:Button:Cancel'));
-	$oRichTextCancelButton->SetOnClickJsCode("window.location.href = '$sURL'");
-	$oRichTextForm->AddSubBlock($oRichTextCancelButton);
+	$oKeyboardShortcutCancelButton = ButtonUIBlockFactory::MakeForCancel();
+	$oKeyboardShortcutToolbar->AddSubBlock($oKeyboardShortcutCancelButton);
+	$oKeyboardShortcutCancelButton->SetOnClickJsCode("window.location.href = '$sURL'");
 	// - Submit button
-	$oRichTextSubmitButton = ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Apply'), null, null, true);
-	$oRichTextForm->AddSubBlock($oRichTextSubmitButton);
-
-	$oRichTextBlock->AddSubBlock($oRichTextForm);
-	$oContentLayout->AddMainBlock($oRichTextBlock);
-
-	//////////////////////////////////////////////////////////////////////////
-	//
-	// Tabs preferences
-	//
-	//////////////////////////////////////////////////////////////////////////
-
-	$oTabsBlock = new Panel(Dict::S('UI:Tabs:Preferences'), array(), 'grey', 'ibo-tabs');
-
-	$oTabsForm = new Form();
-	$oTabsForm->AddSubBlock(InputUIBlockFactory::MakeForHidden('operation', 'apply_tab_config'));
+	$oKeyboardShortcutSubmitButton = ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Apply'), 'operation', 'apply_keyboard_shortcuts', true);
+	$oKeyboardShortcutToolbar->AddSubBlock($oKeyboardShortcutSubmitButton);
 	
-	// Tab Layout
-	$sTabsLayoutValue = appUserPreferences::GetPref('tab_layout', false);;
-	$oTabsLayout = InputUIBlockFactory::MakeForSelectWithLabel('tab_layout', Dict::S('UI:Tabs:Layout:Label'));
-	$oTabsLayout->GetInput()->AddSubBlock(SelectOptionUIBlockFactory::MakeForSelectOption('horizontal', Dict::S('UI:Tabs:Layout:Horizontal'), 'horizontal' === $sTabsLayoutValue));
-	$oTabsLayout->GetInput()->AddSubBlock(SelectOptionUIBlockFactory::MakeForSelectOption('vertical', Dict::S('UI:Tabs:Layout:Vertical'), 'vertical' === $sTabsLayoutValue));
-	$oTabsForm->AddSubBlock($oTabsLayout);
-	
-	// Tab navigation
-	$sTabsScrollableValue = appUserPreferences::GetPref('tab_scrollable', false);;
-	$oTabsScrollable = InputUIBlockFactory::MakeForSelectWithLabel('tab_scrollable', Dict::S('UI:Tabs:Scrollable:Label'));
-	$oTabsScrollable->GetInput()->AddSubBlock(SelectOptionUIBlockFactory::MakeForSelectOption('true', Dict::S('UI:Tabs:Scrollable:Scrollable'), true === $sTabsScrollableValue));
-	$oTabsScrollable->GetInput()->AddSubBlock(SelectOptionUIBlockFactory::MakeForSelectOption('false', Dict::S('UI:Tabs:Scrollable:Classic'), false === $sTabsScrollableValue));
-	$oTabsForm->AddSubBlock($oTabsScrollable);
+	$oContentLayout->AddMainBlock($oKeyboardShortcutBlock);
 
-	// - Cancel button
-	$oTabsCancelButton = ButtonUIBlockFactory::MakeForSecondaryAction(Dict::S('UI:Button:Cancel'));
-	$oTabsCancelButton->SetOnClickJsCode("window.location.href = '$sURL'");
-	$oTabsForm->AddSubBlock($oTabsCancelButton);
-	// - Submit button
-	$oTabsSubmitButton = ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Apply'), null, null, true);
-	$oTabsForm->AddSubBlock($oTabsSubmitButton);
-
-	$oTabsBlock->AddSubBlock($oTabsForm);
-	$oContentLayout->AddMainBlock($oTabsBlock);
-	
 	//////////////////////////////////////////////////////////////////////////
 	//
 	// User picture placeholder
@@ -385,9 +402,28 @@ JS
 	$oP->add_ready_script(
 		<<<JS
 $('[data-role="ibo-preferences--user-preferences--picture-placeholder--image"]').on('click',function(){
-SetUserPreference('user_picture_placeholder', $(this).attr('data-image-name'), true);
-$('[data-role="ibo-preferences--user-preferences--picture-placeholder--image"]').removeClass('ibo-is-active');
-$(this).addClass('ibo-is-active');
+	const me = this;
+	
+	// Save new preference
+	$.post(
+		GetAbsoluteUrlAppRoot()+'pages/ajax.render.php',
+		{
+			'operation': 'preferences_set_user_picture',
+			'image_filename': $(this).attr('data-image-name')
+		}
+	)
+	.done(function(oData){
+		if(false === oData.success){
+			return;
+		}
+		
+		// Update selection
+		$('[data-role="ibo-preferences--user-preferences--picture-placeholder--image"]').removeClass('ibo-is-active');
+		$(me).addClass('ibo-is-active');
+		
+		// Update navigation menu
+		$('[data-role="ibo-navigation-menu--user-picture--image"]').attr('src', oData.data.image_url);
+	});
 });
 JS
 );
@@ -415,47 +451,189 @@ HTML
 }
 
 /**
- * @param \ApplicationContext $oAppContext
- * @param string $sURL
- *
- * @return \Combodo\iTop\Application\UI\Base\Component\Form\Form
+ * @return \Combodo\iTop\Application\UI\Base\iUIBlock
+ * @since 3.0.0
  */
-function GetUserLanguageForm(ApplicationContext $oAppContext, string $sURL): Form
+function GetLanguageFieldBlock(): iUIBlock
 {
-	$oUserLanguageForm = new Form();
-	$oUserLanguageForm->AddSubBlock(InputUIBlockFactory::MakeForHidden('operation', 'apply_language'));
-
-	// Lang selector
-	$aLanguages = Dict::GetLanguages();
-	$aSortedLang = array();
-	foreach ($aLanguages as $sCode => $aLang) {
-		if (MetaModel::GetConfig()->Get('demo_mode')) {
-			if ($sCode != Dict::GetUserLanguage()) {
-				// Demo mode: only the current user language is listed in the available choices
-				continue;
-			}
+	$aAvailableLanguages = Dict::GetLanguages();
+	$aSortedLanguages = array();
+	foreach ($aAvailableLanguages as $sCode => $aLang) {
+		if (MetaModel::GetConfig()->Get('demo_mode') && ($sCode !== Dict::GetUserLanguage())) {
+			// Demo mode: only the current user language is listed in the available choices
+			continue;
 		}
-		$aSortedLang[$aLang['description']] = $sCode;
+		$aSortedLanguages[$aLang['description']] = $sCode;
 	}
-	ksort($aSortedLang);
-	$oUserLanguageBlockSelect = InputUIBlockFactory::MakeForSelectWithLabel('language', Dict::S('UI:Favorites:SelectYourLanguage'));
-	/** @var \Combodo\iTop\Application\UI\Base\Component\Input\Select $oUserLanguageBlockSelectInput */
-	$oUserLanguageBlockSelectInput = $oUserLanguageBlockSelect->GetInput();
-	foreach ($aSortedLang as $sCode) {
-		$bSelected = ($sCode == Dict::GetUserLanguage());
-		$oUserLanguageBlockSelectInput->AddSubBlock(SelectOptionUIBlockFactory::MakeForSelectOption($sCode, $aLanguages[$sCode]['description'].' ('.$aLanguages[$sCode]['localized_description'].')', $bSelected));
-	}
-	$oUserLanguageForm->AddSubBlock($oUserLanguageBlockSelect);
+	ksort($aSortedLanguages);
 
-	$oUserLanguageForm->AddSubBlock($oAppContext->GetForFormBlock());
-	// - Cancel button
-	$oUserLanguageCancelButton = ButtonUIBlockFactory::MakeForSecondaryAction(Dict::S('UI:Button:Cancel'));
-	$oUserLanguageCancelButton->SetOnClickJsCode("window.location.href = '$sURL'");
-	$oUserLanguageForm->AddSubBlock($oUserLanguageCancelButton);
-	// - Submit button
-	$oUserLanguageSubmitButton = ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Apply'), null, null, true);
-	$oUserLanguageForm->AddSubBlock($oUserLanguageSubmitButton);
-	return $oUserLanguageForm;
+	$oSelect = SelectUIBlockFactory::MakeForSelectWithLabel('language', Dict::S('UI:Favorites:SelectYourLanguage'));
+	/** @var \Combodo\iTop\Application\UI\Base\Component\Input\Select $oSelectInput */
+	$oSelectInput = $oSelect->GetInput();
+	foreach ($aSortedLanguages as $sCode) {
+		$bSelected = ($sCode === Dict::GetUserLanguage());
+		$oSelectInput->AddSubBlock(SelectOptionUIBlockFactory::MakeForSelectOption($sCode, $aAvailableLanguages[$sCode]['description'].' ('.$aAvailableLanguages[$sCode]['localized_description'].')', $bSelected));
+	}
+
+	return $oSelect;
+}
+
+/**
+ * @return \Combodo\iTop\Application\UI\Base\iUIBlock
+ * @throws \CoreException
+ * @throws \CoreUnexpectedValue
+ * @throws \MySQLException
+ * @since 3.0.0
+ */
+function GetListPageSizeFieldBlock(): iUIBlock
+{
+	$iDefaultPageSize = appUserPreferences::GetPref('default_page_size', MetaModel::GetConfig()->GetMinDisplayLimit());
+
+	$sInputHtml = '<input id="default_page_size" name="default_page_size" type="text" size="3" value="'.$iDefaultPageSize.'"/><span id="v_default_page_size"></span>';
+	$sHtml = '<p>'.Dict::Format('UI:Favorites:Default_X_ItemsPerPage', $sInputHtml).'</p>';
+
+	return new Html($sHtml);
+}
+
+/**
+ * @return \Combodo\iTop\Application\UI\Base\iUIBlock
+ * @return 3.0.0
+ * @throws \CoreUnexpectedValue
+ * @throws \MySQLException
+ * @throws \CoreException
+ */
+function GetTabsLayoutFieldBlock(): iUIBlock
+{
+	$sCurrentValue = appUserPreferences::GetPref('tab_layout', false);
+
+	$aOptionsValues = [
+		'horizontal',
+		'vertical',
+	];
+	$oSelect = SelectUIBlockFactory::MakeForSelectWithLabel('tab_layout', Dict::S('UI:Preferences:Tabs:Layout:Label'));
+	foreach ($aOptionsValues as $sValue) {
+		$oSelect->GetInput()->AddSubBlock(SelectOptionUIBlockFactory::MakeForSelectOption(
+			$sValue,
+			Dict::S('UI:Preferences:Tabs:Layout:'.ucfirst($sValue)),
+			$sValue === $sCurrentValue)
+		);
+	}
+
+	return $oSelect;
+}
+
+/**
+ * @return \Combodo\iTop\Application\UI\Base\iUIBlock
+ * @throws \CoreException
+ * @throws \CoreUnexpectedValue
+ * @throws \MySQLException
+ * @since 3.0.0
+ */
+function GetTabsNavigationFieldBlock(): iUIBlock
+{
+	$bCurrentValue = appUserPreferences::GetPref('tab_scrollable', false);
+	$sCurrentValueAsString = $bCurrentValue ? 'true' : 'false';
+
+	$aOptionsValues = [
+		'true' => 'Scrollable',
+		'false' => 'Classic',
+	];
+	$oSelect = SelectUIBlockFactory::MakeForSelectWithLabel('tab_scrollable', Dict::S('UI:Preferences:Tabs:Scrollable:Label'));
+	foreach ($aOptionsValues as $sValue => $sDictEntrySuffix) {
+		$oSelect->GetInput()->AddSubBlock(SelectOptionUIBlockFactory::MakeForSelectOption(
+			$sValue,
+			Dict::S('UI:Preferences:Tabs:Scrollable:'.$sDictEntrySuffix),
+			$sValue === $sCurrentValueAsString)
+		);
+	}
+
+	return $oSelect;
+}
+
+/**
+ * @return \Combodo\iTop\Application\UI\Base\iUIBlock
+ * @throws \CoreException
+ * @throws \CoreUnexpectedValue
+ * @throws \MySQLException
+ * @since 3.0.0
+ */
+function GetRichTextToolbarExpandedFieldBlock(): iUIBlock
+{
+	$bCurrentValue = isset(utils::GetCkeditorPref()['toolbarStartupExpanded']) ? (bool)utils::GetCkeditorPref()['toolbarStartupExpanded'] : false;
+	$sCurrentValueAsString = $bCurrentValue ? 'true' : 'false';
+
+	$aOptionsValues = [
+		'true' => 'Expanded',
+		'false' => 'Collapsed',
+	];
+	$oSelect = SelectUIBlockFactory::MakeForSelectWithLabel('toolbarexpanded', Dict::S('UI:Preferences:RichText:ToolbarState'));
+	foreach ($aOptionsValues as $sValue => $sDictEntrySuffix) {
+		$oSelect->GetInput()->AddOption(SelectOptionUIBlockFactory::MakeForSelectOption(
+			$sValue,
+			Dict::S('UI:Preferences:RichText:ToolbarState:'.$sDictEntrySuffix),
+			$sValue === $sCurrentValueAsString)
+		);
+	}
+
+	return $oSelect;
+}
+
+/**
+ * @return \Combodo\iTop\Application\UI\Base\iUIBlock
+ * @throws \CoreException
+ * @throws \CoreUnexpectedValue
+ * @throws \MySQLException
+ * @since 3.0.0
+ */
+function GetActivityPanelEntryFormOpenedFieldBlock(): iUIBlock
+{
+	// First check if user has a pref.
+	$bOpened = appUserPreferences::GetPref('activity_panel.is_entry_form_opened', null);
+	if (null === $bOpened) {
+		// Otherwise get the default config. param.
+		$bOpened = MetaModel::GetConfig()->Get('activity_panel.entry_form_opened_by_default');
+	}
+	$sCheckedForHtmlAttribute = $bOpened ? 'checked="checked"' : '';
+
+	$sLabel = Dict::S('UI:Preferences:ActivityPanel:EntryFormOpened');
+	$sLabelDescription = Dict::S('UI:Preferences:ActivityPanel:EntryFormOpened+');
+	$sHtml = <<<HTML
+<p>
+	<label data-tooltip-content="{$sLabelDescription}">
+		<span>{$sLabel}</span>
+		<input type="checkbox" name="activity_panel_entry_form_opened" value="1" {$sCheckedForHtmlAttribute}>
+	</label>
+</p>
+HTML;
+
+	return new Html($sHtml);
+}
+
+/**
+ * @return \Combodo\iTop\Application\UI\Base\iUIBlock
+ * @throws \CoreException
+ * @throws \CoreUnexpectedValue
+ * @throws \MySQLException
+ * @since 3.0.0
+ */
+function GetObsoleteDataFieldBlock(): iUIBlock
+{
+	$bShow = utils::IsArchiveMode() || appUserPreferences::GetPref('show_obsolete_data', MetaModel::GetConfig()->Get('obsolescence.show_obsolete_data'));
+	$sSelectedForHtmlAttribute = $bShow ? ' checked="checked"' : '';
+	$sDisabledForHtmlAttribute = utils::IsArchiveMode() ? 'disabled="disabled"' : '';
+
+	$sLabel = Dict::S('UI:Favorites:ShowObsoleteData');
+	$sLabelDescription = Dict::S('UI:Favorites:ShowObsoleteData+');
+	$sHtml = <<<HTML
+<p>
+	<label data-tooltip-content="{$sLabelDescription}">
+		<span>{$sLabel}</span>
+		<input type="checkbox" name="show_obsolete_data" value="1"{$sSelectedForHtmlAttribute}{$sDisabledForHtmlAttribute}>
+	</label>
+</p>
+HTML;
+
+	return new Html($sHtml);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -499,77 +677,90 @@ try {
 				}
 				DisplayPreferences($oPage);
 				break;
-			case 'apply_richtext_config':
-				$aRichTextConfig = 	json_decode(appUserPreferences::GetPref('richtext_config', '{}'), true);
-				
-				$bToolbarExpanded = utils::ReadParam('toolbarexpanded', 'false') === 'true';
-				$aRichTextConfig['toolbarStartupExpanded'] = $bToolbarExpanded;
-				
-				appUserPreferences::SetPref('richtext_config', json_encode($aRichTextConfig));
-				DisplayPreferences($oPage);
-				break;
-			case 'apply_tab_config':
-				$sLayout = utils::ReadParam('tab_layout', 'horizontal');
-				$sLayoutAllowedValues = ['horizontal', 'vertical'];
-				if(in_array($sLayout, $sLayoutAllowedValues, true))
-				{
-					appUserPreferences::SetPref('tab_layout', $sLayout);
-				}
 
-				$bScrollable = utils::ReadParam('tab_scrollable', 'false') === 'true';
-				appUserPreferences::SetPref('tab_scrollable', $bScrollable);
-				DisplayPreferences($oPage);
-				break;
-			case 'apply_language':
+			case 'apply_user_interface':
+				// Language
 				$sLangCode = utils::ReadParam('language', 'EN US');
 				$oUser = UserRights::GetUserObject();
 				$oUser->Set('language', $sLangCode);
+
 				utils::PushArchiveMode(false);
 				$oUser->AllowWrite(true);
 				$oUser->DBUpdate();
 				utils::PopArchiveMode();
-				// Redirect to force a reload/display of the page with the new language
+
+				// List
+				$iDefaultPageSize = (int)utils::ReadParam('default_page_size', -1);
+				if ($iDefaultPageSize > 0) {
+					appUserPreferences::SetPref('default_page_size', $iDefaultPageSize);
+				}
+
+				// Tabs
+				// - Layout
+				$sLayout = utils::ReadParam('tab_layout', 'horizontal');
+				$sLayoutAllowedValues = ['horizontal', 'vertical'];
+				if (in_array($sLayout, $sLayoutAllowedValues, true)) {
+					appUserPreferences::SetPref('tab_layout', $sLayout);
+				}
+
+				// - Navigation
+				$bScrollable = utils::ReadParam('tab_scrollable', 'false') === 'true';
+				appUserPreferences::SetPref('tab_scrollable', $bScrollable);
+
+				// Rich text editor
+				$bToolbarExpanded = utils::ReadParam('toolbarexpanded', 'false') === 'true';
+				$aRichTextConfig = json_decode(appUserPreferences::GetPref('richtext_config', '{}'), true);
+				$aRichTextConfig['toolbarStartupExpanded'] = $bToolbarExpanded;
+				appUserPreferences::SetPref('richtext_config', json_encode($aRichTextConfig));
+
+				// Activity panel
+				$bActivityPanelEntryFormOpened = (bool)utils::ReadParam('activity_panel_entry_form_opened', 0);
+				appUserPreferences::SetPref('activity_panel.is_entry_form_opened', $bActivityPanelEntryFormOpened);
+
+				// Misc.
+				// - Obsolete data
+				$bShowObsoleteData = (bool)utils::ReadParam('show_obsolete_data', 0);
+				appUserPreferences::SetPref('show_obsolete_data', $bShowObsoleteData);
+
+				// Redirect to force a reload/display of the page in case language has been changed
 				$oAppContext = new ApplicationContext();
 				$sURL = utils::GetAbsoluteUrlAppRoot().'pages/preferences.php?'.$oAppContext->GetForLink();
 				$oPage->add_header('Location: '.$sURL);
 				break;
-			case 'apply_others':
-				$iDefaultPageSize = (int)utils::ReadParam('default_page_size', -1);
-				if ($iDefaultPageSize > 0)
-				{
-					appUserPreferences::SetPref('default_page_size', $iDefaultPageSize);
+			case 'apply_keyboard_shortcuts':
+				// Note: Mind the 4 blackslashes, see utils::GetClassesForInterface()
+				$aShortcutClasses = utils::GetClassesForInterface('iKeyboardShortcut', '', array('[\\\\/]lib[\\\\/]', '[\\\\/]node_modules[\\\\/]', '[\\\\/]test[\\\\/]'));
+				$aShortcutPrefs = [];
+				foreach ($aShortcutClasses as $cShortcutPlugin) {
+					foreach ($cShortcutPlugin::GetShortcutKeys() as $aShortcutKey) {
+						$sKey = utils::ReadParam($aShortcutKey['id'], $aShortcutKey['key'], true, 'raw_data');
+						$aShortcutPrefs[$aShortcutKey['id']] = strtolower($sKey);
+					}
 				}
-				$bShowObsoleteData = (bool)utils::ReadParam('show_obsolete_data', 0);
-				appUserPreferences::SetPref('show_obsolete_data', $bShowObsoleteData);
+				appUserPreferences::SetPref('keyboard_shortcuts', $aShortcutPrefs);
+
 				DisplayPreferences($oPage);
 				break;
-
 			case 'apply_newsroom_preferences':
 				$iCountProviders = 0;
 				$oUser = UserRights::GetUserObject();
 				$aProviders = MetaModel::EnumPlugins('iNewsroomProvider');
-				foreach ($aProviders as $oProvider)
-				{
-					if ($oProvider->IsApplicable($oUser))
-					{
+				foreach ($aProviders as $oProvider) {
+					if ($oProvider->IsApplicable($oUser)) {
 						$iCountProviders++;
 					}
 				}
 				$bNewsroomEnabled = (MetaModel::GetConfig()->Get('newsroom_enabled') !== false);
-				if ($bNewsroomEnabled && ($iCountProviders > 0))
-				{
+				if ($bNewsroomEnabled && ($iCountProviders > 0)) {
 					$iNewsroomDisplaySize = (int)utils::ReadParam('newsroom_display_size', 7);
-					if ($iNewsroomDisplaySize < 1)
-					{
+					if ($iNewsroomDisplaySize < 1) {
 						$iNewsroomDisplaySize = 1;
 					}
-					if ($iNewsroomDisplaySize > 20)
-					{
+					if ($iNewsroomDisplaySize > 20) {
 						$iNewsroomDisplaySize = 20;
 					}
 					$iCurrentDisplaySize = (int)appUserPreferences::GetPref('newsroom_display_size', $iNewsroomDisplaySize);
-					if ($iCurrentDisplaySize != $iNewsroomDisplaySize)
-					{
+					if ($iCurrentDisplaySize != $iNewsroomDisplaySize) {
 						// Save the preference only if it differs from the current (or default) value
 						appUserPreferences::SetPref('newsroom_display_size', $iNewsroomDisplaySize);
 					}

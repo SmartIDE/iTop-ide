@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2016 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -20,7 +20,7 @@
 /**
  * Persistent classes (internal) : cmdbChangeOp and derived
  *
- * @copyright   Copyright (C) 2010-2016 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -39,7 +39,7 @@
 interface iCMDBChangeOp
 {
 	/**
-	 * Describe (as a text string) the modifications corresponding to this change
+	 * Describe (as an HTML string) the modifications corresponding to this change
 	 *
 	 * @return string
 	 */

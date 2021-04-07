@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -8,10 +8,18 @@
 namespace Combodo\iTop\Application\UI\Base\Component\Dashlet;
 
 
+use Combodo\iTop\Application\UI\Base\tJSRefreshCallback;
+
 class DashletBadge extends DashletContainer
 {
+	use tJSRefreshCallback;
+
 	public const BLOCK_CODE = 'ibo-dashlet-badge';
-	public const DEFAULT_HTML_TEMPLATE_REL_PATH = 'base/components/dashlet/dashletbadge';
+	public const DEFAULT_HTML_TEMPLATE_REL_PATH = 'base/components/dashlet/dashlet-badge';
+	public const DEFAULT_JS_ON_READY_TEMPLATE_REL_PATH = 'base/components/dashlet/dashlet-badge';
+	public const DEFAULT_JS_FILES_REL_PATH = [
+		'js/components/dashlet/dashlet-badge.js',
+	];
 
 	/** @var string */
 	protected $sClassIconUrl;
@@ -26,6 +34,8 @@ class DashletBadge extends DashletContainer
 	protected $sCreateActionUrl;
 	/** @var string */
 	protected $sCreateActionLabel;
+	/** @var array */
+	protected $aRefreshParams;
 
 	/**
 	 * DashletBadge constructor.
@@ -34,10 +44,14 @@ class DashletBadge extends DashletContainer
 	 * @param string $sHyperlink
 	 * @param string $iCount
 	 * @param string $sClassLabel
-	 * @param string $sCreateActionUrl
-	 * @param string $sCreateActionLabel
+	 * @param string|null $sCreateActionUrl
+	 * @param string|null $sCreateActionLabel
+	 * @param array $aRefreshParams
 	 */
-	public function __construct(string $sClassIconUrl, string $sHyperlink, string $iCount, string $sClassLabel, string $sCreateActionUrl = '', string $sCreateActionLabel = '')
+	public function __construct(
+		string $sClassIconUrl, string $sHyperlink, string $iCount, string $sClassLabel, ?string $sCreateActionUrl = '',
+		?string $sCreateActionLabel = '', array $aRefreshParams = []
+	)
 	{
 		parent::__construct();
 
@@ -47,44 +61,47 @@ class DashletBadge extends DashletContainer
 		$this->sClassLabel = $sClassLabel;
 		$this->sCreateActionUrl = $sCreateActionUrl;
 		$this->sCreateActionLabel = $sCreateActionLabel;
+		$this->aRefreshParams = $aRefreshParams;
 	}
 
 
 	/**
 	 * @return string
 	 */
-	public function GetCreateActionUrl(): string
+	public function GetCreateActionUrl(): ?string
 	{
 		return $this->sCreateActionUrl;
 	}
 
 	/**
-	 * @param string $sCreateActionUrl
+	 * @param string|null $sCreateActionUrl
 	 *
 	 * @return DashletBadge
 	 */
-	public function SetCreateActionUrl(string $sCreateActionUrl): DashletBadge
+	public function SetCreateActionUrl(?string $sCreateActionUrl): DashletBadge
 	{
 		$this->sCreateActionUrl = $sCreateActionUrl;
+
 		return $this;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function GetCreateActionLabel(): string
+	public function GetCreateActionLabel(): ?string
 	{
 		return $this->sCreateActionLabel;
 	}
 
 	/**
-	 * @param string $sCreateActionLabel
+	 * @param string|null $sCreateActionLabel
 	 *
 	 * @return DashletBadge
 	 */
-	public function SetCreateActionLabel(string $sCreateActionLabel): DashletBadge
+	public function SetCreateActionLabel(?string $sCreateActionLabel): DashletBadge
 	{
 		$this->sCreateActionLabel = $sCreateActionLabel;
+
 		return $this;
 	}
 
@@ -104,6 +121,7 @@ class DashletBadge extends DashletContainer
 	public function SetClassIconUrl(string $sClassIconUrl): DashletBadge
 	{
 		$this->sClassIconUrl = $sClassIconUrl;
+
 		return $this;
 	}
 
@@ -123,6 +141,7 @@ class DashletBadge extends DashletContainer
 	public function SetHyperlink(string $sHyperlink): DashletBadge
 	{
 		$this->sHyperlink = $sHyperlink;
+
 		return $this;
 	}
 
@@ -142,6 +161,7 @@ class DashletBadge extends DashletContainer
 	public function SetCount(string $iCount): DashletBadge
 	{
 		$this->iCount = $iCount;
+
 		return $this;
 	}
 
@@ -161,8 +181,21 @@ class DashletBadge extends DashletContainer
 	public function SetClassLabel(string $sClassLabel): DashletBadge
 	{
 		$this->sClassLabel = $sClassLabel;
+
 		return $this;
 	}
 
+	public function GetJSRefresh(): string
+	{
+		return "$('#".$this->sId."').block();
+				$.post('ajax.render.php?operation=refreshDashletCount&style=count',
+				   ".json_encode($this->aRefreshParams).",
+				   function(data){
+					 $('#".$this->sId."').find('.ibo-dashlet-badge--action-list-count').html(data.count);
+					 $('#".$this->sId."').unblock();
+					});
+					
+				$('#".$this->sId."').unblock();";
+	}
 
 }

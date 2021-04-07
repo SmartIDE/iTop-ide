@@ -3,7 +3,7 @@
 /** @noinspection PhpUnhandledExceptionInspection */
 
 /*
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -23,14 +23,20 @@
 namespace Combodo\iTop\Test\VisualTest\Backoffice;
 
 use Combodo\iTop\Application\UI\Base\Component\Alert\AlertUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\Button\Button;
 use Combodo\iTop\Application\UI\Base\Component\Button\ButtonUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\ButtonGroup\ButtonGroup;
+use Combodo\iTop\Application\UI\Base\Component\ButtonGroup\ButtonGroupUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\CollapsibleSection\CollapsibleSection;
 use Combodo\iTop\Application\UI\Base\Component\Html\Html;
+use Combodo\iTop\Application\UI\Base\Component\Panel\Panel;
 use Combodo\iTop\Application\UI\Base\Component\Panel\PanelUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenu;
+use Combodo\iTop\Application\UI\Base\Layout\Object\ObjectFactory;
 use Combodo\iTop\Application\UI\Base\Layout\PageContent\PageContentFactory;
 use iTopWebPage;
 use LoginWebPage;
-use utils;
+use MetaModel;
 
 require_once '../../../approot.inc.php';
 require_once APPROOT.'application/startup.inc.php';
@@ -85,6 +91,9 @@ $oAlertNonClosable = AlertUIBlockFactory::MakeNeutral('Alert not closable, not c
 	->SetIsClosable(false)
 	->SetIsCollapsible(false);
 $oPageContentLayout->AddMainBlock($oAlertNonClosable);
+$oAlertCollapsibleNotClosable = AlertUIBlockFactory::MakeNeutral('Alert collapsible but nos closable', $sContent)
+	->SetIsClosable(false);
+$oPageContentLayout->AddMainBlock($oAlertCollapsibleNotClosable);
 $oAlertSaveCollapsibleState = AlertUIBlockFactory::MakeNeutral('Alert with collapsible state saving', $sContent)
 	->EnableSaveCollapsibleState('RenderAllUiBlocks-alert');
 $oPageContentLayout->AddMainBlock($oAlertSaveCollapsibleState);
@@ -94,9 +103,9 @@ $oPageContentLayout->AddMainBlock(new Html('<hr/>'));
 //////////
 // Buttons
 //////////
-$oButtonsTitle = new Html('<h2 id="title-buttons">Buttons examples</h2>');
-$oPage->AddUiBlock($oButtonsTitle);
-$oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeNeutral('Neutral', 'neutral'));
+$oButtonsJSTitle = new Html('<h2 id="title-buttons">ButtonsJS examples</h2>');
+$oPage->AddUiBlock($oButtonsJSTitle);
+$oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeNeutral('Neutral'));
 $oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeNeutral('Neutral dis.', 'neutral')->SetIsDisabled(true));
 $oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeForPrimaryAction('Primary'));
 $oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeForPrimaryAction('Primary dis.')->SetIsDisabled(true));
@@ -106,8 +115,8 @@ $oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeForPositiveAction('V
 $oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeForPositiveAction('Validation dis.')->SetIsDisabled(true));
 $oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeForDestructiveAction('Destructive'));
 $oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeForDestructiveAction('Destructive dis.')->SetIsDisabled(true));
-$oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeAlternativeNeutral('Alt. neutral', 'alt-neutral'));
-$oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeAlternativeNeutral('Alt. neutral dis.', 'alt-neutral')->SetIsDisabled(true));
+$oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeAlternativeNeutral('Alt. neutral'));
+$oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeAlternativeNeutral('Alt. neutral dis.')->SetIsDisabled(true));
 $oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeForAlternativePrimaryAction('Alt. primary'));
 $oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeForAlternativePrimaryAction('Alt. primary dis.')->SetIsDisabled(true));
 $oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeForAlternativeSecondaryAction('Alt. secondary'));
@@ -116,9 +125,84 @@ $oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeForAlternativeValida
 $oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeForAlternativeValidationAction('Alt. validation dis.')->SetIsDisabled(true));
 $oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeForAlternativeDestructiveAction('Alt. destructive'));
 $oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeForAlternativeDestructiveAction('Alt. destructive dis.')->SetIsDisabled(true));
-$oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeLinkNeutral(utils::GetAbsoluteUrlAppRoot(), 'Link neutral'));
-$oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeLinkNeutral(utils::GetAbsoluteUrlAppRoot(), 'Link neutral dis.')->SetIsDisabled(true));
-$oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeIconLink('fas fa-thumbs-up', 'Icon link button'));
+
+$oButtonsURLTitle = new Html('<h2 id="title-buttons">ButtonsURL examples</h2>');
+$oPage->AddUiBlock($oButtonsURLTitle);
+$oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeLinkNeutral('#', 'Link neutral'));
+$oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeIconLink('fas fa-thumbs-up', 'Icon link button', '#'));
+$oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeLinkNeutral('#', 'Link primary')->SetColor(Button::ENUM_COLOR_PRIMARY));
+$oPageContentLayout->AddMainBlock(ButtonUIBlockFactory::MakeIconLink('fas fa-thumbs-up', 'Icon link button primary', '#')->SetColor(Button::ENUM_COLOR_PRIMARY));
+
+$oPageContentLayout->AddMainBlock(new Html('<hr/>'));
+
+//////////////
+// ButtonGroup
+//////////////
+
+$oPage->AddUiBlock(new Html('<h2 id="title-button-groups">ButtonGroups examples: button + menu</h2>'));
+$oPageContentLayout->AddMainBlock(ButtonGroupUIBlockFactory::MakeButtonWithOptionsMenu(
+	ButtonUIBlockFactory::MakeNeutral('Neutral with options'),
+	new PopoverMenu()
+));
+$oPageContentLayout->AddMainBlock(ButtonGroupUIBlockFactory::MakeButtonWithOptionsMenu(
+	ButtonUIBlockFactory::MakeForPrimaryAction('Primary with options'),
+	new PopoverMenu()
+));
+$oPageContentLayout->AddMainBlock(ButtonGroupUIBlockFactory::MakeButtonWithOptionsMenu(
+	ButtonUIBlockFactory::MakeForSecondaryAction('Secondary with options'),
+	new PopoverMenu()
+));
+$oPageContentLayout->AddMainBlock(ButtonGroupUIBlockFactory::MakeButtonWithOptionsMenu(
+	ButtonUIBlockFactory::MakeForPositiveAction('Validation with options'),
+	new PopoverMenu()
+));
+$oPageContentLayout->AddMainBlock(ButtonGroupUIBlockFactory::MakeButtonWithOptionsMenu(
+	ButtonUIBlockFactory::MakeForDestructiveAction('Destructive with options'),
+	new PopoverMenu()
+));
+$oPageContentLayout->AddMainBlock(ButtonGroupUIBlockFactory::MakeButtonWithOptionsMenu(
+	ButtonUIBlockFactory::MakeAlternativeNeutral('Alt. neutral with options'),
+	new PopoverMenu()
+));
+$oPageContentLayout->AddMainBlock(ButtonGroupUIBlockFactory::MakeButtonWithOptionsMenu(
+	ButtonUIBlockFactory::MakeForAlternativePrimaryAction('Alt. primary with options'),
+	new PopoverMenu()
+));
+$oPageContentLayout->AddMainBlock(ButtonGroupUIBlockFactory::MakeButtonWithOptionsMenu(
+	ButtonUIBlockFactory::MakeForAlternativeSecondaryAction('Alt. secondary with options'),
+	new PopoverMenu()
+));
+$oPageContentLayout->AddMainBlock(ButtonGroupUIBlockFactory::MakeButtonWithOptionsMenu(
+	ButtonUIBlockFactory::MakeForAlternativeValidationAction('Alt. validation with options'),
+	new PopoverMenu()
+));
+$oPageContentLayout->AddMainBlock(ButtonGroupUIBlockFactory::MakeButtonWithOptionsMenu(
+	ButtonUIBlockFactory::MakeForAlternativeDestructiveAction('Alt. destructive with options'),
+	new PopoverMenu()
+));
+
+$oPage->AddUiBlock(new Html('<h2 id="title-button-groups">ButtonGroups examples: button + button + button</h2>'));
+$oPageContentLayout->AddMainBlock(new ButtonGroup(
+	[
+		ButtonUIBlockFactory::MakeNeutral('Three'),
+		ButtonUIBlockFactory::MakeNeutral('neutral'),
+		ButtonUIBlockFactory::MakeNeutral('button'),
+	]
+));
+$oPageContentLayout->AddMainBlock(new ButtonGroup(
+	[
+		ButtonUIBlockFactory::MakeForPrimaryAction('Three'),
+		ButtonUIBlockFactory::MakeForPrimaryAction('primary'),
+		ButtonUIBlockFactory::MakeForPrimaryAction('button'),
+	]
+));
+$oPageContentLayout->AddMainBlock(new ButtonGroup(
+	[
+		ButtonUIBlockFactory::MakeAlternativeNeutral('Three'),
+		ButtonUIBlockFactory::MakeAlternativeNeutral('primary'),
+		ButtonUIBlockFactory::MakeAlternativeNeutral('alt. button'),
+	]
+));
 
 $oPageContentLayout->AddMainBlock(new Html('<hr/>'));
 
@@ -127,10 +211,12 @@ $oPageContentLayout->AddMainBlock(new Html('<hr/>'));
 /////////
 $oPanelsTitle = new Html('<h2 id="title-panels">Panels examples</h2>');
 $oPage->AddUiBlock($oPanelsTitle);
+
 $aSubBlocks = [
 	new Html('<div>Panel body, can contain anything from simple text to rich text, forms, images, <a href="#">links</a>, graphs or tables.</div>'),
-	new Html('<div>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>'),
+	new Html('<div>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</div>'),
 ];
+$sClassIconUrl = MetaModel::GetClassIcon('Organization', false);
 
 $oPanel = PanelUIBlockFactory::MakeNeutral('Neutral panel');
 $oPanel->SetSubBlocks($aSubBlocks);
@@ -164,8 +250,70 @@ $oPanel = PanelUIBlockFactory::MakeWithBrandingSecondaryColor('Panel with brandi
 $oPanel->SetSubBlocks($aSubBlocks);
 $oPageContentLayout->AddMainBlock($oPanel);
 
+$oPanel = PanelUIBlockFactory::MakeNeutral('Panel with title only');
+$oPanel->SetSubBlocks($aSubBlocks);
+$oPageContentLayout->AddMainBlock($oPanel);
+
+$oPanel = PanelUIBlockFactory::MakeNeutral('')
+	->SetSubBlocks($aSubBlocks)
+	->SetSubTitle('Panel with subtitle only');
+$oPageContentLayout->AddMainBlock($oPanel);
+
+$oPanel = PanelUIBlockFactory::MakeNeutral('Panel with title and subtitle')
+	->SetSubBlocks($aSubBlocks)
+	->SetSubTitle('Subtitle');
+$oPageContentLayout->AddMainBlock($oPanel);
+
+$oPanel = PanelUIBlockFactory::MakeNeutral('Panel with title and icon')
+	->SetSubBlocks($aSubBlocks)
+	->SetIcon($sClassIconUrl);
+$oPageContentLayout->AddMainBlock($oPanel);
+
+$oPanel = PanelUIBlockFactory::MakeNeutral('')
+	->SetSubBlocks($aSubBlocks)
+	->SetSubTitle('Panel with subtitle and icon')
+	->SetIcon($sClassIconUrl);
+$oPageContentLayout->AddMainBlock($oPanel);
+
+$oPanel = PanelUIBlockFactory::MakeNeutral('Panel with title, subtitle and icon')
+	->SetSubBlocks($aSubBlocks)
+	->SetSubTitle('Subtitle')
+	->SetIcon($sClassIconUrl);
+$oPageContentLayout->AddMainBlock($oPanel);
+
+$oPanel = PanelUIBlockFactory::MakeNeutral('Panel with title, subtitle and icon as a medallion')
+	->SetSubBlocks($aSubBlocks)
+	->SetSubTitle('Subtitle')
+	->SetIcon($sClassIconUrl, Panel::ENUM_ICON_COVER_METHOD_ZOOMOUT, true);
+$oPageContentLayout->AddMainBlock($oPanel);
+
 $oPageContentLayout->AddMainBlock(new Html('<hr/>'));
 
+/////////
+// ObjectDetails
+/////////
+$oObjecTDetailsTitle = new Html('<h2 id="title-object-details">ObjectDetails examples</h2>');
+$oPage->AddUiBlock($oObjecTDetailsTitle);
+
+$oOrgObject = MetaModel::NewObject('Organization');
+$oOrgObject->Set('name', 'Stub, no tab container. Just to see how the header is displayed');
+$oOrgObject->Set('status', 'active');
+
+$oObjectDetails = ObjectFactory::MakeDetails($oOrgObject);
+$oPageContentLayout->AddMainBlock($oObjectDetails);
+$oPage->AddTabContainer(OBJECT_PROPERTIES_TAB, '', $oObjectDetails);
+$oPage->SetCurrentTabContainer(OBJECT_PROPERTIES_TAB);
+$oPage->SetCurrentTab('First');
+$oPage->add('Extra tabs icon is normal as there is no JS widget instantiated here.');
+$oPage->SetCurrentTab('Second');
+$oPage->SetCurrentTab('Third');
+$oPage->SetCurrentTab('Fourth');
+$oPage->SetCurrentTab('Fifth');
+$oPage->SetCurrentTab('Sixth');
+$oPage->SetCurrentTab('Seventh');
+$oPage->SetCurrentTabContainer();
+
+$oPageContentLayout->AddMainBlock(new Html('<hr/>'));
 
 /////////
 // Collapsible Section

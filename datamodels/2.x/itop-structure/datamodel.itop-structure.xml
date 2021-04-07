@@ -7,7 +7,7 @@
         <comment><![CDATA[/**
  * Persistent classes for a CMDB
  *
- * @copyright   Copyright (C) 2010-2017 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */]]></comment>
         <category>bizmodel,searchable,structure</category>
@@ -25,7 +25,7 @@
           <state_attribute>status</state_attribute>
         </fields_semantic>
         <style>
-          <icon>images/building.png</icon>
+          <icon>../../images/icons/icons8-organization.svg</icon>
         </style>
         <reconciliation>
           <attributes>
@@ -206,7 +206,7 @@
           <state_attribute>status</state_attribute>
         </fields_semantic>
         <style>
-          <icon>images/location.png</icon>
+          <icon>../../images/icons/icons8-map-marker.svg</icon>
         </style>
         <reconciliation>
           <attributes>
@@ -391,8 +391,8 @@
           <state_attribute>status</state_attribute>
         </fields_semantic>
         <style>
-          <icon>images/team.png</icon>
-          <main_color>green</main_color>
+          <icon>../../images/icons/icons8-customer.svg</icon>
+          <main_color>blue-grey</main_color>
           <complementary_color>white</complementary_color>
         </style>
         <reconciliation>
@@ -583,7 +583,7 @@
           <image_attribute>picture</image_attribute>
         </fields_semantic>
         <style>
-          <icon>images/person.png</icon>
+          <icon>../../images/icons/icons8-person-female.svg</icon>
         </style>
         <reconciliation>
           <attributes>
@@ -902,7 +902,7 @@
           </attributes>
         </naming>
         <style>
-          <icon>images/team.png</icon>
+          <icon>../../images/icons/icons8-team.svg</icon>
         </style>
         <reconciliation>
           <attributes>
@@ -1172,7 +1172,7 @@
           <state_attribute>status</state_attribute>
         </fields_semantic>
         <style>
-          <icon>images/document.png</icon>
+          <icon>../../images/icons/icons8-documents.svg</icon>
         </style>
         <reconciliation>
           <attributes>
@@ -1329,7 +1329,7 @@
           </attributes>
         </naming>
         <style>
-          <icon>images/document.png</icon>
+          <icon>../../images/icons/icons8-file.svg</icon>
         </style>
         <reconciliation>
           <attributes>
@@ -1540,7 +1540,7 @@
           </attributes>
         </naming>
         <style>
-          <icon>images/document.png</icon>
+          <icon>../../images/icons/icons8-cloud-file.svg</icon>
         </style>
         <reconciliation>
           <attributes>
@@ -1856,12 +1856,13 @@
         <stylesheets>
           <stylesheet id="fullmoon">../css/backoffice/main.scss</stylesheet>
         </stylesheets>
+        <precompiled_stylesheet>itop-structure/precompiled-themes/fullmoon/main.css</precompiled_stylesheet>
       </theme>
       <theme id="test-red" _delta="define">
         <variables>
-          <variable id="ibo-page-banner-background-color">$ibo-color-red-600</variable>
-          <variable id="ibo-page-banner-text-color">$ibo-color-red-100</variable>
-          <variable id="ibo-page-banner-text-content">"THIS IS A TEST INSTANCE"</variable>
+          <variable id="ibo-page-banner--background-color">$ibo-color-red-600</variable>
+          <variable id="ibo-page-banner--text-color">$ibo-color-red-100</variable>
+          <variable id="ibo-page-banner--text-content">"THIS IS A TEST INSTANCE"</variable>
         </variables>
         <imports>
         </imports>
@@ -1869,6 +1870,7 @@
           <stylesheet id="fullmoon">../css/backoffice/main.scss</stylesheet>
           <stylesheet id="environment-banner">../css/backoffice/themes/page-banner.scss</stylesheet>
         </stylesheets>
+        <precompiled_stylesheet>itop-structure/precompiled-themes/test-red/main.css</precompiled_stylesheet>
       </theme>
     </themes>
   </branding>

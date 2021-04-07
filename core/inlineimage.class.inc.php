@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -531,8 +531,7 @@ JS
 
 		$sAbsoluteUrlAppRoot = utils::GetAbsoluteUrlAppRoot();
 		$sToggleFullScreen = htmlentities(Dict::S('UI:ToggleFullScreen'), ENT_QUOTES, 'UTF-8');
-		$sAppRootUrl = utils::GetAbsoluteUrlAppRoot();
-
+		
 		return
 			<<<JS
 		// Hook the file upload of all CKEditor instances
@@ -580,7 +579,7 @@ JS
 			oEditor.on( 'instanceReady', function() {
 				if(!CKEDITOR.env.iOS && $('#'+oEditor.id+'_toolbox .ibo-vendors-ckeditor--toolbar-fullscreen-button').length == 0)
 				{
-					$('#'+oEditor.id+'_toolbox').append('<span class="ibo-vendors-ckeditor--toolbar-fullscreen-button" data-role="ibo-vendors-ckeditor--toolbar-fullscreen-button" title="$sToggleFullScreen" style="background-image:url(\\'$sAppRootUrl/images/full-screen.png\\')">&nbsp;</span>');
+					$('#'+oEditor.id+'_toolbox').append('<span class="ibo-vendors-ckeditor--toolbar-fullscreen-button" data-role="ibo-vendors-ckeditor--toolbar-fullscreen-button" title="$sToggleFullScreen" style="background-image:url(\\'$sAbsoluteUrlAppRoot/images/full-screen.png\\')">&nbsp;</span>');
 					$('#'+oEditor.id+'_toolbox .ibo-vendors-ckeditor--toolbar-fullscreen-button').on('click', function() {
 							oEditor.execCommand('maximize');
 							if ($(this).closest('.cke_maximized').length != 0)

@@ -1,6 +1,6 @@
 <?php
 /*
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -97,6 +97,14 @@ class UIContentBlock extends UIBlock implements iUIContentBlock
 	public function GetSubBlock(string $sId): ?iUIBlock
 	{
 		return isset($this->aSubBlocks[$sId]) ? $this->aSubBlocks[$sId] : null;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function HasSubBlocks(): bool
+	{
+		return !empty($this->aSubBlocks);
 	}
 
 	/**

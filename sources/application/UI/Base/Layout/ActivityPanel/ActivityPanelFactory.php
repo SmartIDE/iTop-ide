@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -21,14 +21,13 @@ namespace Combodo\iTop\Application\UI\Base\Layout\ActivityPanel;
 
 
 use cmdbAbstractObject;
-use CMDBChangeOpSetAttributeCaseLog;
 use Combodo\iTop\Application\UI\Base\Layout\ActivityPanel\ActivityEntry\ActivityEntryFactory;
-use Combodo\iTop\Application\UI\Base\Layout\ActivityPanel\ActivityEntry\EditsEntry;
 use Combodo\iTop\Application\UI\Base\Layout\ActivityPanel\CaseLogEntryFormFactory\CaseLogEntryFormFactory;
 use DBObject;
 use DBObjectSearch;
 use DBObjectSet;
 use Exception;
+use IssueLog;
 use MetaModel;
 
 /**
@@ -44,10 +43,10 @@ class ActivityPanelFactory
 	/**
 	 * Make an activity panel for an object details layout, meaning that it should contain the case logs and the activity.
 	 *
-	 * @param \DBObject $oObject
-	 * @param string    $sMode Mode the object is being displayed (view, edit, create, ...), default is view.
-	 *
 	 * @see cmdbAbstractObject::ENUM_OBJECT_MODE_XXX
+	 *
+	 * @param \DBObject $oObject
+	 * @param string $sMode Mode the object is being displayed (view, edit, create, ...), default is view.
 	 *
 	 * @return \Combodo\iTop\Application\UI\Base\Layout\ActivityPanel\ActivityPanel
 	 * @throws \ArchivedObjectException
@@ -60,14 +59,13 @@ class ActivityPanelFactory
 	public static function MakeForObjectDetails(DBObject $oObject, string $sMode = cmdbAbstractObject::DEFAULT_OBJECT_MODE)
 	{
 		$sObjClass = get_class($oObject);
-		$iObjId = $oObject->GetKey();
+		$sObjId = $oObject->GetKey();
 
-		if($sMode==cmdbAbstractObject::ENUM_OBJECT_MODE_PRINT){
-			$oActivityPanel = new ActivityPanelPrint($oObject);
-			$sMode= cmdbAbstractObject::ENUM_OBJECT_MODE_VIEW;
-		}
-		else{
-			$oActivityPanel = new ActivityPanel($oObject);
+		if ($sMode == cmdbAbstractObject::ENUM_OBJECT_MODE_PRINT) {
+			$oActivityPanel = new ActivityPanelPrint($oObject, [], ActivityPanel::BLOCK_CODE);
+			$sMode = cmdbAbstractObject::ENUM_OBJECT_MODE_VIEW;
+		} else {
+			$oActivityPanel = new ActivityPanel($oObject, [], ActivityPanel::BLOCK_CODE);
 		}
 		$oActivityPanel->SetObjectMode($sMode);
 
@@ -83,54 +81,52 @@ class ActivityPanelFactory
 			// Retrieve case logs entries
 			/** @var \ormCaseLog $oCaseLog */
 			$oCaseLog = $oObject->Get($sCaseLogAttCode);
-			foreach($oCaseLog->GetAsArray() as $aOrmEntry)
-			{
+			foreach ($oCaseLog->GetAsArray() as $aOrmEntry) {
 				$oCaseLogEntry = ActivityEntryFactory::MakeFromCaseLogEntryArray($sCaseLogAttCode, $aOrmEntry);
 				$oActivityPanel->AddEntry($oCaseLogEntry);
 			}
 		}
 
-		// Retrieve history changes (including case logs entries)
-		// - Prepare query to retrieve changes
-		$oChangesSearch = DBObjectSearch::FromOQL('SELECT CMDBChangeOp WHERE objclass = :obj_class AND objkey = :obj_key');
-		// Note: We can't order by date (only) as something multiple CMDBChangeOp rows are inserted at the same time (eg. Delivery model of the "Demo" Organization in the sample data).
-		// As the DB returns rows "chronologically", we get the older first and it messes with the processing. Ordering by the ID is way much simpler and less DB CPU consuming.
-		$oChangesSet = new DBObjectSet($oChangesSearch, ['id' => false], ['obj_class' => $sObjClass, 'obj_key' => $iObjId]);
-		// Note: This limit will include case log changes which will be skipped, but still we count them as they are displayed anyway by the case log attributes themselves
-		$oChangesSet->SetLimit(MetaModel::GetConfig()->Get('max_history_length'));
+		// Retrieve history changes (excluding case logs entries)
+		$aChangesData = ActivityPanelHelper::GetCMDBChangeOpEditsEntriesForObject($sObjClass, $sObjId);
 
-		// Prepare previous values to group edits within a same CMDBChange
-		$iPreviousChangeId = 0;
-		$oPreviousEditsEntry = null;
+		// - Set metadata for pagination
+		if (true === $aChangesData['more_entries_to_load']) {
+			$oActivityPanel->SetHasMoreEntriesToLoad(true);
+			$oActivityPanel->SetLastEntryId('cmdbchangeop', $aChangesData['last_loaded_entry_id']);
+		}
 
-		/** @var \CMDBChangeOp $oChangeOp */
-		while($oChangeOp = $oChangesSet->Fetch()) {
-			// Skip case log changes as they are handled directly from the attributes themselves
-			if ($oChangeOp instanceof CMDBChangeOpSetAttributeCaseLog) {
-				continue;
-			}
+		// - Add history entries
+		/** @var \Combodo\iTop\Application\UI\Base\Layout\ActivityPanel\ActivityEntry\EditsEntry $oEntry */
+		foreach ($aChangesData['entries'] as $oEntry) {
+			$oActivityPanel->AddEntry($oEntry);
+		}
 
-			// Make entry from CMDBChangeOp
-			$iChangeId = $oChangeOp->Get('change');
-			try {
-				$oEntry = ActivityEntryFactory::MakeFromCmdbChangeOp($oChangeOp);
-			} catch (Exception $e) {
-				continue;
-			}
-			// If same CMDBChange and mergeable edits entry from the same author, we merge them
-			if (($iChangeId == $iPreviousChangeId) && ($oPreviousEditsEntry instanceof EditsEntry) && ($oEntry instanceof EditsEntry) && ($oPreviousEditsEntry->GetAuthorLogin() === $oEntry->GetAuthorLogin())) {
-				$oPreviousEditsEntry->Merge($oEntry);
-			} else {
-				$oActivityPanel->AddEntry($oEntry);
+		// Retrieving notification events for cmdbAbstractObject only
+		if ($oObject instanceof cmdbAbstractObject) {
+			$aRelatedTriggersIDs = $oObject->GetRelatedTriggersIDs();
 
-				// Set previous edits entry
-				if($oEntry instanceof EditsEntry)
-				{
-					$oPreviousEditsEntry = $oEntry;
+			// Protection for classes which have no related trigger
+			if (false === empty($aRelatedTriggersIDs)) {
+				// - Prepare query to retrieve events
+				$oNotifEventsSearch = DBObjectSearch::FromOQL('SELECT EN FROM EventNotification AS EN JOIN Action AS A ON EN.action_id = A.id WHERE EN.trigger_id IN (:triggers_ids) AND EN.object_id = :object_id');
+				$oNotifEventsSet = new DBObjectSet($oNotifEventsSearch, ['id' => false], ['triggers_ids' => $aRelatedTriggersIDs, 'object_id' => $sObjId]);
+				$oNotifEventsSet->SetLimit(MetaModel::GetConfig()->Get('max_history_length'));
+
+				/** @var \EventNotification $oNotifEvent */
+				while ($oNotifEvent = $oNotifEventsSet->Fetch()) {
+					try {
+						$oEntry = ActivityEntryFactory::MakeFromEventNotification($oNotifEvent);
+					}
+					catch (Exception $oException) {
+						IssueLog::Debug(static::class.': Could not create entry from EventNotification #'.$oNotifEvent->GetKey().' related to trigger "'.$oNotifEvent->Get('trigger_id_friendlyname').'" / action "'.$oNotifEvent->Get('action_id_friendlyname').'" / object #'.$oNotifEvent->Get('object_id').': '.$oException->getMessage());
+						continue;
+					}
+
+					$oActivityPanel->AddEntry($oEntry);
 				}
+				unset($oNotifEventsSet);
 			}
-
-			$iPreviousChangeId = $iChangeId;
 		}
 
 		return $oActivityPanel;

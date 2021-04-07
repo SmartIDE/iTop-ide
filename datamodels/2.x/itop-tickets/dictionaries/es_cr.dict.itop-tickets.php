@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2013 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -18,7 +18,7 @@
 /**
  * Localized data
  *
- * @copyright   Copyright (C) 2010-2013 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  * @traductor   Miguel Turrubiates <miguel_tf@yahoo.com> 
  */
@@ -154,7 +154,6 @@ Dict::Add('ES CR', 'Spanish', 'Español, Castellaño', array(
 
 // Fieldset translation
 Dict::Add('ES CR', 'Spanish', 'Español, Castellaño', array(
-
 	'Ticket:baseinfo' => 'Información General',
 	'Ticket:date' => 'Fechas',
 	'Ticket:contact' => 'Contactos',
@@ -168,7 +167,6 @@ Dict::Add('ES CR', 'Spanish', 'Español, Castellaño', array(
 	'WorkOrder:Details' => 'Detalles',
 	'WorkOrder:Moreinfo' => 'Más Información',
 	'Tickets:ResolvedFrom' => 'Automáticamente resuelto de %1$s',
-
 	'Class:cmdbAbstractObject/Method:Set' => 'Asignar',
 	'Class:cmdbAbstractObject/Method:Set+' => 'Asignar campo con valor estático',
 	'Class:cmdbAbstractObject/Method:Set/Param:1' => 'Campo Destino',

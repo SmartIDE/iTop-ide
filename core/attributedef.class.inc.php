@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -101,6 +101,14 @@ define('LINKSET_EDITMODE_ACTIONS', 2); // Show the usual 'Actions' popup menu
 define('LINKSET_EDITMODE_INPLACE', 3); // The "linked" objects can be created/modified/deleted in place
 define('LINKSET_EDITMODE_ADDREMOVE', 4); // The "linked" objects can be added/removed in place
 
+/**
+ * Attributes implementing this interface won't be accepted as `group by` field
+ * @since 2.7.4 N°3473
+ */
+interface iAttributeNoGroupBy
+{
+	//no method, just a contract on implement
+}
 
 /**
  * Attribute definition API, implemented in and many flavours (Int, String, Enum, etc.)
@@ -3515,7 +3523,9 @@ class AttributeClassState extends AttributeString
 				$aValues = MetaModel::EnumStates($sChildClass);
 				if (in_array($sValue, $aValues))
 				{
-					$sHTML = '<span class="attribute-set-item" data-code="'.$sValue.'" data-label="'.$sValue.' ('.MetaModel::GetStateLabel($sChildClass, $sValue).')'.'" data-description="">'.$sValue.'</span>';
+					$sLabelForHtmlAttribute = utils::EscapeHtml($sValue.' ('.MetaModel::GetStateLabel($sChildClass, $sValue).')');
+					$sHTML = '<span class="attribute-set-item" data-code="'.$sValue.'" data-label="'.$sLabelForHtmlAttribute.'" data-description="" data-tooltip-content="'.$sLabelForHtmlAttribute.'">'.$sValue.'</span>';
+
 					return $sHTML;
 				}
 			}
@@ -3794,7 +3804,7 @@ class AttributeFinalClass extends AttributeString
  *
  * @package     iTopORM
  */
-class AttributePassword extends AttributeString
+class AttributePassword extends AttributeString implements iAttributeNoGroupBy
 {
 	const SEARCH_WIDGET_TYPE = self::SEARCH_WIDGET_TYPE_RAW;
 
@@ -3871,7 +3881,7 @@ class AttributePassword extends AttributeString
  *
  * @package     iTopORM
  */
-class AttributeEncryptedString extends AttributeString
+class AttributeEncryptedString extends AttributeString implements iAttributeNoGroupBy
 {
 	const SEARCH_WIDGET_TYPE = self::SEARCH_WIDGET_TYPE_RAW;
 
@@ -5239,6 +5249,20 @@ class AttributeEnum extends AttributeString
 
 	protected function GetSQLCol($bFullSpec = false)
 	{
+		// Get the definition of the column, including the actual values present in the table
+		return $this->GetSQLColHelper($bFullSpec, true);
+	}
+
+	/**
+	 * A more versatile version of GetSQLCol
+	 * @since 3.0.0
+	 * @param bool $bFullSpec
+	 * @param bool $bIncludeActualValues
+	 * @param string $sSQLTableName The table where to look for the actual values (may be useful for data synchro tables)
+	 * @return string
+	*/
+	protected function GetSQLColHelper($bFullSpec = false, $bIncludeActualValues = false, $sSQLTableName = null)
+	{
 		$oValDef = $this->GetValuesDef();
 		if ($oValDef)
 		{
@@ -5248,6 +5272,19 @@ class AttributeEnum extends AttributeString
 		{
 			$aValues = array();
 		}
+
+		// Preserve the values already present in the database to ease migrations
+		if ($bIncludeActualValues)
+		{
+			if ($sSQLTableName == null)
+			{
+				// No SQL table given, use the one of the attribute
+				$sHostClass = $this->GetHostClass();
+				$sSQLTableName = MetaModel::DBGetTable($sHostClass, $this->GetCode());
+			}
+			$aValues = array_unique(array_merge($aValues, $this->GetActualValuesInDB($sSQLTableName)));
+		}
+
 		if (count($aValues) > 0)
 		{
 			// The syntax used here do matters
@@ -5264,6 +5301,48 @@ class AttributeEnum extends AttributeString
 				.CMDBSource::GetSqlStringColumnDefinition()
 				.($bFullSpec ? " DEFAULT ''" : ""); // ENUM() is not an allowed syntax!
 		}
+	}
+
+	/**
+	 * @since 3.0.0
+	 * {@inheritDoc}
+	 * @see AttributeDefinition::GetImportColumns()
+	 */
+	public function GetImportColumns()
+	{
+		// Note: this is used by the Data Synchro to build the "data" table
+		// Right now the function is not passed the "target" SQL table, but if we improve this in the future
+		// we may call $this->GetSQLColHelper(true, true, $sDBTable); to take into account the actual 'enum' values
+		// in this table
+		return array($this->GetCode() => $this->GetSQLColHelper(false, false));
+	}
+
+	/**
+	 * Get the list of the actual 'enum' values present in the database
+	 * @since 3.0.0
+	 * @return string[]
+	 */
+	protected function GetActualValuesInDB(string $sDBTable)
+	{
+		$aValues = array();
+		try
+		{
+			$sSQL = "SELECT DISTINCT `".$this->GetSQLExpr()."` AS value FROM `$sDBTable`;";
+			$aValuesInDB = CMDBSource::QueryToArray($sSQL);
+			foreach($aValuesInDB as $aRow)
+			{
+				if ($aRow['value'] !== null)
+				{
+					$aValues[] = $aRow['value'];
+				}
+			}
+		}
+		catch(MySQLException $e)
+		{
+			// Never mind, maybe the table does not exist yet (new installation from scratch)
+			// It seems more efficient to try and ignore errors than to test if the table & column really exists
+		}
+		return CMDBSource::Quote($aValues);
 	}
 
 	protected function GetSQLColSpec()
@@ -8112,10 +8191,10 @@ class AttributeImage extends AttributeBlob
 			$sRet = $this->GetHtmlForImageUrl($sCustomImageUrl, $iMaxWidthPx, $iMaxHeightPx);
 		}
 
-		$sCssClasses = 'view-image attribute-image';
+		$sCssClasses = 'ibo-input-image--image-view attribute-image';
 		$sCssClasses .= ' '.(($bIsCustomImage) ? 'attribute-image-custom' : 'attribute-image-default');
 
-		return '<div class="'.$sCssClasses.'" style="width: '.$iMaxWidthPx.'; height: '.$iMaxHeightPx.';"><span class="helper-middle"></span>'.$sRet.'</div>';
+		return '<div class="'.$sCssClasses.'" style="width: '.$iMaxWidthPx.'; height: '.$iMaxHeightPx.';">'.$sRet.'</div>';
 	}
 
 	/**
@@ -9313,7 +9392,7 @@ class AttributeSubItem extends AttributeDefinition
 /**
  * One way encrypted (hashed) password
  */
-class AttributeOneWayPassword extends AttributeDefinition
+class AttributeOneWayPassword extends AttributeDefinition implements iAttributeNoGroupBy
 {
 	const SEARCH_WIDGET_TYPE = self::SEARCH_WIDGET_TYPE_RAW;
 
@@ -10199,25 +10278,37 @@ abstract class AttributeSet extends AttributeDBFieldVoid
 	{
 		if (empty($aValues)) {return '';}
 		$sHtml = '<span class="'.$sCssClass.' '.implode(' ', $this->aCSSClasses).'">';
-		foreach($aValues as $sValue)
-		{
+		foreach($aValues as $sValue) {
 			$sClass = MetaModel::GetAttributeOrigin($this->GetHostClass(), $this->GetCode());
 			$sAttCode = $this->GetCode();
-			$sLabel = utils::HtmlEntities($this->GetValueLabel($sValue));
-			$sDescription = utils::HtmlEntities($this->GetValueDescription($sValue));
+			$sLabel = utils::EscapeHtml($this->GetValueLabel($sValue));
+			$sDescription = utils::EscapeHtml($this->GetValueDescription($sValue));
 			$oFilter = DBSearch::FromOQL("SELECT $sClass WHERE $sAttCode MATCHES '$sValue'");
 			$oAppContext = new ApplicationContext();
 			$sContext = $oAppContext->GetForLink();
 			$sUIPage = cmdbAbstractObject::ComputeStandardUIPage($oFilter->GetClass());
 			$sFilter = rawurlencode($oFilter->serialize());
 			$sLink = '';
-			if ($bWithLink && $this->bDisplayLink)
-			{
+			if ($bWithLink && $this->bDisplayLink) {
 				$sUrl = utils::GetAbsoluteUrlAppRoot()."pages/$sUIPage?operation=search&filter=".$sFilter."&{$sContext}";
 				$sLink = ' href="'.$sUrl.'"';
 			}
-			$sHtml .= '<a'.$sLink.' class="attribute-set-item attribute-set-item-'.$sValue.'" data-code="'.$sValue.'" data-label="'.$sLabel.
-				'" data-description="'.$sDescription.'">'.$sLabel.'</a>';
+
+			// Prepare tooltip
+			if (empty($sDescription)) {
+				$sTooltipContent = $sLabel;
+				$sTooltipHtmlEnabled = 'false';
+			} else {
+				$sTooltipContent = <<<HTML
+<h4>$sLabel</h4>
+<br>
+<div>$sDescription</div>
+HTML;
+				$sTooltipHtmlEnabled = 'true';
+			}
+			$sTooltipContent = utils::EscapeHtml($sTooltipContent);
+
+			$sHtml .= '<a'.$sLink.' class="attribute-set-item attribute-set-item-'.$sValue.'" data-code="'.$sValue.'" data-label="'.$sLabel.'" data-description="'.$sDescription.'" data-tooltip-content="'.$sTooltipContent.'" data-tooltip-html-enabled="'.$sTooltipHtmlEnabled.'">'.$sLabel.'</a>';
 		}
 		$sHtml .= '</span>';
 
@@ -10750,16 +10841,15 @@ class AttributeClassAttCodeSet extends AttributeSet
 						$sAttClass = $sClass;
 
 						// Look for the first class (current or children) that have this attcode
-						foreach(MetaModel::EnumChildClasses($sClass, ENUM_CHILD_CLASSES_ALL) as $sChildClass)
-						{
-							if(MetaModel::IsValidAttCode($sChildClass, $sAttCode))
-							{
+						foreach (MetaModel::EnumChildClasses($sClass, ENUM_CHILD_CLASSES_ALL) as $sChildClass) {
+							if (MetaModel::IsValidAttCode($sChildClass, $sAttCode)) {
 								$sAttClass = $sChildClass;
 								break;
 							}
 						}
 
-						$aLocalizedValues[] = '<span class="attribute-set-item" data-code="'.$sAttCode.'" data-label="'.MetaModel::GetLabel($sAttClass, $sAttCode)." ($sAttCode)".'" data-description="">'.$sAttCode.'</span>';
+						$sLabelForHtmlAttribute = MetaModel::GetLabel($sAttClass, $sAttCode)." ($sAttCode)";
+						$aLocalizedValues[] = '<span class="attribute-set-item" data-code="'.$sAttCode.'" data-label="'.$sLabelForHtmlAttribute.'" data-description="" data-tooltip-content="'.$sLabelForHtmlAttribute.'">'.$sAttCode.'</span>';
 					} catch (Exception $e)
 					{
 						// Ignore bad values
@@ -10944,17 +11034,15 @@ class AttributeQueryAttCodeSet extends AttributeSet
 		}
 		if (is_array($value))
 		{
-			if (!empty($oHostObject) && $bLocalize)
-			{
+			if (!empty($oHostObject) && $bLocalize) {
 				$aArgs['this'] = $oHostObject;
 				$aAllowedAttributes = $this->GetAllowedValues($aArgs);
 
 				$aLocalizedValues = array();
-				foreach($value as $sAttCode)
-				{
-					if (isset($aAllowedAttributes[$sAttCode]))
-					{
-						$aLocalizedValues[] = '<span class="attribute-set-item" data-code="'.$sAttCode.'" data-label="'.$aAllowedAttributes[$sAttCode].'" data-description="">'.$sAttCode.'</span>';
+				foreach ($value as $sAttCode) {
+					if (isset($aAllowedAttributes[$sAttCode])) {
+						$sLabelForHtmlAttribute = $aAllowedAttributes[$sAttCode];
+						$aLocalizedValues[] = '<span class="attribute-set-item" data-code="'.$sAttCode.'" data-label="'.$sLabelForHtmlAttribute.'" data-description="" data-tooltip-content="'.$sLabelForHtmlAttribute.'">'.$sAttCode.'</span>';
 					}
 				}
 				$value = $aLocalizedValues;
@@ -11491,15 +11579,27 @@ class AttributeTagSet extends AttributeSet
 				$sFilter = rawurlencode($oFilter->serialize());
 
 				$sLink = '';
-				if ($bWithLink && $this->bDisplayLink)
-				{
+				if ($bWithLink && $this->bDisplayLink) {
 					$sUrl = utils::GetAbsoluteUrlAppRoot()."pages/$sUIPage?operation=search&filter=".$sFilter."&{$sContext}";
 					$sLink = ' href="'.$sUrl.'"';
 				}
 
-				$sHtml .= '<a'.$sLink.' class="attribute-set-item attribute-set-item-'.$sTagCode.'" data-code="'.$sTagCode.'" data-label="'.htmlentities($sTagLabel,
-						ENT_QUOTES, 'UTF-8').'" data-description="'.htmlentities($sTagDescription, ENT_QUOTES,
-						'UTF-8').'">'.htmlentities($sTagLabel, ENT_QUOTES, 'UTF-8').'</a>';
+				$sLabelForHtml = utils::EscapeHtml($sTagLabel);
+				$sDescriptionForHtml = utils::EscapeHtml($sTagDescription);
+				if (empty($sTagDescription)) {
+					$sTooltipContent = $sTagLabel;
+					$sTooltipHtmlEnabled = 'false';
+				} else {
+					$sTooltipContent = <<<HTML
+<h4>$sTagLabel</h4>
+<br>
+<div>$sTagDescription</div>
+HTML;
+					$sTooltipHtmlEnabled = 'true';
+				}
+				$sTooltipContent = utils::EscapeHtml($sTooltipContent);
+
+				$sHtml .= '<a'.$sLink.' class="attribute-set-item attribute-set-item-'.$sTagCode.'" data-code="'.$sTagCode.'" data-label="'.$sLabelForHtml.'" data-description="'.$sDescriptionForHtml.'" data-tooltip-content="'.$sTooltipContent.'" data-tooltip-html-enabled="'.$sTooltipHtmlEnabled.'">'.$sLabelForHtml.'</a>';
 			}
 			else
 			{
@@ -12289,7 +12389,7 @@ class AttributeRedundancySettings extends AttributeDBField
 						$sEditValue = $bSelected ? $iCurrentValue : '';
 						$sValue = '<input class="redundancy-min-up-count" type="string" size="3" name="'.$sName.'" value="'.$sEditValue.'">';
 						// To fix an issue on Firefox: focus set to the option (because the input is within the label for the option)
-						$oPage->add_ready_script("\$('[name=\"$sName\"]').click(function(){var me=this; setTimeout(function(){\$(me).focus();}, 100);});");
+						$oPage->add_ready_script("\$('[name=\"$sName\"]').on('click', function(){var me=this; setTimeout(function(){\$(me).focus();}, 100);});");
 					}
 					else
 					{
@@ -12304,7 +12404,7 @@ class AttributeRedundancySettings extends AttributeDBField
 						$sEditValue = $bSelected ? $iCurrentValue : '';
 						$sValue = '<input class="redundancy-min-up-percent" type="string" size="3" name="'.$sName.'" value="'.$sEditValue.'">';
 						// To fix an issue on Firefox: focus set to the option (because the input is within the label for the option)
-						$oPage->add_ready_script("\$('[name=\"$sName\"]').click(function(){var me=this; setTimeout(function(){\$(me).focus();}, 100);});");
+						$oPage->add_ready_script("\$('[name=\"$sName\"]').on('click', function(){var me=this; setTimeout(function(){\$(me).focus();}, 100);});");
 					}
 					else
 					{

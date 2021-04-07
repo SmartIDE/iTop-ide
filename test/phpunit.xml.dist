@@ -1,4 +1,4 @@
-<!-- Copyright (c) 2010-2017 Combodo SARL -->
+<!-- Copyright (c) 2010-2021 Combodo SARL -->
 <!-- -->
 <!--   This file is part of iTop. -->
 <!-- -->
@@ -61,6 +61,12 @@
         </testsuite-->
         <testsuite name="Status">
             <directory>status</directory>
+        </testsuite>
+        <testsuite name="Synchro">
+            <directory>synchro</directory>
+        </testsuite>
+        <testsuite name="Setup">
+            <file>setup/SetupUtilsTest.php</file>
         </testsuite>
         <testsuite name="Integration">
             <directory>integration</directory>

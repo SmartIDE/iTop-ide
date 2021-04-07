@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2017 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -20,7 +20,7 @@
 /**
  * Class LoginWebPage
  *
- * @copyright   Copyright (C) 2010-2017 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -722,7 +722,7 @@ class LoginWebPage extends NiceWebPage
 
 	public static function HTTPReload()
 	{
-		$sOriginURL = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+		$sOriginURL = utils::GetCurrentAbsoluteUrl();
 		if (!utils::StartsWith($sOriginURL, utils::GetAbsoluteUrlAppRoot()))
 		{
 			// If the found URL does not start with the configured AppRoot URL

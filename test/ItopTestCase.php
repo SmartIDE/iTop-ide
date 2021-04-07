@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2019 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -92,7 +92,31 @@ class ItopTestCase extends TestCase
 	{
 		$sId = str_replace('"', '', $this->getName());
 		$sId = str_replace(' ', '_', $sId);
+
 		return $sId;
 	}
 
+	public function InvokeNonPublicStaticMethod($sObjectClass, $sMethodName, $aArgs)
+	{
+		return $this->InvokeNonPublicMethod($sObjectClass, $sMethodName, null, $aArgs);
+	}
+
+	/**
+	 * @param string $sObjectClass for example DBObject::class
+	 * @param string $sMethodName
+	 * @param object $oObject
+	 * @param array $aArgs
+	 *
+	 * @return mixed method result
+	 *
+	 * @throws \ReflectionException
+	 */
+	public function InvokeNonPublicMethod($sObjectClass, $sMethodName, $oObject, $aArgs)
+	{
+		$class = new \ReflectionClass($sObjectClass);
+		$method = $class->getMethod($sMethodName);
+		$method->setAccessible(true);
+
+		return $method->invokeArgs($oObject, $aArgs);
+	}
 }

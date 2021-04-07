@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -8,6 +8,7 @@ namespace Combodo\iTop\Application\UI\Base\Component\DataTable;
 
 
 use Combodo\iTop\Application\UI\Base\Layout\UIContentBlock;
+use Combodo\iTop\Application\UI\Base\tJSRefreshCallback;
 use DataTableConfig;
 
 /**
@@ -18,18 +19,19 @@ use DataTableConfig;
  */
 class DataTable extends UIContentBlock
 {
+	use tJSRefreshCallback;
+
 	// Overloaded constants
 	public const BLOCK_CODE = 'ibo-datatable';
 	public const DEFAULT_HTML_TEMPLATE_REL_PATH = 'base/components/datatable/layout';
 	public const DEFAULT_JS_ON_READY_TEMPLATE_REL_PATH = 'base/components/datatable/layout';
 	public const DEFAULT_JS_LIVE_TEMPLATE_REL_PATH = 'base/components/datatable/layout';
 	public const DEFAULT_JS_FILES_REL_PATH = [
-		'lib/datatables/js/jquery.dataTables.min.js',
-		'lib/datatables/js/dataTables.bootstrap.min.js',
-		'lib/datatables/js/dataTables.fixedHeader.min.js',
-		'lib/datatables/js/dataTables.responsive.min.js',
-		'lib/datatables/js/dataTables.scroller.min.js',
-		'lib/datatables/js/dataTables.select.min.js',
+		'node_modules/datatables.net/js/jquery.dataTables.js',
+		'node_modules/datatables.net-fixedheader/js/dataTables.fixedHeader.js',
+		'node_modules/datatables.net-responsive/js/dataTables.responsive.js',
+		'node_modules/datatables.net-scroller/js/dataTables.scroller.js',
+		'node_modules/datatables.net-select/js/dataTables.select.js',
 		'js/dataTables.main.js',
 		'js/dataTables.settings.js',
 		'js/dataTables.pipeline.js',
@@ -48,6 +50,7 @@ class DataTable extends UIContentBlock
 	public function __construct(?string $sId = null)
 	{
 		parent::__construct($sId);
+		// This block contains a form, so it has to be added later in the flow
 		$this->AddDeferredBlock(new DataTableConfig($this));
 		$this->aDisplayColumns = [];
 		$this->aOptions = [];
@@ -159,8 +162,9 @@ class DataTable extends UIContentBlock
 		$this->aOptions = $aOptions;
 	}
 
-	public function GetJSRefresh():array{
-		return ["$('#".$this->sId."').DataTable().clearPipeline();
-				$('#".$this->sId."').DataTable().ajax.reload(null, false);"];
+	public function GetJSRefresh(): string
+	{
+		return "$('#".$this->sId."').DataTable().clearPipeline();
+				$('#".$this->sId."').DataTable().ajax.reload(null, false);";
 	}
 }

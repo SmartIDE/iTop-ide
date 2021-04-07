@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2012 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -18,7 +18,7 @@
 /**
  * Localized data
  *
- * @copyright   Copyright (C) 2010-2012 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 Dict::Add('PT BR', 'Brazilian', 'Brazilian', array(
@@ -41,6 +41,7 @@ Ou você anexou um arquivo vazio,
 ou entre em contato com o seu administrador do iTOP pois o servidor pode estar sem espaço de armazenamento.',
 	'Attachments:Render:Icons' => 'Mostrar como ícones',
 	'Attachments:Render:Table' => 'Mostrar como lista',
+	'UI:Attachments:DropYourFileHint' => 'Drop files anywhere in this area~~',
 ));
 
 //

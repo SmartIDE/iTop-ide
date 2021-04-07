@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -19,4 +19,9 @@ class Toolbar extends UIContentBlock
 	// Overloaded constants
 	public const BLOCK_CODE = 'ibo-toolbar';
 	public const DEFAULT_HTML_TEMPLATE_REL_PATH = 'base/components/toolbar/layout';
+
+	public function __construct(string $sId = null, array $aContainerClasses = [])
+	{
+		parent::__construct($sId, $aContainerClasses);
+	}
 }

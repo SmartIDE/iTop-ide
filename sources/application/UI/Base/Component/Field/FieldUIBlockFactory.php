@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -31,6 +31,8 @@ class FieldUIBlockFactory extends AbstractUIBlockFactory
 			'attlabel' => 'SetAttLabel',
 			'value_raw' => 'SetValueRaw',
 			'comments' => 'SetComments',
+			'input_id' => 'SetInputId',
+			'input_type' => 'SetInputType',
 		];
 		foreach ($aParamsMapping as $sParamKey => $sFieldMethod) {
 			self::UpdateFieldFromParams($oField, $sFieldMethod, $aParams, $sParamKey);

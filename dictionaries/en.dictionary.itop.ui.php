@@ -1,24 +1,7 @@
 <?php
-/**
- * Localized data
- *
- * @copyright Copyright (C) 2010-2018 Combodo SARL
- * @license    http://opensource.org/licenses/AGPL-3.0
- *
- * This file is part of iTop.
- *
- * iTop is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * iTop is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with iTop. If not, see <http://www.gnu.org/licenses/>
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
 
@@ -384,6 +367,14 @@ Dict::Add('EN US', 'English', 'English', array(
 <li>Manage the most important asset of your IT: Documentation.</li>
 </ul>
 </p>',
+	'UI:WelcomeMenu:Text'=> '<div>Congratulations, you landed on '.ITOP_APPLICATION.' '.ITOP_VERSION_NAME.'!</div>
+
+<div>This version features a modern brand new accessible and responsive backoffice design.</div>
+
+<div>We kept '.ITOP_APPLICATION.' core functions that you liked and modernized them to make you love them.
+We hope you’ll enjoy this version as much as we enjoyed imagining and creating it.</div>
+
+<div>Customize your '.ITOP_APPLICATION.' preferences for a personalized experience.</div>',
 	'UI:WelcomeMenu:AllOpenRequests' => 'Open requests: %1$d',
 	'UI:WelcomeMenu:MyCalls' => 'My requests',
 	'UI:WelcomeMenu:OpenIncidents' => 'Open incidents: %1$d',
@@ -396,15 +387,17 @@ Dict::Add('EN US', 'English', 'English', array(
 	'UI:Button:Logoff' => 'Log off',
 	'UI:Button:GlobalSearch' => 'Search',
 	'UI:Button:Search' => ' Search ',
+	'UI:Button:Clear' => ' Clear ',
+	'UI:Button:SearchInHierarchy' => ' Search in hierachy ',
 	'UI:Button:Query' => ' Query ',
 	'UI:Button:Ok' => 'Ok',
 	'UI:Button:Save' => 'Save',
+	'UI:Button:SaveAnd' => 'Save and %1$s',
 	'UI:Button:Cancel' => 'Cancel',
 	'UI:Button:Close' => 'Close',
 	'UI:Button:Apply' => 'Apply',
 	'UI:Button:Send' => 'Send',
-	'UI:Button:AddEntryAndWithChoice' => 'Add entry and...',
-	'UI:Button:AddEntryToWithChoice' => 'Add entry to...',
+	'UI:Button:SendAnd' => 'Send and %1$s',
 	'UI:Button:Back' => ' << Back ',
 	'UI:Button:Restart' => ' |<< Restart ',
 	'UI:Button:Next' => ' Next >> ',
@@ -432,6 +425,9 @@ Dict::Add('EN US', 'English', 'English', array(
 	'UI:Button:Wait' => 'Please wait while updating fields',
 	'UI:Treeview:CollapseAll' => 'Collapse All',
 	'UI:Treeview:ExpandAll' => 'Expand All',
+	'UI:UserPref:DoNotShowAgain' => 'Do not show again',
+	'UI:InputFile:NoFileSelected' => 'No File Selected',
+	'UI:InputFile:SelectFile' => 'Select a file',
 
 	'UI:SearchToggle' => 'Search',
 	'UI:ClickToCreateNew' => 'Create a %1$s',
@@ -464,6 +460,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'UI:Error:ObjectsAlreadyDeleted' => 'Error: objects have already been deleted!',
 	'UI:Error:BulkDeleteNotAllowedOn_Class' => 'You are not allowed to perform a bulk delete of objects of class %1$s',
 	'UI:Error:DeleteNotAllowedOn_Class' => 'You are not allowed to delete objects of class %1$s',
+	'UI:Error:ReadNotAllowedOn_Class' => 'You are not allowed to view objects of class %1$s',
 	'UI:Error:BulkModifyNotAllowedOn_Class' => 'You are not allowed to perform a bulk update of objects of class %1$s',
 	'UI:Error:ObjectAlreadyCloned' => 'Error: the object has already been cloned!',
 	'UI:Error:ObjectAlreadyCreated' => 'Error: the object has already been created!',
@@ -472,6 +469,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'UI:Error:InvalidDashboard' => 'Error: invalid dashboard',
 	'UI:Error:MaintenanceMode' => 'Application is currently in maintenance',
 	'UI:Error:MaintenanceTitle' => 'Maintenance',
+	'UI:Error:InvalidToken' => 'Error: the requested operation has already been performed (CSRF token not found)',
 
 	'UI:GroupBy:Count' => 'Count',
 	'UI:GroupBy:Count+' => 'Number of elements',
@@ -499,6 +497,8 @@ Dict::Add('EN US', 'English', 'English', array(
 	'UI:Loading' => 'Loading...',
 	'UI:Menu:Actions' => 'Actions',
 	'UI:Menu:OtherActions' => 'Other Actions',
+	'UI:Menu:Transitions' => 'Transitions',
+	'UI:Menu:OtherTransitions' => 'Other Transitions',
 	'UI:Menu:New' => 'New...',
 	'UI:Menu:Add' => 'Add...',
 	'UI:Menu:Manage' => 'Manage...',
@@ -693,8 +693,18 @@ Dict::Add('EN US', 'English', 'English', array(
 	'UI:Audit:HeaderNbObjects' => '# Objects',
 	'UI:Audit:HeaderNbErrors' => '# Errors',
 	'UI:Audit:PercentageOk' => '% Ok',
+	'UI:Audit:OqlError' => 'OQL Error',
+	'UI:Audit:Error:ValueNA' => 'n/a',
+	'UI:Audit:ErrorIn_Rule' => 'Error in Rule',
 	'UI:Audit:ErrorIn_Rule_Reason' => 'OQL Error in the Rule %1$s: %2$s.',
+	'UI:Audit:ErrorIn_Category' => 'Error in Category',
 	'UI:Audit:ErrorIn_Category_Reason' => 'OQL Error in the Category %1$s: %2$s.',
+	'UI:Audit:AuditErrors' => 'Audit Errors',
+	'UI:Audit:Dashboard:ObjectsAudited' => 'Objects audited',
+	'UI:Audit:Dashboard:ObjectsInError' => 'Objects in errors',
+	'UI:Audit:Dashboard:ObjectsValidated' => 'Objects validated',
+	'UI:Audit:AuditCategory:Subtitle' => '%1$s errors ouf of %2$s - %3$s%%',
+
 
 	'UI:RunQuery:Title' => ITOP_APPLICATION_SHORT.' - OQL Query Evaluation',
 	'UI:RunQuery:QueryExamples' => 'Query Examples',
@@ -1153,10 +1163,10 @@ When associated with a trigger, each action is given an "order" number, specifyi
 	'UI:FavoriteOrganizations' => 'Favorite Organizations',
 	'UI:FavoriteOrganizations+' => 'Check in the list below the organizations that you want to see in the drop-down menu for a quick access. '.
 		'Note that this is not a security setting, objects from any organization are still visible and can be accessed by selecting "All Organizations" in the drop-down list.',
-	'UI:FavoriteLanguage' => 'Language of the User Interface',
+	'UI:FavoriteLanguage' => 'Favorite language',
 	'UI:Favorites:SelectYourLanguage' => 'Select your preferred language',
 	'UI:FavoriteOtherSettings' => 'Other Settings',
-	'UI:Favorites:Default_X_ItemsPerPage' => 'Default length for lists:  %1$s items per page',
+	'UI:Favorites:Default_X_ItemsPerPage' => 'Default length:  %1$s items per page',
 	'UI:Favorites:ShowObsoleteData' => 'Show obsolete data',
 	'UI:Favorites:ShowObsoleteData+' => 'Show obsolete data in search results and lists of items to select',
 	'UI:NavigateAwayConfirmationMessage' => 'Any modification will be discarded.',
@@ -1173,8 +1183,8 @@ When associated with a trigger, each action is given an "order" number, specifyi
 	'UI:PrintResolution:A4Landscape' => 'A4 Landscape',
 	'UI:PrintResolution:LetterPortrait' => 'Letter Portrait',
 	'UI:PrintResolution:LetterLandscape' => 'Letter Landscape',
-	'UI:Toggle:StandardDashboard' => 'Standard',
-	'UI:Toggle:CustomDashboard' => 'Custom',
+	'UI:Toggle:SwitchToStandardDashboard' => 'Switch to standard dashboard',
+	'UI:Toggle:SwitchToCustomDashboard' => 'Switch to custom dashboard',
 
 	'UI:ConfigureThisList' => 'Configure This List...',
 	'UI:ListConfigurationTitle' => 'List Configuration',
@@ -1195,13 +1205,15 @@ When associated with a trigger, each action is given an "order" number, specifyi
 	'UI:OQL:UnknownClassAndFix' => 'Unknown class "%1$s". You may try "%2$s" instead.',
 	'UI:OQL:UnknownClassNoFix' => 'Unknown class "%1$s"',
 
-	'UI:Dashboard:Edit' => 'Edit This Page...',
-	'UI:Dashboard:Revert' => 'Revert To Original Version...',
+	'UI:Dashboard:EditCustom' => 'Edit custom version...',
+	'UI:Dashboard:CreateCustom' => 'Create a custom version...',
+	'UI:Dashboard:DeleteCustom' => 'Delete custom version...',
 	'UI:Dashboard:RevertConfirm' => 'Every changes made to the original version will be lost. Please confirm that you want to do this.',
 	'UI:ExportDashBoard' => 'Export to a file',
 	'UI:ImportDashBoard' => 'Import from a file...',
 	'UI:ImportDashboardTitle' => 'Import From a File',
 	'UI:ImportDashboardText' => 'Select a dashboard file to import:',
+	'UI:Dashboard:Actions' => 'Dashboard actions',
 
 
 	'UI:DashletCreation:Title' => 'Create a new Dashlet',
@@ -1436,6 +1448,7 @@ When associated with a trigger, each action is given an "order" number, specifyi
 
 	'UI:CurrentObjectIsLockedBy_User' => 'The object is locked since it is currently being modified by %1$s.',
 	'UI:CurrentObjectIsLockedBy_User_Explanation' => 'The object is currently being modified by %1$s. Your modifications cannot be submitted since they would be overwritten.',
+	'UI:CurrentObjectIsSoftLockedBy_User' => 'The object is currently being modified by %1$s. You\'ll be able to submit your modifications once they are done.',
 	'UI:CurrentObjectLockExpired' => 'The lock to prevent concurrent modifications of the object has expired.',
 	'UI:CurrentObjectLockExpired_Explanation' => 'The lock to prevent concurrent modifications of the object has expired. You can no longer submit your modification since other users are now allowed to modify this object.',
 	'UI:ConcurrentLockKilled' => 'The lock preventing modifications on the current object has been deleted.',
@@ -1453,6 +1466,7 @@ When associated with a trigger, each action is given an "order" number, specifyi
 	'UI:ToggleFullScreen' => 'Toggle Maximize / Minimize',
 	'UI:Button:ResetImage' => 'Recover the previous image',
 	'UI:Button:RemoveImage' => 'Remove the image',
+	'UI:Button:UploadImage' => 'Upload an image from the disk',
 	'UI:UploadNotSupportedInThisMode' => 'The modification of images or files is not supported in this mode.',
 
 	'UI:Button:RemoveDocument' => 'Remove the document',
@@ -1564,6 +1578,8 @@ When associated with a trigger, each action is given an "order" number, specifyi
 
 	'UI:Search:Criteria:Raw:Filtered' => 'Filtered',
 	'UI:Search:Criteria:Raw:FilteredOn' => 'Filtered on %1$s',
+
+	'UI:StateChanged' => 'State changed',
 ));
 
 //
@@ -1592,6 +1608,7 @@ Dict::Add('EN US', 'English', 'English', array(
 //
 Dict::Add('EN US', 'English', 'English', array(
 	'UI:Newsroom:NoNewMessage' => 'No new message',
+	'UI:Newsroom:XNewMessage' => '%1$s new message(s)',
 	'UI:Newsroom:MarkAllAsRead' => 'Mark all messages as read',
 	'UI:Newsroom:ViewAllMessages' => 'View all messages',
 	'UI:Newsroom:Preferences' => 'Newsroom preferences',

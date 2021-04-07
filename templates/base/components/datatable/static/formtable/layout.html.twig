@@ -1,10 +1,10 @@
-{# @copyright   Copyright (C) 2010-2020 Combodo SARL #}
+{# @copyright   Copyright (C) 2010-2021 Combodo SARL #}
 {# @license     http://opensource.org/licenses/AGPL-3.0 #}
 
 <input type="hidden" name="attr_{{ oUIBlock.GetRef() }}" value="">
 
 {% set columns = oUIBlock.GetColumns() %}
-<table id="{{ oUIBlock.GetId() }}" class="ibo-datatable listResults{% if oUIBlock.IsHidden() %} ibo-is-hidden{% endif %}" style="width:100%;">
+<table id="{{ oUIBlock.GetId() }}" class="ibo-datatable listResults{% if oUIBlock.IsHidden() %} ibo-is-hidden{% endif %}" >
     <thead>
     <tr>
         {% for column in columns %}

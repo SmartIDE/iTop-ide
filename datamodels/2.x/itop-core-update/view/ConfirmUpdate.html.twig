@@ -1,4 +1,4 @@
-{# @copyright   Copyright (C) 2010-2019 Combodo SARL #}
+{# @copyright   Copyright (C) 2010-2021 Combodo SARL #}
 {# @license     http://opensource.org/licenses/AGPL-3.0 #}
 {% apply spaceless %}
 
@@ -30,11 +30,11 @@
         {% UIFieldSet Standard {'sLegend':'iTopUpdate:UI:Action'|dict_s} %}
             {% UIAlert ForWarning {'sContent':'iTopUpdate:UI:WarningReadOnlyDuringUpdate'|dict_s, 'IsCollapsible':false, 'IsClosable':false} %}{% EndUIAlert %}
 
-            {% UIContentBlock Standard {aContainerClasses:["ibo-setup--button-bar"]} %}
+            {% UIToolbar ForButton {} %}
                 {% UIForm Standard {'CSSClasses':['form-inline']} %}
-                    {% UIButton ForSecondaryAction {'sId':'cancel-update', 'sLabel':'iTopUpdate:UI:Cancel'|dict_s, 'bIsSubmit':true} %}
+                    {% UIButton ForCancel {'sId':'cancel-update', 'sLabel':'iTopUpdate:UI:Cancel'|dict_s, 'bIsSubmit':true} %}
                 {% EndUIForm %}
-                {% UIContentBlock Standard {aContainerClasses:["ibo-setup--button-spacer"]} %}{% EndUIContentBlock %}
+                {% UIToolbarSpacer Standard {} %}
                 {% UIForm Standard {'CSSClasses':['form-inline']} %}
                     {% UIButton ForPrimaryAction {'sId':'do-update', 'sLabel':'iTopUpdate:UI:DoUpdate'|dict_s, 'bIsSubmit':true} %}
                     {% UIInput ForHidden {'sName':'operation', 'sValue':'UpdateCoreFiles'} %}
@@ -43,7 +43,7 @@
                     {% UIInput ForHidden {'sName':'doBackup', 'sValue':bDoBackup} %}
                     {% UIInput ForHidden {'sName':'doFilesArchive', 'sValue':bDoFilesArchive} %}
                 {% EndUIForm %}
-            {% EndUIContentBlock %}
+            {% EndUIToolbar %}
 
         {% EndUIFieldSet %}
 

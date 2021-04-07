@@ -6,7 +6,7 @@ use Combodo\iTop\Test\UnitTest\ItopTestCase;
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  * @backupGlobals disabled
- * @covers utils
+ * @covers ThemeHandler
  */
 class ThemeHandlerTest extends ItopTestCase
 {
@@ -135,7 +135,11 @@ class ThemeHandlerTest extends ItopTestCase
 						$sThemeId = $oTheme->getAttribute('id');
 
 						//echo "===  theme: $sThemeId ===\n";
-						$sPreCompiledSig = ThemeHandler::GetSignature(dirname(__FILE__)."/../../datamodels/2.x/".$sPrecompiledStylesheetUri);
+						$sPrecompiledFilePath = dirname(__FILE__)."/../../datamodels/2.x/".$sPrecompiledStylesheetUri;
+						$sPreCompiledSig = ThemeHandler::GetSignature($sPrecompiledFilePath);
+						if (empty(trim($sPreCompiledSig))){
+							var_dump("$sThemeId: $sPrecompiledFilePath => " . realpath($sPrecompiledFilePath));
+						}
 						//echo "  precompiled signature: $sPreCompiledSig\n";
 
 						if (empty($sPreCompiledSig))
@@ -146,7 +150,7 @@ class ThemeHandlerTest extends ItopTestCase
 
 						$aThemeParameters = [
 							'variables' => [],
-							'imports' => [],
+							'imports_utility' => [],
 							'stylesheets' => [],
 							'precompiled_stylesheet' => $sPrecompiledStylesheetUri,
 						];
@@ -159,15 +163,15 @@ class ThemeHandlerTest extends ItopTestCase
 							$aThemeParameters['variables'][$sVariableId] = $oVariable->GetText();
 						}
 
-						$aStylesheetFiles = [];
 						/** @var \DOMNodeList $oImports */
 						$oImports = $oTheme->GetNodes('imports/import');
+						$oFindStylesheetObject = new FindStylesheetObject();
+
 						foreach ($oImports as $oImport)
 						{
 							$sImportId = $oImport->getAttribute('id');
-							$aThemeParameters['imports'][$sImportId] = $oImport->GetText();
-							$sFile = ThemeHandler::FindStylesheetFile($oImport->GetText(), $aImportsPaths);
-							$aStylesheetFiles[] = $sFile;
+							$aThemeParameters['imports_utility'][$sImportId] = $oImport->GetText();
+							ThemeHandler::FindStylesheetFile($oImport->GetText(), $aImportsPaths, $oFindStylesheetObject);
 						}
 
 						/** @var \DOMNodeList $oStylesheets */
@@ -176,11 +180,10 @@ class ThemeHandlerTest extends ItopTestCase
 						{
 							$sStylesheetId = $oStylesheet->getAttribute('id');
 							$aThemeParameters['stylesheets'][$sStylesheetId] = $oStylesheet->GetText();
-							$sFile = ThemeHandler::FindStylesheetFile($oStylesheet->GetText(), $aImportsPaths);
-							$aStylesheetFiles[] = $sFile;
+							ThemeHandler::FindStylesheetFile($oStylesheet->GetText(), $aImportsPaths, $oFindStylesheetObject);
 						}
 
-						$aIncludedImages = ThemeHandler::GetIncludedImages($aThemeParameters['variables'], $aStylesheetFiles, $sThemeId);
+						$aIncludedImages = ThemeHandler::GetIncludedImages($aThemeParameters['variables'], $oFindStylesheetObject->GetAllStylesheetPaths(), $sThemeId);
 						$compiled_json_sig = ThemeHandler::ComputeSignature($aThemeParameters, $aImportsPaths, $aIncludedImages);
 						//echo "  current signature: $compiled_json_sig\n";
 
@@ -222,6 +225,13 @@ class ThemeHandlerTest extends ItopTestCase
 		}
 
 		return @mkdir($dir);
+	}
+
+	public function testGetSignatureWithFileWithoutSignature()
+	{
+		$sTmpFile = tempnam(sys_get_temp_dir(), "sig");
+		file_put_contents($sTmpFile,"ffff");
+		$this->assertEquals("",  ThemeHandler::GetSignature($sTmpFile));
 	}
 
 	public function testGetSignature()
@@ -312,9 +322,9 @@ JSON;
 
 	public function CompileThemesProviderEmptyArray()
 	{
-		$aEmptyImports = '{"variables":{"brand-primary":"#C53030","hover-background-color":"#F6F6F6","icons-filter":"grayscale(1)","search-form-container-bg-color":"#4A5568"},"imports":[],"stylesheets":{"jqueryui":"..\/css\/ui-lightness\/DO_NOT_CHANGE.jqueryui.scss","main":"..\/css\/DO_NOT_CHANGE.light-grey.scss"}}';
-		$aEmptyStyleSheets='{"variables":{"brand-primary":"#C53030","hover-background-color":"#F6F6F6","icons-filter":"grayscale(1)","search-form-container-bg-color":"#4A5568"},"imports":{"css-variables":"..\/css\/DO_NOT_CHANGE.css-variables.scss"},"stylesheets":[]}';
-		$aEmptyVars='{"variables":[],"imports":{"css-variables":"..\/css\/DO_NOT_CHANGE.css-variables.scss"},"stylesheets":{"jqueryui":"..\/css\/ui-lightness\/DO_NOT_CHANGE.jqueryui.scss","main":"..\/css\/DO_NOT_CHANGE.light-grey.scss"}}';
+		$aEmptyImports = '{"variables":{"brand-primary":"#C53030","hover-background-color":"#F6F6F6","icons-filter":"grayscale(1)","search-form-container-bg-color":"#4A5568"},"imports_utility":[],"imports_variable":[],"stylesheets":{"jqueryui":"..\/css\/ui-lightness\/DO_NOT_CHANGE.jqueryui.scss","main":"..\/css\/DO_NOT_CHANGE.light-grey.scss"}}';
+		$aEmptyStyleSheets='{"variables":{"brand-primary":"#C53030","hover-background-color":"#F6F6F6","icons-filter":"grayscale(1)","search-form-container-bg-color":"#4A5568"},"imports_utility":{"css-variables":"..\/css\/DO_NOT_CHANGE.css-variables.scss"},"imports_variable":[],"stylesheets":[]}';
+		$aEmptyVars='{"variables":[],"imports_utility":{"css-variables":"..\/css\/DO_NOT_CHANGE.css-variables.scss"},"imports_variable":[],"stylesheets":{"jqueryui":"..\/css\/ui-lightness\/DO_NOT_CHANGE.jqueryui.scss","main":"..\/css\/DO_NOT_CHANGE.light-grey.scss"}}';
 		return [
 			"empty imports" => [$aEmptyImports],
 			"empty styles" => [$aEmptyStyleSheets],
@@ -327,8 +337,8 @@ JSON;
 	 */
 	public function CompileThemesProvider()
 	{
-		$sModifiedVariableThemeParameterJson='{"variables":{"brand-primary1":"#C53030","hover-background-color":"#F6F6F6","icons-filter":"grayscale(1)","search-form-container-bg-color":"#4A5568"},"imports":{"css-variables":"..\/css\/DO_NOT_CHANGE.css-variables.scss"},"stylesheets":{"jqueryui":"..\/css\/ui-lightness\/DO_NOT_CHANGE.jqueryui.scss","main":"..\/css\/DO_NOT_CHANGE.light-grey.scss"}}';
-		$sInitialThemeParamJson='{"variables":{"brand-primary":"#C53030","hover-background-color":"#F6F6F6","icons-filter":"grayscale(1)","search-form-container-bg-color":"#4A5568"},"imports":{"css-variables":"..\/css\/DO_NOT_CHANGE.css-variables.scss"},"stylesheets":{"jqueryui":"..\/css\/ui-lightness\/DO_NOT_CHANGE.jqueryui.scss","main":"..\/css\/DO_NOT_CHANGE.light-grey.scss"}}';
+		$sModifiedVariableThemeParameterJson='{"variables":{"brand-primary1":"#C53030","hover-background-color":"#F6F6F6","icons-filter":"grayscale(1)","search-form-container-bg-color":"#4A5568"},"imports_utility":{"css-variables":"..\/css\/DO_NOT_CHANGE.css-variables.scss"},"imports_variable":[],"stylesheets":{"jqueryui":"..\/css\/ui-lightness\/DO_NOT_CHANGE.jqueryui.scss","main":"..\/css\/DO_NOT_CHANGE.light-grey.scss"}}';
+		$sInitialThemeParamJson='{"variables":{"brand-primary":"#C53030","hover-background-color":"#F6F6F6","icons-filter":"grayscale(1)","search-form-container-bg-color":"#4A5568"},"imports_utility":{"css-variables":"..\/css\/DO_NOT_CHANGE.css-variables.scss"},"imports_variable":[],"stylesheets":{"jqueryui":"..\/css\/ui-lightness\/DO_NOT_CHANGE.jqueryui.scss","main":"..\/css\/DO_NOT_CHANGE.light-grey.scss"}}';
 		$sImportFilePath = '/branding/css/DO_NOT_CHANGE.css-variables.scss';
 		$sVarChangedMainCssPath="test/application/theme-handler/expected/themes/basque-red/main_varchanged.css";
 		$sStylesheetMainCssPath="test/application/theme-handler/expected/themes/basque-red/main_stylesheet.css";
@@ -508,6 +518,7 @@ JSON;
 			"\$approot-relative + \"css/ui-lightness/images/toto.png?v=\" + \$version",
 			'$approot-relative + \'css/ui-lightness/images/titi.gif?v=\' + $version1',
 		'"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7?v=" + $version',
+		'$approot-relative + \'node_modules/raleway-webfont/fonts/Raleway-Thin.jpeg\'',
 		];
 
 		$aIncludedUrls['aCompleteUrls'];
@@ -604,8 +615,92 @@ SCSS;
 	}
 
 	/**
+	 * @dataProvider FindStylesheetFileProvider
+	 * @throws \Exception
+	 */
+	public function testFindStylesheetFile(string $sFileToFind, array $aAllImports){
+		$sImportsPath = $this->sTmpDir.'/branding/';
+
+		// Windows compat O:)
+		$sFileToFind = $this->UpdateDirSep($sFileToFind);
+		$sImportsPath = $this->UpdateDirSep($sImportsPath);
+
+		$aExpectedAllImports = [];
+		if (count($aAllImports) !== 0) {
+			foreach ($aAllImports as $sFileURI) {
+				$aExpectedAllImports[$sFileURI] = $this->UpdateDirSep($sImportsPath.$sFileURI);
+			}
+		}
+
+
+		$oFindStylesheetObject = new FindStylesheetObject();
+		ThemeHandler::FindStylesheetFile($sFileToFind, [$sImportsPath], $oFindStylesheetObject);
+
+		$this->assertEquals([$sFileToFind], $oFindStylesheetObject->GetStylesheetFileURIs());
+		$this->assertEquals($aExpectedAllImports, $oFindStylesheetObject->GetImportPaths());
+		$this->assertEquals($sImportsPath.$sFileToFind, $oFindStylesheetObject->GetLastStyleSheetPath());
+
+		$aExpectedAllStylesheetPaths = [];
+		foreach (array_merge([$sFileToFind], $aAllImports) as $sFileUri) {
+			$aExpectedAllStylesheetPaths [] = $this->UpdateDirSep($sImportsPath.$sFileUri);
+		}
+		$this->assertEquals($aExpectedAllStylesheetPaths, $oFindStylesheetObject->GetAllStylesheetPaths());
+	}
+
+	public function FindStylesheetFileProvider()
+	{
+		$sFileToFind3 = 'css/multi_imports.scss';
+		$sFileToFind4 = 'css/included_file1.scss';
+		$sFileToFind5 = 'css/included_scss/included_file2.scss';
+
+		return [
+			"single file to find" => [
+				"sFileToFind" => "css/DO_NOT_CHANGE.light-grey.scss",
+				"aAllImports" => [],
+			],
+			"scss with simple @imports" => [
+				"sFileToFind" => "css/simple_import.scss",
+				"aAllImports" => [$sFileToFind4],
+			],
+			"scss with multi @imports" => [
+				"sFileToFind" => $sFileToFind3,
+				"aAllImports" => [$sFileToFind4, $sFileToFind5]
+			],
+			"scss with simple @imports in another folder" => [
+				"sFileToFind" => "css/simple_import2.scss",
+				"aAllImports" => [$sFileToFind5]
+			],
+			"scss with @imports shortcut included_file3 => _included_file3.scss" => [
+				"sFileToFind" => "css/shortcut.scss",
+				"aAllImports" => ["css/_included_file3.scss", "css/included_scss/included_file4.scss"]
+			],
+			"scss with @imports shortcut same file and folder names => feature1/_feature1.scss" => [
+				"sFileToFind" => "css/shortcut2.scss",
+				"aAllImports" => ["css/feature1/_feature1.scss"],
+			],
+			"cross_reference & infinite loop" => [
+				"sFileToFind" => "css/cross_reference1.scss",
+				"aAllImports" => ["css/cross_reference2.scss"],
+			],
+		];
+	}
+
+	/**
+	 * @param string $sPath
+	 *
+	 * @return string replace '/' by appropriate dir separator, depending on OS
+	 *
+	 * @uses DIRECTORY_SEPARATOR
+	 */
+	private function UpdateDirSep(string $sPath)
+	{
+		return str_replace('/', DIRECTORY_SEPARATOR, $sPath);
+	}
+
+	/**
 	 * @param $sPath
 	 * @param $sExpectedCanonicalPath
+	 *
 	 * @dataProvider CanonicalizePathProvider
 	 */
 	public function testCanonicalizePath($sExpectedCanonicalPath, $sPath)

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -234,5 +234,19 @@ EOF
 				APPROOT.'css/backoffice/',
 			)
 		);
+	}
+
+	protected function GetReadyScriptsStartedTrigger(): ?string
+	{
+		return <<<JS
+$("body").attr("data-ready-scripts", "start");
+JS;
+	}
+
+	protected function GetReadyScriptsFinishedTrigger(): ?string
+	{
+		return <<<JS
+$("body").attr("data-ready-scripts", "done");
+JS;
 	}
 }

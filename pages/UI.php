@@ -1,33 +1,31 @@
 <?php
-/**
- * Copyright (C) 2013-2020 Combodo SARL
- *
- * This file is part of iTop.
- *
- * iTop is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * iTop is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
+use Combodo\iTop\Application\TwigBase\Twig\TwigHelper;
 use Combodo\iTop\Application\UI\Base\Component\Button\ButtonUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Form\Form;
+use Combodo\iTop\Application\UI\Base\Component\Form\FormUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\GlobalSearch\GlobalSearchHelper;
+use Combodo\iTop\Application\UI\Base\Component\Html\HtmlFactory;
 use Combodo\iTop\Application\UI\Base\Component\Input\InputUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\Input\Select\SelectOptionUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\Input\SelectUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\Panel\PanelUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\QuickCreate\QuickCreateHelper;
+use Combodo\iTop\Application\UI\Base\Component\Title\Title;
+use Combodo\iTop\Application\UI\Base\Component\Title\TitleUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\Toolbar\ToolbarUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Layout\PageContent\PageContentFactory;
 
 /**
  * Displays a popup welcome message, once per session at maximum
  * until the user unchecks the "Display welcome at startup"
+ *
  * @param WebPage $oP The current web page for the display
+ *
  * @return void
  */
 function DisplayWelcomePopup(WebPage $oP)
@@ -39,32 +37,8 @@ function DisplayWelcomePopup(WebPage $oP)
 		$bPopup = appUserPreferences::GetPref('welcome_popup', true);
 		if ($bPopup)
 		{
-			$sTemplate = @file_get_contents('../application/templates/welcome_popup.html');
-			if ($sTemplate !== false)
-			{
-				$oTemplate = new DisplayTemplate($sTemplate);
-				$oP->add("<div id=\"welcome_popup\">");
-				$oTemplate->Render($oP, array());
-				$oP->add("<p style=\"float:left\"><input type=\"checkbox\" checked id=\"display_welcome_popup\"/><label for=\"display_welcome_popup\">&nbsp;".Dict::S('UI:DisplayThisMessageAtStartup')."</label></p>\n");
-				$oP->add("<p style=\"float:right\"><input type=\"button\" value=\"".Dict::S('UI:Button:Ok')."\" onClick=\"$('#welcome_popup').dialog('close');\"/>\n");
-				$oP->add("</div>\n");
-				$sTitle = addslashes(Dict::S('UI:WelcomeMenu:Title'));
-				$oP->add_ready_script(
-<<<EOF
-	$('#welcome_popup').dialog( { width:'80%', height: 'auto', title: '$sTitle', autoOpen: true, modal:true,
-								  close: function() {
-								  	var bDisplay = $('#display_welcome_popup:checked').length;
-								  	SetUserPreference('welcome_popup', bDisplay, true); 
-								  }
-								  });
-	if ($('#welcome_popup').height() > ($(window).height()-70))
-	{
-		$('#welcome_popup').height($(window).height()-70);
-	}
-EOF
-);
-				$_SESSION['welcome'] = 'ok';
-			}
+			TwigHelper::RenderIntoPage($oP, APPROOT.'/', 'templates/pages/backoffice/welcome_popup/welcome_popup');
+			$_SESSION['welcome'] = 'ok';
 		}
 	}	
 }
@@ -156,25 +130,9 @@ function DisplayDetails($oP, $sClass, $oObj, $id)
  * @param string $sMessageKey
  * @param WebPage $oPage
  */
-function DisplayMessages($sMessageKey, WebPage $oPage)
+function DisplayMessages(string $sMessageKey, WebPage $oPage)
 {
-	if (array_key_exists('obj_messages', $_SESSION) && array_key_exists($sMessageKey, $_SESSION['obj_messages']))
-	{
-		$aMessages = array();
-		$aRanks = array();
-		foreach ($_SESSION['obj_messages'][$sMessageKey] as $sMessageId => $aMessageData)
-		{
-			$sMsgClass = 'message_'.$aMessageData['severity'];
-			$aMessages[] = "<div class=\"header_message $sMsgClass\">".$aMessageData['message']."</div>";
-			$aRanks[] = $aMessageData['rank'];
-		}
-		unset($_SESSION['obj_messages'][$sMessageKey]);
-		array_multisort($aRanks, $aMessages);
-		foreach ($aMessages as $sMessage)
-		{
-			$oPage->add($sMessage);
-		}
-	}
+	$oPage->AddSessionMessages($sMessageKey);
 }
 
 /**
@@ -297,12 +255,16 @@ function DisplayMultipleSelectionForm(WebPage $oP, DBSearch $oFilter, string $sN
 	}
 	$oForm->AddSubBlock($oAppContext->GetForFormBlock());
 	$oDisplayBlock = new DisplayBlock($oFilter, 'list', false);
+	//by default all the elements are selected
+	$aExtraParams['selectionMode'] = 'negative';
 	$oForm->AddSubBlock($oDisplayBlock->GetDisplay($oP, 1, $aExtraParams));
-	$oForm->AddSubBlock(ButtonUIBlockFactory::MakeNeutral(Dict::S('UI:Button:Cancel'), 'cancel')->SetOnClickJsCode('window.history.back()'));
-	$oForm->AddSubBlock(ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Next'), 'next', Dict::S('UI:Button:Next'), true));
+	$oToolbarButtons = ToolbarUIBlockFactory::MakeStandard(null);
+	$oToolbarButtons->AddCSSClass('ibo-toolbar--button');
+	$oForm->AddSubBlock($oToolbarButtons);
+	$oToolbarButtons->AddSubBlock(ButtonUIBlockFactory::MakeForCancel(Dict::S('UI:Button:Cancel'), 'cancel')->SetOnClickJsCode('window.history.back()'));
+	$oToolbarButtons->AddSubBlock(ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Next'), 'next', Dict::S('UI:Button:Next'), true));
 
 	$oP->AddUiBlock($oForm);
-	$oP->add_ready_script("$('#1 table.listResults').trigger('check_all');");
 }
 
 function DisplayNavigatorListTab($oP, $aResults, $sRelation, $sDirection, $oObj)
@@ -320,19 +282,7 @@ function DisplayNavigatorListTab($oP, $aResults, $sRelation, $sDirection, $oObj)
 	/*
 	 * Content is rendered asynchronously via pages/ajax.render.php?operation=relation_lists
 	 */
-	/*
-	$iBlock = 1; // Zero is not a valid blockid
-	foreach($aResults as $sListClass => $aObjects)
-	{
-		$oSet = CMDBObjectSet::FromArray($sListClass, $aObjects);
-		$oP->add("<div class=\"page_header\">\n");
-		$oP->add("<h2>".MetaModel::GetClassIcon($sListClass)."&nbsp;<span class=\"hilite\">".Dict::Format('UI:Search:Count_ObjectsOf_Class_Found', count($aObjects), Metamodel::GetName($sListClass))."</h2>\n");
-		$oP->add("</div>\n");
-		$oBlock = DisplayBlock::FromObjectSet($oSet, 'list');
-		$oBlock->Display($oP, $iBlock++, array('table_id' => get_class($oObj).'_'.$sRelation.'_'.$sDirection.'_'.$sListClass));
-		$oP->P('&nbsp;'); // Some space ?				
-	}
-	*/
+
 	$oP->add("</div>");
 	$oP->add("</div>");
 }
@@ -812,13 +762,14 @@ EOF
 				$oAppContext->InitObjectFromContext($oObjToClone);
 				// 2nd - set values from the page argument 'default'
 				$oObjToClone->UpdateObjectFromArg('default');
-				$aPrefillFormParam = array( 'user' => $_SESSION["auth_user"],
+				$aPrefillFormParam = array(
+					'user' => $_SESSION["auth_user"],
 					'context' => $oAppContext->GetAsHash(),
 					'default' => utils::ReadParam('default', array(), '', 'raw_data'),
-					'origin' => 'console'
+					'origin' => 'console',
 				);
 				// 3rd - prefill API
-				$oObjToClone->PrefillForm('creation_from_0',$aPrefillFormParam);
+				$oObjToClone->PrefillForm('creation_from_0', $aPrefillFormParam);
 
 				// Display the creation form
 				$sClassLabel = MetaModel::GetName($sRealClass);
@@ -828,73 +779,57 @@ EOF
 				// Note: some code has been duplicated to the case 'apply_new' when a data integrity issue has been found
 				$oP->set_title(Dict::Format('UI:CreationPageTitle_Class', $sClassLabel));
 				$oP->SetContentLayout(PageContentFactory::MakeForObjectDetails($oObjToClone, cmdbAbstractObject::ENUM_OBJECT_MODE_CREATE));
-				cmdbAbstractObject::DisplayCreationForm($oP, $sRealClass, $oObjToClone, array(), array('wizard_container' => 1)); // wizard_container: Display the title above the form
-			}
-			else
-			{
+				cmdbAbstractObject::DisplayCreationForm($oP, $sRealClass, $oObjToClone, array(), array('wizard_container' => 1, 'keep_source_object' => true)); // wizard_container: Display the title above the form
+			} else {
 				// Select the derived class to create
 				$sClassLabel = MetaModel::GetName($sClass);
-				$sClassIcon = MetaModel::GetClassIcon($sClass);
-				$sHeaderTitle = Dict::Format('UI:CreationTitle_Class', $sClassLabel);
-				$oP->add(<<<HTML
-<!-- Beginning of object-details -->
-<div class="object-details" data-object-class="$sClass" data-object-id="" data-object-mode="create">
-	<div class="page_header">
-		<h1>$sClassIcon $sHeaderTitle</h1>
-	</div>
-	<!-- Beginning of wizContainer -->
-	<div class="wizContainer">
-HTML
-				);
-				$oP->add('<form>');
-				$oP->add('<p>'.Dict::Format('UI:SelectTheTypeOf_Class_ToCreate', $sClassLabel));
+				$sClassIconUrl = MetaModel::GetClassIcon($sClass, false);
+				$sTitle = Dict::Format('UI:CreationTitle_Class', $sClassLabel);
+
+				$oP->set_title($sTitle);
+				$oPanel = PanelUIBlockFactory::MakeForClass($sClass, $sTitle)
+					->SetIcon($sClassIconUrl);
+				$oP->AddUiBlock($oPanel);
+
+				$oClassForm = FormUIBlockFactory::MakeStandard();
+				$oPanel->AddMainBlock($oClassForm);
+
+				$oClassForm->AddSubBlock(HtmlFactory::MakeParagraph(Dict::Format('UI:SelectTheTypeOf_Class_ToCreate', $sClassLabel)))
+					->AddHtml($oAppContext->GetForForm())
+					->AddSubBlock(InputUIBlockFactory::MakeForHidden('checkSubclass', '0'))
+					->AddSubBlock(InputUIBlockFactory::MakeForHidden('state', $sStateCode))
+					->AddSubBlock(InputUIBlockFactory::MakeForHidden('operation', 'new'));
+
 				$aDefaults = utils::ReadParam('default', array(), false, 'raw_data');
-				$oP->add($oAppContext->GetForForm());
-				$oP->add("<input type=\"hidden\" name=\"checkSubclass\" value=\"0\">\n");
-				$oP->add("<input type=\"hidden\" name=\"state\" value=\"$sStateCode\">\n");
-				$oP->add("<input type=\"hidden\" name=\"operation\" value=\"new\">\n");
-				foreach($aDefaults as $key => $value)
-				{
-					if (is_array($value))
-					{
-						foreach($value as $key2 => $value2)
-						{
-							if (is_array($value2))
-							{
-								foreach($value2 as $key3 => $value3)
-								{
-									$sValue = htmlentities($value3, ENT_QUOTES, 'UTF-8');
-									$oP->add("<input type=\"hidden\" name=\"default[$key][$key2][$key3]\" value=\"$sValue\">\n");
+				foreach ($aDefaults as $key => $value) {
+					if (is_array($value)) {
+						foreach ($value as $key2 => $value2) {
+							if (is_array($value2)) {
+								foreach ($value2 as $key3 => $value3) {
+									$sValue = utils::EscapeHtml($value3);
+									$oClassForm->AddSubBlock(InputUIBlockFactory::MakeForHidden("default[$key][$key2][$key3]", $sValue));
 								}
-							}
-							else
-							{
-								$sValue = htmlentities($value2, ENT_QUOTES, 'UTF-8');
-								$oP->add("<input type=\"hidden\" name=\"default[$key][$key2]\" value=\"$sValue\">\n");
+							} else {
+								$sValue = utils::EscapeHtml($value2);
+								$oClassForm->AddSubBlock(InputUIBlockFactory::MakeForHidden("default[$key][$key2]", $sValue));
 							}
 						}
-					}
-					else
-					{
-						$sValue = htmlentities($value, ENT_QUOTES, 'UTF-8');
-						$oP->add("<input type=\"hidden\" name=\"default[$key]\" value=\"$sValue\">\n");
+					} else {
+						$sValue = utils::EscapeHtml($value);
+						$oClassForm->AddSubBlock(InputUIBlockFactory::MakeForHidden("default[$key]", $sValue));
 					}
 				}
-				$oP->add('<select name="class">');
+
+				$oSelect = SelectUIBlockFactory::MakeForSelect('class');
+				$oClassForm->AddSubBlock($oSelect);
 				asort($aPossibleClasses);
-				foreach($aPossibleClasses as $sClassName => $sClassLabel)
-				{
-					$sSelected = ($sClassName == $sClass) ? 'selected' : '';
-					$oP->add("<option $sSelected value=\"$sClassName\">$sClassLabel</option>");
+				foreach ($aPossibleClasses as $sClassName => $sClassLabel) {
+					$oSelect->AddOption(SelectOptionUIBlockFactory::MakeForSelectOption($sClassName, $sClassLabel, ($sClassName == $sClass)));
 				}
-				$oP->add('</select>');
-				$oP->add("&nbsp; <input type=\"submit\" value=\"".Dict::S('UI:Button:Apply')."\"></p>");
-				$oP->add('</form>');
-				$oP->add(<<<HTML
-	</div><!-- End of wizContainer -->
-</div><!-- End of object-details -->
-HTML
-				);
+
+				$oToolbar = ToolbarUIBlockFactory::MakeForAction();
+				$oClassForm->AddSubBlock($oToolbar);
+				$oToolbar->AddSubBlock(ButtonUIBlockFactory::MakeForPrimaryAction(Dict::S('UI:Button:Apply'), null, null, true));
 			}
 		break;
 	
@@ -1200,7 +1135,7 @@ HTML
 					$sOrigState = utils::ReadPostedParam('obj_state_orig', '');
 					if ($sTargetState != $sOrigState)
 					{
-						$aWarnings[] = 'State changed';
+						$aWarnings[] = Dict::S('UI:StateChanged');
 					}
 					$oObj->Set($sStateAttCode, $sTargetState);
 				}
@@ -1250,64 +1185,42 @@ HTML
 				$sMessage = Dict::Format('UI:Title:Object_Of_Class_Created', $sName, $sClassLabel);
 
 				$sNextAction = utils::ReadPostedParam('next_action', '');
-				if (!empty($sNextAction))
-				{
+				if (!empty($sNextAction)) {
 					$oP->add("<h1>$sMessage</h1>");
-					try
-					{
+					try {
 						ApplyNextAction($oP, $oObj, $sNextAction);
 					}
-					catch (ApplicationException $e)
-					{
+					catch (ApplicationException $e) {
 						$sMessage = $e->getMessage();
 						$sSeverity = 'info';
 						ReloadAndDisplay($oP, $oObj, 'create', $sMessage, $sSeverity);
 					}
-				}
-				else
-				{
+				} else {
 					// Nothing more to do
 					ReloadAndDisplay($oP, $oObj, 'create', $sMessage, 'ok');
 				}
 			}
-			catch (CoreCannotSaveObjectException $e)
-			{
+			catch (CoreCannotSaveObjectException $e) {
 				// Found issues, explain and give the user a second chance
 				//
 				$aIssues = $e->getIssues();
 
 				$sObjKey = $oObj->GetKey();
-				$sClassIcon = MetaModel::GetClassIcon($sClass);
+				$sClassIcon = MetaModel::GetClassIcon($sClass, false);
 				$sHeaderTitle = Dict::Format('UI:CreationTitle_Class', $sClassLabel);
 
 				$oP->set_title(Dict::Format('UI:CreationPageTitle_Class', $sClassLabel));
-				$oP->add(<<<HTML
-<!-- Beginning of object-details -->
-<div class="object-details" data-object-class="$sClass" data-object-id="$sObjKey" data-object-mode="create">
-	<div class="page_header">
-		<h1>$sClassIcon $sHeaderTitle</h1>
-	</div>
-	<!-- Beginning of wizContainer -->
-	<div class="wizContainer">
-HTML
-				);
+				$oTitle = TitleUIBlockFactory::MakeForPageWithIcon($sHeaderTitle, $sClassIcon, Title::DEFAULT_ICON_COVER_METHOD, false);
+				$oP->AddUiBlock($oTitle);
 
-
-				if (!empty($aIssues))
-				{
+				if (!empty($aIssues)) {
 					$oP->AddHeaderMessage($e->getHtmlMessage(), 'message_error');
 				}
-				if (!empty($aWarnings))
-				{
+				if (!empty($aWarnings)) {
 					$sWarnings = implode(', ', $aWarnings);
-					$oP->AddHeaderMessage($sWarnings, 'message_info');
+					$oP->AddHeaderMessage($sWarnings, 'message_warning');
 				}
 				cmdbAbstractObject::DisplayCreationForm($oP, $sClass, $oObj);
-				$oP->add(<<<HTML
-	</div><!-- End of wizContainer -->
-</div><!-- End of object-details -->
-HTML
-				);
 			}
 		}
 		break;
@@ -1407,14 +1320,14 @@ HTML
 					{
 						// When 'enabling' a field, all its prerequisites must be enabled too
 						$sFieldList = "['{$sFormPrefix}".implode("','{$sFormPrefix}", $aPrerequisites)."']";
-						$oP->add_ready_script("$('#enable_{$sFieldInputId}').bind('change', function(evt, sFormId) { return PropagateCheckBox( this.checked, $sFieldList, true); } );\n");
+						$oP->add_ready_script("$('#enable_{$sFieldInputId}').on('change', function(evt, sFormId) { return PropagateCheckBox( this.checked, $sFieldList, true); } );\n");
 					}
 					$aDependents = MetaModel::GetDependentAttributes($sClass, $sAttCode); // List of attributes that are needed for the current one
 					if (count($aDependents) > 0)
 					{
 						// When 'disabling' a field, all its dependent fields must be disabled too
 						$sFieldList = "['{$sFormPrefix}".implode("','{$sFormPrefix}", $aDependents)."']";
-						$oP->add_ready_script("$('#enable_{$sFieldInputId}').bind('change', function(evt, sFormId) { return PropagateCheckBox( this.checked, $sFieldList, false); } );\n");
+						$oP->add_ready_script("$('#enable_{$sFieldInputId}').on('change', function(evt, sFormId) { return PropagateCheckBox( this.checked, $sFieldList, false); } );\n");
 					}
 					$aArgs = array('this' => $oObj);
 					$sHTMLValue = cmdbAbstractObject::GetFormElementForField($oP, $sClass, $sAttCode, $oAttDef, $oObj->Get($sAttCode), $oObj->GetEditValue($sAttCode), $sFieldInputId, '', $iExpectCode, $aArgs);
@@ -1960,82 +1873,43 @@ EOF
 	DisplayWelcomePopup($oP);
 	$oP->output();	
 }
-catch(CoreException $e)
-{
-	require_once(APPROOT.'/setup/setuppage.class.inc.php');
-	$oP = new ErrorPage(Dict::S('UI:PageTitle:FatalError'));
-	if ($e instanceof SecurityException)
-	{
-		$oP->add("<h1>".Dict::S('UI:SystemIntrusion')."</h1>\n");
+catch (Exception $e) {
+	$oErrorPage = new ErrorPage(Dict::S('UI:PageTitle:FatalError'));
+	if ($e instanceof SecurityException) {
+		$oErrorPage->add("<h1>".Dict::S('UI:SystemIntrusion')."</h1>\n");
+	} else {
+		$oErrorPage->add("<h1>".Dict::S('UI:FatalErrorMessage')."</h1>\n");
 	}
-	else
-	{
-		$oP->add("<h1>".Dict::S('UI:FatalErrorMessage')."</h1>\n");
-	}	
-	$oP->error(Dict::Format('UI:Error_Details', $e->getHtmlDesc()));	
-	$oP->output();
+	$sErrorDetails = ($e instanceof CoreException) ? $e->getHtmlDesc() : $e->getMessage();
+	$oErrorPage->error(Dict::Format('UI:Error_Details', $sErrorDetails));
+	$oErrorPage->output();
 
-	if (MetaModel::IsLogEnabledIssue())
-	{
-		if (MetaModel::IsValidClass('EventIssue'))
-		{
-			try
-			{
+	$sErrorStackTrace = ($e instanceof CoreException) ? $e->getFullStackTraceAsString() : $e->getTraceAsString();
+	if (MetaModel::IsLogEnabledIssue()) {
+		if (MetaModel::IsValidClass('EventIssue')) {
+			try {
 				$oLog = new EventIssue();
-	
+
 				$oLog->Set('message', $e->getMessage());
 				$oLog->Set('userinfo', '');
-				$oLog->Set('issue', $e->GetIssue());
+				$sIssue = ($e instanceof CoreException) ? $e->GetIssue() : 'PHP Exception';
+				$oLog->Set('issue', $sIssue);
 				$oLog->Set('impact', 'Page could not be displayed');
-				$oLog->Set('callstack', $e->getFullStackTraceAsString());
-				$oLog->Set('data', $e->getContextData());
+				$oLog->Set('callstack', $sErrorStackTrace);
+				$aData = ($e instanceof CoreException) ? $e->getContextData() : [];
+				$oLog->Set('data', $aData);
 				$oLog->DBInsertNoReload();
 			}
-			catch(Exception $e)
-			{
+			catch (Exception $e) {
 				IssueLog::Error("Failed to log issue into the DB");
 			}
 		}
-
-		IssueLog::Error('UI.php operation='.$operation.', error='.$e->getMessage()."\n".$e->getFullStackTraceAsString());
 	}
 
-	// For debugging only
-	//throw $e;
+	$sOperationToLog = $operation ?? 'N/A';
+	IssueLog::Debug('UI.php operation='.$sOperationToLog.', error='.$e->getMessage()."\n".$sErrorStackTrace, 'console');
 }
-catch(Exception $e)
-{
-	require_once(APPROOT.'/setup/setuppage.class.inc.php');
-	$oP = new ErrorPage(Dict::S('UI:PageTitle:FatalError'));
-	$oP->add("<h1>".Dict::S('UI:FatalErrorMessage')."</h1>\n");	
-	$oP->error(Dict::Format('UI:Error_Details', $e->getMessage()));
-	$oP->output();
 
-	if (MetaModel::IsLogEnabledIssue())
-	{
-		if (MetaModel::IsValidClass('EventIssue'))
-		{
-			try
-			{
-				$oLog = new EventIssue();
-	
-				$oLog->Set('message', $e->getMessage());
-				$oLog->Set('userinfo', '');
-				$oLog->Set('issue', 'PHP Exception');
-				$oLog->Set('impact', 'Page could not be displayed');
-				$oLog->Set('callstack', $e->getTrace());
-				$oLog->Set('data', array());
-				$oLog->DBInsertNoReload();
-			}
-			catch(Exception $e)
-			{
-				IssueLog::Error("Failed to log issue into the DB");
-			}
-		}
-
-		IssueLog::Error($e->getMessage());
-	}
-}
 
 class UI
 {
@@ -2062,7 +1936,7 @@ class UI
 		// Add user filter
 		$oFilter->UpdateContextFromUser();
 		$oChecker = new ActionChecker($oFilter, UR_ACTION_BULK_MODIFY);
-		$oP->add("<h1>".Dict::S('UI:ModifyAllPageTitle')."</h1>\n");
+		$oP->AddUiBlock(TitleUIBlockFactory::MakeForPage(Dict::S('UI:ModifyAllPageTitle')));
 
 		DisplayMultipleSelectionForm($oP, $oFilter, 'form_for_modify_all', $oChecker);
 	}
@@ -2089,7 +1963,7 @@ class UI
 		$oFullSetFilter->UpdateContextFromUser();
 		$aSelectedObj = utils::ReadMultipleSelection($oFullSetFilter);
 		$sCancelUrl = "./UI.php?operation=search&filter=".urlencode($sFilter)."&".$oAppContext->GetForLink();
-		$aContext = array('search' => htmlentities($sFilter, ENT_QUOTES, 'UTF-8'));
+		$aContext = array('filter' => htmlentities($sFilter, ENT_QUOTES, 'UTF-8'));
 		cmdbAbstractObject::DisplayBulkModifyForm($oP, $sClass, $aSelectedObj, 'preview_or_modify_all', $sCancelUrl, array(), $aContext);
 	}
 

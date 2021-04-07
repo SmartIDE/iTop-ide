@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -133,10 +133,12 @@ class BlockRenderer
 	/**
 	 * Return the raw output of the JS template
 	 *
-	 * @param string $sType javascript type only JS_TYPE_ON_INIT / JS_TYPE_ON_READY / JS_TYPE_LIVE
+	 * @param string $sType javascript type only one of the following :
+	 *   * {@see iUiBlock::ENUM_JS_TYPE_ON_INIT}
+	 *   * {@see iUiBlock::ENUM_JS_TYPE_ON_READY}
+	 *   * {@see iUiBlock::ENUM_JS_TYPE_LIVE}
 	 *
 	 * @return string
-	 * @throws \Twig\Error\LoaderError
 	 * @throws \Twig\Error\RuntimeError
 	 * @throws \Twig\Error\SyntaxError
 	 */
@@ -160,8 +162,6 @@ class BlockRenderer
 	 * Return the raw output of the CSS template
 	 *
 	 * @return string
-	 * @throws \ReflectionException
-	 * @throws \Twig\Error\LoaderError
 	 * @throws \Twig\Error\RuntimeError
 	 * @throws \Twig\Error\SyntaxError
 	 */

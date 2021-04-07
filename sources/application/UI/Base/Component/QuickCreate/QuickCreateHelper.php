@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -94,6 +94,9 @@ class QuickCreateHelper
 		{
 			$sClass = $aHistoryEntries[$iIdx]['class'];
 
+			if (!MetaModel::IsValidClass($sClass)) {
+				continue;
+			}
 			// Add class icon
 			if(!isset($aHistoryEntries[$iIdx]['icon_url']))
 			{

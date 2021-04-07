@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2015 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -23,7 +23,7 @@
  * which choice is configured via the parameter 'transaction_storage'
  *  
  * @package     iTop
- * @copyright   Copyright (C) 2010-2012 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -297,11 +297,19 @@ class privUITransactionFile
 	 * Cleanup old transactions which have been pending since more than 24 hours
 	 * Use filemtime instead of filectime since filectime may be affected by operations on the directory (like changing the access rights)
 	 */
-	protected static function CleanupOldTransactions()
+	protected static function CleanupOldTransactions($sTransactionDir = null)
 	{
-		$iLimit = time() - 24*3600;
+		$iThreshold = (int) MetaModel::GetConfig()->Get('transactions_gc_threshold');
+		$iThreshold = min(100, $iThreshold);
+		$iThreshold = max(1, $iThreshold);
+		if ((100 != $iThreshold) && (rand(1, 100) > $iThreshold)) {
+			return;
+		}
+
 		clearstatcache();
-		$aTransactions = glob(APPROOT.'data/transactions/*-*');
+		$iLimit = time() - 24*3600;
+		$sPattern = $sTransactionDir ? "$sTransactionDir/*" : APPROOT.'data/transactions/*';
+		$aTransactions = glob($sPattern);
 		foreach($aTransactions as $sFileName)
 		{
 			if (filemtime($sFileName) < $iLimit)

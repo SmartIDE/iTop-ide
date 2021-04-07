@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -337,7 +337,17 @@ class Field extends UIContentBlock
 	public function SetValueId(?string $sValueId)
 	{
 		$this->sValueId = $sValueId;
+
 		return $this;
 	}
 
+	public function SetInputId(string $sInputId)
+	{
+		$this->AddDataAttribute('input-id', $sInputId);
+	}
+
+	public function SetInputType(string $sInputType)
+	{
+		$this->AddDataAttribute('input-type', $sInputType);
+	}
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -93,8 +93,24 @@ class PageContent extends UIBlock implements iUIContentBlock {
 	 *
 	 * @return $this
 	 */
-	public function AddMainBlock(iUIBlock $oBlock) {
+	public function AddMainBlock(iUIBlock $oBlock)
+	{
 		$this->AddBlockToContentArea(static::ENUM_CONTENT_AREA_MAIN, $oBlock);
+
+		return $this;
+	}
+
+	/**
+	 * Add all $aBlocks to the main content area
+	 *
+	 * @param \Combodo\iTop\Application\UI\Base\iUIBlock[] $aBlocks
+	 *
+	 * @return $this
+	 * @uses static::AddBlocksToContentArea()
+	 */
+	public function AddMainBlocks(array $aBlocks)
+	{
+		$this->AddBlocksToContentArea(static::ENUM_CONTENT_AREA_MAIN, $aBlocks);
 
 		return $this;
 	}
@@ -107,7 +123,8 @@ class PageContent extends UIBlock implements iUIContentBlock {
 	 *
 	 * @return $this
 	 */
-	public function RemoveMainBlock(string $sBlockId) {
+	public function RemoveMainBlock(string $sBlockId)
+	{
 		$this->RemoveBlockFromContentArea(static::ENUM_CONTENT_AREA_MAIN, $sBlockId);
 
 		return $this;
@@ -210,12 +227,22 @@ class PageContent extends UIBlock implements iUIContentBlock {
 	}
 
 	/**
+	 * @inheritDoc
+	 * @throws \Exception
+	 */
+	public function HasSubBlocks(): bool
+	{
+		return !empty($this->GetMainBlocks());
+	}
+
+	/**
 	 * Set the MAIN AREA subBlocks
 	 *
 	 * @inheritDoc
 	 * @return $this|\Combodo\iTop\Application\UI\Base\Layout\iUIContentBlock
 	 */
-	public function SetSubBlocks(array $aSubBlocks): iUIContentBlock {
+	public function SetSubBlocks(array $aSubBlocks): iUIContentBlock
+	{
 		$this->SetMainBlocks($aSubBlocks);
 
 		return $this;

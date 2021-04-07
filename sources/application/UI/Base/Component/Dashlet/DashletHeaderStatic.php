@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -8,32 +8,38 @@
 namespace Combodo\iTop\Application\UI\Base\Component\Dashlet;
 
 
+/**
+ * Class DashletHeaderStatic
+ *
+ * @internal
+ * @author Eric Espie <eric.espie@combodo.com>
+ * @since 3.0.0
+ * @package Combodo\iTop\Application\UI\Base\Component\Dashlet
+ */
 class DashletHeaderStatic extends DashletContainer
 {
+	// Overloaded constants
 	public const BLOCK_CODE = 'ibo-dashlet-header-static';
-	public const DEFAULT_HTML_TEMPLATE_REL_PATH = 'base/components/dashlet/dashletheaderstatic';
+	public const DEFAULT_HTML_TEMPLATE_REL_PATH = 'base/components/dashlet/dashlet-header-static';
 
 	/** @var string */
 	protected $sTitle;
 	/** @var string */
 	protected $sIconUrl;
-	/** @var string */
-	protected $sText;
 
 	/**
 	 * DashletHeaderStatic constructor.
 	 *
 	 * @param string $sTitle
 	 * @param string $sIconUrl
-	 * @param string $sText
+	 * @param string|null $sId
 	 */
-	public function __construct(string $sId = null, string $sTitle, string $sIconUrl, string $sText = '')
+	public function __construct(string $sTitle, string $sIconUrl, string $sId = null)
 	{
 		parent::__construct($sId);
 
 		$this->sTitle = $sTitle;
 		$this->sIconUrl = $sIconUrl;
-		$this->sText = $sText;
 	}
 
 
@@ -48,11 +54,12 @@ class DashletHeaderStatic extends DashletContainer
 	/**
 	 * @param string $sTitle
 	 *
-	 * @return DashletHeaderStatic
+	 * @return $this
 	 */
-	public function SetTitle(string $sTitle): DashletHeaderStatic
+	public function SetTitle(string $sTitle)
 	{
 		$this->sTitle = $sTitle;
+
 		return $this;
 	}
 
@@ -67,32 +74,12 @@ class DashletHeaderStatic extends DashletContainer
 	/**
 	 * @param string $sIconUrl
 	 *
-	 * @return DashletHeaderStatic
+	 * @return $this
 	 */
-	public function SetIconUrl(string $sIconUrl): DashletHeaderStatic
+	public function SetIconUrl(string $sIconUrl)
 	{
 		$this->sIconUrl = $sIconUrl;
+
 		return $this;
 	}
-
-	/**
-	 * @return string
-	 */
-	public function GetText(): string
-	{
-		return $this->sText;
-	}
-
-	/**
-	 * @param string $sText
-	 *
-	 * @return DashletHeaderStatic
-	 */
-	public function SetText(string $sText): DashletHeaderStatic
-	{
-		$this->sText = $sText;
-		return $this;
-	}
-
-
 }

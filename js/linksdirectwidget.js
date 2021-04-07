@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2019 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -86,16 +86,16 @@ $(function()
 			}
 			
 			this.element.find('.selectList'+this.id).bind('change', function() { me._updateButtons(); });
-			this.oButtons['delete'].click(function() {
+			this.oButtons['delete'].on('click', function() {
 				$('.selectList'+me.id+':checked', me.element).each( function() { me._deleteRow($(this)); });
 			});
-			this.oButtons['create'].click(function() {
+			this.oButtons['create'].on('click', function() {
 				me._createRow();
 			});
-			this.oButtons['remove'].click(function() {
+			this.oButtons['remove'].on('click', function() {
 				$('.selectList'+me.id+':checked', me.element).each( function() { me._removeRow($(this)); });
 			});
-			this.oButtons['add'].click(function() {
+			this.oButtons['add'].on('click', function() {
 				me._selectToAdd();
 			});
 						
@@ -186,7 +186,7 @@ $(function()
 				$('body').append(me.oDlg);
 				me.oDlg.html(data);
 				me.oDlg.find('form').removeAttr('onsubmit').bind('submit', function() { me._onCreateRow(); return false; } );
-				me.oDlg.find('button.cancel').unbind('click').click( function() { me.oDlg.dialog('close'); } );
+				me.oDlg.find('button.cancel').off('click').on('click',  function() { me.oDlg.dialog('close'); } );
 				
 				me.oDlg.dialog({
 					title: me.options.labels['creation_title'],
@@ -232,8 +232,8 @@ $(function()
 				$('body').append(me.oDlg);
 				me.oDlg.html(data);
 				me.oDlg.find('form').removeAttr('onsubmit').bind('submit', function() { me._onSearchToAdd(); return false; } );
-				me.oDlg.find('button.cancel').unbind('click').click( function() { me.oDlg.dialog('close'); } );
-				me.oDlg.find('button.ok').unbind('click').click( function() { me._onDoAdd(); } );
+				me.oDlg.find('button.cancel').off('click').on('click',  function() { me.oDlg.dialog('close'); } );
+				me.oDlg.find('button.ok').off('click').on('click',  function() { me._onDoAdd(); } );
 				$('#SearchFormToAdd_'+me.id).resize(function() { me._onSearchDlgUpdateSize(); });
 				
 				me.oDlg.dialog({
@@ -303,7 +303,6 @@ $(function()
 			$.post(this.options.submit_to, oParams, function(data) {
 				
 				$('#SearchResultsToAdd_'+me.id).html(data);
-				$('#SearchResultsToAdd_'+me.id+' .listResults').tableHover();
 				$('#count_'+me.id).change(function() {
 					var c = this.value;
 					me._onUpdateDlgButtons(c);
@@ -428,7 +427,7 @@ $(function()
 			$.post(this.options.submit_to, oParams, function(data){
 				me.oDlg.html(data);
 				me.oDlg.find('form').removeAttr('onsubmit').bind('submit', function() { me._onCreateRow(); return false; } );
-				me.oDlg.find('button.cancel').unbind('click').click( function() { me.oDlg.dialog('close'); } );
+				me.oDlg.find('button.cancel').off('click').on('click',  function() { me.oDlg.dialog('close'); } );
 				me._updateDlgPosition();				
 			});
 		},

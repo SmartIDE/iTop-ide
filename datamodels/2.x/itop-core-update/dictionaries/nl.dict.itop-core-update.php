@@ -2,7 +2,7 @@
 /**
  * Localized data
  *
- * @copyright Copyright (C) 2010-2018 Combodo SARL
+ * @copyright Copyright (C) 2010-2021 Combodo SARL
  * @license	http://opensource.org/licenses/AGPL-3.0
  *
  * This file is part of iTop.
@@ -77,6 +77,7 @@ Dict::Add('NL NL', 'Dutch', 'Nederlands', array(
     'iTopUpdate:UI:CanCoreUpdate:Yes' => 'Updaten van toepassing is mogelijk',
 	'iTopUpdate:UI:CanCoreUpdate:No' => 'Updaten van de toepassing is niet mogelijk: %1$s',
 	'iTopUpdate:UI:CanCoreUpdate:Warning' => 'Warning: application update can fail: %1$s~~',
+	'iTopUpdate:UI:CannotUpdateUseSetup' => 'You must use the <a href="%1$s">setup</a> to update the application.<br />Some modified files were detected, a partial update cannot be executed.~~',
 
 	// Setup Messages
     'iTopUpdate:UI:SetupMessage:Ready' => 'Klaar om verder te gaan',

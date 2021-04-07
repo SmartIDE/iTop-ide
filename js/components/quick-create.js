@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -85,6 +85,9 @@ $(function()
 			});
 			this.element.find(this.js_selectors.input).on('change', function(oEvent){
 				me._onInputOptionSelected(oEvent, $(this));
+			});
+			this.element.on('open_drawer', function(oEvent){
+				me._onIconClick(oEvent);
 			});
 			// Mostly for outside clicks that should close elements
 			oBodyElem.on('click', function(oEvent){

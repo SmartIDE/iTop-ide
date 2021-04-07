@@ -1,10 +1,10 @@
-{# @copyright   Copyright (C) 2010-2019 Combodo SARL #}
+{# @copyright   Copyright (C) 2010-2021 Combodo SARL #}
 {# @license     http://opensource.org/licenses/AGPL-3.0 #}
 {% apply spaceless %}
 
 {% UIContentBlock Standard {'aContainerClasses':['ibo-update-core']} %}
 
-    {% UITitle ForPage {'sTitle':'iTopUpdate:UI:PageTitle'|dict_s} %}
+    {% UITitle ForPage {'sTitle':'iTopUpdate:UI:PageTitle'|dict_s} %}{% EndUITitle %}
 
     <div class="ibo-v-spacer">&nbsp;</div>
 
@@ -39,7 +39,7 @@
 
         {% EndUIFieldSet %}
 
-        {% UIFieldSet Standard {'sLegend':'iTopUpdate:UI:SelectUpdateFile'|dict_s} %}
+        {% UIFieldSet Standard {'sLegend':'iTopUpdate:UI:SelectUpdateFile'|dict_s, 'sId':'form-update-outer'} %}
             {% UIForm Standard {} %}
                 {% UIInput ForHidden {'sName':'operation', 'sValue':'ConfirmUpdate'} %}
                 {% UIInput ForHidden {'sName':'transaction_id', 'sValue':sTransactionId} %}
@@ -56,21 +56,21 @@
                     {% EndUIContentBlock %}
                 {% EndUIAlert %}
 
-                {% UIContentBlock Standard {'aContainerClasses':['upload_container']} %}
-                    {% UIInput Standard {'sType':'file', 'sId':'file', 'sName':'file', 'sValue':''} %}
-                {% EndUIContentBlock %}
+                {% UIFileSelect Standard {sName: 'file', sId: 'file'} %}
 
                 {% UIAlert ForWarning {'sId':'dobackup-warning', 'IsHidden':true} %}
                     {{ 'iTopUpdate:UI:DoBackup:Warning'|dict_s }}
                 {% EndUIAlert %}
 
-                {% UIField Standard {'sLabel':'iTopUpdate:UI:DoBackup:Label'|dict_s, 'sLayout':'large'} %}
-                    {% UIInput Standard {'sType':'checkbox', 'sId':'doBackup', 'sName':'doBackup', 'sValue':'1', 'IsChecked':true} %}
-                {% EndUIField %}
+                {% UIContentBlock Standard {'aContainerClasses':['ibo-font-ral-nor-150']} %}
+                    {% UIInput Standard {'sType':'checkbox', 'sId':'doBackup', 'sName':'doBackup', 'sValue':'1', 'IsChecked':true, 'CSSClasses':['ibo-input-checkbox', 'ibo-input--label-left']} %}
+                    {{ 'iTopUpdate:UI:DoBackup:Label'|dict_s }}
+                {% EndUIContentBlock %}
 
-                {% UIField Standard {'sLabel':'iTopUpdate:UI:DoFilesArchive'|dict_s, 'sLayout':'large'} %}
-                    {% UIInput Standard {'sType':'checkbox', 'sId':'doFilesArchive', 'sName':'doFilesArchive', 'sValue':'1', 'IsChecked':true} %}
-                {% EndUIField %}
+                {% UIContentBlock Standard {'aContainerClasses':['ibo-font-ral-nor-150']} %}
+                    {% UIInput Standard {'sType':'checkbox', 'sId':'doFilesArchive', 'sName':'doFilesArchive', 'sValue':'1', 'IsChecked':true, 'CSSClasses':['ibo-input-checkbox', 'ibo-input--label-left']} %}
+                    {{ 'iTopUpdate:UI:DoFilesArchive'|dict_s }}
+                {% EndUIContentBlock %}
 
                 {% UIContentBlock Standard {'aContainerClasses':['ibo_check_update_submit']} %}
                     {% UIButton ForPrimaryAction {'sLabel':'iTopUpdate:UI:CheckUpdate'|dict_s, 'sId':'check-update', 'bIsSubmit':true, 'IsDisabled':true} %}

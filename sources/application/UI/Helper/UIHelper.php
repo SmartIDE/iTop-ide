@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -11,6 +11,15 @@ namespace Combodo\iTop\Application\UI\Helper;
 use MetaModel;
 
 // TODO 3.0.0: Delete this class as it is only a temporary helper while code is being reworked.
+
+/**
+ * Class UIHelper
+ *
+ * @internal
+ * @author Eric Espie <eric.espie@combodo.com>
+ * @package Combodo\iTop\Application\UI\Helper
+ * @since 3.0.0
+ */
 class UIHelper
 {
 	public static function GetColorFromStatus(string $sClass, ?string $sStateCode): string

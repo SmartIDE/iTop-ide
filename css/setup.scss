@@ -1,5 +1,5 @@
 /*!
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -466,6 +466,10 @@ body {
   .ibo-setup--full-width {
     width: 100%;
   }
+}
+
+.ibo-setup-summary-title {
+  font-size: $ibo-font-size-150;
 }
 
 /* integrityCheck: end (do not remove/edit) */

@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2018 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -60,7 +60,7 @@ function SearchFormForeignKeys(id, sTargetClass, sAttCode, oSearchWidgetElmt, sF
 			$('#dlg_'+me.id).remove();
 		});
 
-		$('#'+this.iInputId).closest('form').submit(function() {
+		$('#'+this.iInputId).closest('form').on('submit', function() {
 			return me.OnFormSubmit();
 		});
 	};
@@ -203,8 +203,7 @@ function SearchFormForeignKeys(id, sTargetClass, sAttCode, oSearchWidgetElmt, sF
 			function(data)
 			{
 				$(sSearchAreaId).html(data);
-				$(sSearchAreaId+' .listResults').tableHover();
-				$('#fr_'+me.id+' input:radio').click(function() { me.UpdateButtons(); });
+				$('#fr_'+me.id+' input:radio').on('click', function() { me.UpdateButtons(); });
 				me.UpdateButtons();
 				me.ajax_request = null;
 				$('#count_'+me.id).change(function(){

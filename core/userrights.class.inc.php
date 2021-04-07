@@ -292,19 +292,16 @@ abstract class User extends cmdbAbstractObject
 	 * @throws \CoreException
 	 * @since 3.0.0
 	*/
-	public function GetInitials()
+	public function GetInitials(): string
 	{
 		$sInitials = '';
 
-		if (MetaModel::IsValidAttCode(get_class($this), 'contactid') && ($this->Get('contactid') != 0))
-		{
-			$sInitials .= mb_substr($this->Get('first_name'), 0, 1);
-			$sInitials .= mb_substr($this->Get('last_name'), 0, 1);
+		if (MetaModel::IsValidAttCode(get_class($this), 'contactid') && ($this->Get('contactid') != 0)) {
+			$sInitials = utils::ToAcronym($this->Get('contactid_friendlyname'));
 		}
 
-		if (empty($sInitials))
-		{
-			$sInitials = mb_substr($this->Get('login'), 0, 1);
+		if (empty($sInitials)) {
+			$sInitials = utils::ToAcronym($this->Get('login'));
 		}
 
 		return $sInitials;
@@ -655,6 +652,8 @@ class UserRights
 	const DEFAULT_CONTACT_PICTURE_ATTCODE = 'picture';
 
 	public static $m_aCacheUsers;
+	/** @var array Associative array of user's ID => user's picture URL */
+	protected static $m_aCacheContactPictureAbsUrl = [];
 	/** @var UserRightsAddOnAPI $m_oAddOn */
 	protected static $m_oAddOn;
 	protected static $m_oUser;
@@ -1058,6 +1057,74 @@ class UserRights
 	}
 
 	/**
+	 * @param string $sLogin Login of the user from which we return the picture URL
+	 * @param bool $bAllowDefaultPicture Set to false if you want it to return null instead of the default picture URL when the contact has no picture defined. This can be useful when we want to display something else than the default picture (eg. initials)
+	 *
+	 * @return null|string Absolute URL of the user picture (from their contact if they have one, or from the preferences)
+	 * @throws \ArchivedObjectException
+	 * @throws \CoreException
+	 * @throws \Exception
+	 * @since 3.0.0
+	 */
+	public static function GetUserPictureAbsUrl($sLogin = '', $bAllowDefaultPicture = true)
+	{
+		$sUserPicturesFolder = 'images/user-pictures/';
+		$sUserPicturePlaceholderPrefKey = 'user_picture_placeholder';
+
+		// First, check cache
+		if (array_key_exists($sLogin, static::$m_aCacheContactPictureAbsUrl)) {
+			return static::$m_aCacheContactPictureAbsUrl[$sLogin];
+		}
+
+		// Then, the default picture
+		if ($bAllowDefaultPicture === true) {
+			$sPictureUrl = utils::GetAbsoluteUrlAppRoot().$sUserPicturesFolder.'user-profile-default-256px.png';
+		} else {
+			$sPictureUrl = null;
+		}
+
+		// Then check if the user has a contact attached and if it has an picture defined
+		$sContactId = UserRights::GetContactId($sLogin);
+		if (!empty($sContactId)) {
+			$oContact = MetaModel::GetObject('Contact', $sContactId, false, true);
+			$sContactClass = get_class($oContact);
+
+			// Check that Contact object still exists and that Contact class has a picture attribute
+			if (!is_null($oContact) && MetaModel::IsValidAttCode($sContactClass, static::DEFAULT_CONTACT_PICTURE_ATTCODE)) {
+				/** @var \ormDocument $oPicture */
+				$oPicture = $oContact->Get(static::DEFAULT_CONTACT_PICTURE_ATTCODE);
+				if ($oPicture->IsEmpty()) {
+					if ($bAllowDefaultPicture === true) {
+						/** @var \AttributeImage $oAttDef */
+						$oAttDef = MetaModel::GetAttributeDef($sContactClass, static::DEFAULT_CONTACT_PICTURE_ATTCODE);
+						$sPictureUrl = $oAttDef->Get('default_image');
+					} else {
+						$sPictureUrl = null;
+					}
+				} else {
+					if (ContextTag::Check(ContextTag::TAG_PORTAL)) {
+						$sSignature = $oPicture->GetSignature();
+						$sPictureUrl = utils::GetAbsoluteUrlAppRoot().'pages/exec.php/object/document/display/'.$sContactClass.'/'.$oContact->GetKey().'/'.static::DEFAULT_CONTACT_PICTURE_ATTCODE.'?cache=86400&s='.$sSignature.'&exec_module=itop-portal-base&exec_page=index.php&portal_id='.PORTAL_ID;
+					} else {
+						$sPictureUrl = $oPicture->GetDisplayURL($sContactClass, $oContact->GetKey(), static::DEFAULT_CONTACT_PICTURE_ATTCODE);
+					}
+				}
+			}
+		} // If no contact, check if user has a placeholder in they preferences
+		else {
+			$sPlaceholderPictureFilename = appUserPreferences::GetPref($sUserPicturePlaceholderPrefKey, null, static::GetUserId($sLogin));
+			if (!empty($sPlaceholderPictureFilename)) {
+				$sPictureUrl = utils::GetAbsoluteUrlAppRoot().$sUserPicturesFolder.$sPlaceholderPictureFilename;
+			}
+		}
+
+		// Update cache
+		static::$m_aCacheContactPictureAbsUrl[$sLogin] = $sPictureUrl;
+
+		return $sPictureUrl;
+	}
+
+	/**
 	 * @param string $sLogin Login of the user from which we return the contact ID
 	 *
 	 * @return string
@@ -1082,71 +1149,6 @@ class UserRights
 			return '';
 		}
 		return $oUser->Get(static::DEFAULT_USER_CONTACT_ID_ATTCODE);
-	}
-
-	/**
-	 * Return the absolute URL of the contact picture
-	 *
-	 * @param string $sLogin               Login of the user from which we return the picture URL
-	 * @param bool   $bAllowDefaultPicture Set to false if you want it to return null instead of the default picture URL when the contact has no picture defined. This can be useful when we want to display something else than the default picture (eg. initials)
-	 *
-	 * @return null|string
-	 * @throws \ArchivedObjectException
-	 * @throws \CoreException
-	 * @throws \Exception
-	 * @since 3.0.0
-	 */
-	public static function GetContactPictureAbsUrl($sLogin = '', $bAllowDefaultPicture = true)
-	{
-		// First, the default picture
-		if($bAllowDefaultPicture === true)
-		{
-			$sPictureUrl = utils::GetAbsoluteUrlAppRoot().'images/user-pictures/' . 'user-profile-default-256px.png';
-		}
-		else
-		{
-			$sPictureUrl = null;
-		}
-
-		// Then check if the user has a contact attached and if it has an picture defined
-		$sContactId = UserRights::GetContactId($sLogin);
-		if(!empty($sContactId))
-		{
-			$oContact = MetaModel::GetObject('Contact', $sContactId, false, true);
-			$sContactClass = get_class($oContact);
-
-			// Check that Contact object still exists and that Contact class has a picture attribute
-			if(!is_null($oContact) && MetaModel::IsValidAttCode($sContactClass, static::DEFAULT_CONTACT_PICTURE_ATTCODE))
-			{
-				/** @var \ormDocument $oPicture */
-				$oPicture = $oContact->Get(static::DEFAULT_CONTACT_PICTURE_ATTCODE);
-				if($oPicture->IsEmpty())
-				{
-					if($bAllowDefaultPicture === true)
-					{
-						/** @var \AttributeImage $oAttDef */
-						$oAttDef = MetaModel::GetAttributeDef($sContactClass, static::DEFAULT_CONTACT_PICTURE_ATTCODE);
-						$sPictureUrl = $oAttDef->Get('default_image');
-					}
-					else
-					{
-						$sPictureUrl = null;
-					}
-				}
-				else
-				{
-					if (ContextTag::Check(ContextTag::TAG_PORTAL)) {
-						$sSignature = $oPicture->GetSignature();
-						$sPictureUrl = utils::GetAbsoluteUrlAppRoot().'pages/exec.php/object/document/display/'.$sContactClass.'/'.$oContact->GetKey().'/'.static::DEFAULT_CONTACT_PICTURE_ATTCODE.'?cache=86400&s='.$sSignature.'&exec_module=itop-portal-base&exec_page=index.php&portal_id='.PORTAL_ID;
-					}
-					else {
-						$sPictureUrl = $oPicture->GetDisplayURL($sContactClass, $oContact->GetKey(), static::DEFAULT_CONTACT_PICTURE_ATTCODE);
-					}
-				}
-			}
-		}
-
-		return $sPictureUrl;
 	}
 
 	/**
@@ -1253,7 +1255,7 @@ class UserRights
 	}
 
 	/**
-	 * Render the user initials in best effort mode
+	 * Render the user initials in best effort mode (first letter of first word + first letter of any other word if capitalized)
 	 *
 	 * @param string $sLogin Login of the user from which we want to retrieve the initials
 	 *
@@ -1263,31 +1265,15 @@ class UserRights
 	 */
 	public static function GetUserInitials($sLogin = '')
 	{
-		if (empty($sLogin))
-		{
+		if (empty($sLogin)) {
 			$oUser = self::$m_oUser;
-		}
-		else
-		{
+		} else {
 			$oUser = self::FindUser($sLogin);
 		}
-		if (is_null($oUser))
-		{
-			$sInitials = '';
-			$aLoginParts = explode(' ', $sLogin);
-			foreach($aLoginParts as $sLoginPart)
-			{
-				// Keep only upper case first letters
-				// eg. "My first name My last name" => "MM"
-				// eg. "Carrie Anne Moss" => "CAM"
-				if(preg_match('/^\p{Lu}/u', $sLoginPart) > 0)
-				{
-					$sInitials .= mb_substr($sLoginPart, 0, 1);
-				}
-			}
-
-			return $sInitials;
+		if (is_null($oUser)) {
+			return utils::ToAcronym($sLogin);
 		}
+
 		return $oUser->GetInitials();
 	}
 

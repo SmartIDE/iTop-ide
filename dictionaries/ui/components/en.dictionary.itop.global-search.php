@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -24,4 +24,5 @@ Dict::Add('EN US', 'English', 'English', array(
 	'UI:Component:GlobalSearch:Recents:Title' => 'Recents',
 	'UI:Component:GlobalSearch:LastQueries:NoQuery:Placeholder' => 'You haven\'t run any search yet',
 	'UI:Component:GlobalSearch:HistoryDisabled' => 'History is disabled',
+	'UI:Component:GlobalSearch:KeyboardShortcut:OpenDrawer' => 'Open global search',
 ));

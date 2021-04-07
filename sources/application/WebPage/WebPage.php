@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -18,6 +18,7 @@
  */
 
 use Combodo\iTop\Application\TwigBase\Twig\TwigHelper;
+use Combodo\iTop\Application\UI\Base\Component\Alert\AlertUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\DataTable\DataTableUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Html\Html;
 use Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenu;
@@ -49,6 +50,38 @@ class WebPage implements Page
 	 * @since 2.7.0 N°2529
 	 */
 	const PAGES_CHARSET = 'utf-8';
+
+	/**
+	 * @var string
+	 * @since 3.0.0
+	 */
+	public const ENUM_SESSION_MESSAGE_SEVERITY_INFO = 'INFO';
+	/**
+	 * @var string
+	 * @since 3.0.0
+	 */
+	public const ENUM_SESSION_MESSAGE_SEVERITY_OK = 'ok';
+	/**
+	 * @var string
+	 * @since 3.0.0
+	 */
+	public const ENUM_SESSION_MESSAGE_SEVERITY_WARNING = 'warning';
+	/**
+	 * @var string
+	 * @since 3.0.0
+	 */
+	public const ENUM_SESSION_MESSAGE_SEVERITY_ERROR = 'error';
+
+
+	/**
+	 * @var string
+	 * @since 3.0.0
+	 */
+	public const DEFAULT_SESSION_MESSAGE_SEVERITY = self::ENUM_SESSION_MESSAGE_SEVERITY_INFO;
+	/**
+	 * @var string Rel. path to the template to use for the rendering. File name must be without the extension.
+	 * @since 3.0.0
+	 */
 	const DEFAULT_PAGE_TEMPLATE_REL_PATH = 'pages/backoffice/webpage/layout';
 
 	protected $s_title;
@@ -58,7 +91,10 @@ class WebPage implements Page
 	protected $a_scripts;
 	/** @var array Scripts to be executed when the DOM is ready (typical JQuery use), right before "ready scripts" */
 	protected $a_init_scripts;
-	/** @var array Scripts to be executed when the DOM is ready, with a slight delay, after the "init scripts" */
+	/**
+	 * @see GetReadyScripts getter that adds custom script at the end
+	 * @var array Scripts to be executed when the DOM is ready, with a slight delay, after the "init scripts"
+	 */
 	protected $a_ready_scripts;
 	/** @var array Scripts linked (externals) to the page through URIs */
 	protected $a_linked_scripts;
@@ -86,7 +122,6 @@ class WebPage implements Page
 	/** @var iUIContentBlock $oContentLayout */
 	protected $oContentLayout;
 	protected $sTemplateRelPath;
-
 
 
 	/**
@@ -132,9 +167,49 @@ class WebPage implements Page
 	}
 
 	/**
+	 * @param string $sMessageKey
+	 * @param array $aRanks
+	 * @param array $aMessages
+	 */
+	public function AddSessionMessages(string $sMessageKey, array $aRanks = [], array $aMessages = []): void
+	{
+		if (array_key_exists('obj_messages', $_SESSION) && array_key_exists($sMessageKey,
+				$_SESSION['obj_messages'])) {
+			$aReadMessages = [];
+			foreach ($_SESSION['obj_messages'][$sMessageKey] as $sMessageId => $aMessageData) {
+				if (!in_array($aMessageData['message'], $aReadMessages)) {
+					$aReadMessages[] = $aMessageData['message'];
+					$aRanks[] = $aMessageData['rank'];
+					switch ($aMessageData['severity']) {
+						case static::ENUM_SESSION_MESSAGE_SEVERITY_OK:
+							$aMessages[] = AlertUIBlockFactory::MakeForSuccess('', $aMessageData['message']);
+							break;
+						case static::ENUM_SESSION_MESSAGE_SEVERITY_WARNING:
+							$aMessages[] = AlertUIBlockFactory::MakeForWarning('', $aMessageData['message']);
+							break;
+						case static::ENUM_SESSION_MESSAGE_SEVERITY_ERROR:
+							$aMessages[] = AlertUIBlockFactory::MakeForDanger('', $aMessageData['message']);
+							break;
+						case static::ENUM_SESSION_MESSAGE_SEVERITY_INFO:
+						default:
+							$aMessages[] = AlertUIBlockFactory::MakeForInformation('', $aMessageData['message']);
+							break;
+					}
+				}
+			}
+			unset($_SESSION['obj_messages'][$sMessageKey]);
+		}
+		array_multisort($aRanks, $aMessages);
+		foreach ($aMessages as $oMessage) {
+			$this->AddUiBlock($oMessage);
+		}
+	}
+
+	/**
 	 * Change the title of the page after its creation
 	 *
 	 * @param string $s_title
+	 *
 	 * @return void
 	 */
 	public function set_title($s_title)
@@ -158,9 +233,9 @@ class WebPage implements Page
 	/**
 	 * @inheritDoc
 	 */
-	public function add($s_html): ?iUIBlock
+	public function add($s_html)
 	{
-		return $this->oContentLayout->AddHtml($s_html);
+		$this->oContentLayout->AddHtml($s_html);
 	}
 
 	/**
@@ -478,10 +553,52 @@ class WebPage implements Page
 	}
 
 	/**
+	 * @return array all the script added, plus a last one to know when ready scripts are done processing
+	 * @since 3.0.0 N°3750 method creation
+	 * @uses self::a_ready_scripts
+	 * @uses self::GetReadyScriptsStartedTrigger
+	 * @uses self::GetReadyScriptsFinishedTrigger
+	 */
+	protected function GetReadyScripts(): array
+	{
+		$aReadyScripts = $this->a_ready_scripts;
+
+		$sReadyStartedTriggerScript = $this->GetReadyScriptsStartedTrigger();
+		if (!empty($sReadyStartedTriggerScript)) {
+			array_unshift($aReadyScripts, $sReadyStartedTriggerScript);
+		}
+
+		$sReadyFinishedTriggerScript = $this->GetReadyScriptsFinishedTrigger();
+		if (!empty($sReadyFinishedTriggerScript)) {
+			$aReadyScripts[] = $sReadyFinishedTriggerScript;
+		}
+
+		return $aReadyScripts;
+	}
+
+	/**
+	 * @return ?string script to execute before all ready scripts
+	 * @since 3.0.0 N°3750 method creation
+	 */
+	protected function GetReadyScriptsStartedTrigger(): ?string
+	{
+		return null;
+	}
+
+	/**
+	 * @return ?string script to execute after all ready scripts are done processing
+	 * @since 3.0.0 N°3750 method creation
+	 */
+	protected function GetReadyScriptsFinishedTrigger(): ?string
+	{
+		return null;
+	}
+
+	/**
 	 * Empty all base linked scripts for the page
 	 *
-	 * @uses \WebPage::$a_linked_scripts
 	 * @return void
+	 * @uses \WebPage::$a_linked_scripts
 	 * @since 3.0.0
 	 */
 	protected function EmptyLinkedScripts(): void
@@ -791,7 +908,7 @@ class WebPage implements Page
 	{
 		$aPossibleAttFlags = MetaModel::EnumPossibleAttributeFlags();
 
-		$sHtml = "<div class=\"details\">\n";
+		$sHtml = "<div class=\"ibo-details\">\n";
 		foreach ($aFields as $aAttrib)
 		{
 			$sLayout = isset($aAttrib['layout']) ? $aAttrib['layout'] : 'small';
@@ -1000,7 +1117,7 @@ class WebPage implements Page
 			'aCssInline' => $this->a_styles,
 			'aJsFiles' => $this->a_linked_scripts,
 			'aJsInlineLive' => $this->a_scripts,
-			'aJsInlineOnDomReady' => $this->a_ready_scripts,
+			'aJsInlineOnDomReady' => $this->GetReadyScripts(),
 			'aJsInlineOnInit' => $this->a_init_scripts,
 
 			// TODO 3.0.0: TEMP, used while developing, remove it.
@@ -1086,7 +1203,7 @@ class WebPage implements Page
 	 *
 	 * @return void
 	 */
-	public function SetContentType($sContentType)
+	public function SetContentType(string $sContentType)
 	{
 		$this->sContentType = $sContentType;
 	}
@@ -1325,7 +1442,7 @@ if (bIsSectionOpenedInitially) {
 	$("#Collapse_"+iSectionId).toggle();
 }
 
-$("#LnkCollapse_"+iSectionId).click(function(e) {
+$("#LnkCollapse_"+iSectionId).on('click', function(e) {
 	localStorage.setItem(sSectionStateStorageKey, !($("#Collapse_"+iSectionId).is(":visible")));
 	$("#LnkCollapse_"+iSectionId).toggleClass("open");
 	$("#Collapse_"+iSectionId).slideToggle("normal");
@@ -1450,5 +1567,4 @@ EOD
 	{
 		return $this->sTemplateRelPath;
 	}
-
 }

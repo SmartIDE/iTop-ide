@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2012 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -17,13 +17,13 @@
 //   along with iTop. If not, see <http://www.gnu.org/licenses/>
 use Combodo\iTop\Application\UI\Base\Component\Html\Html;
 use Combodo\iTop\Application\UI\Base\Layout\Dashboard\DashboardColumn;
-use Combodo\iTop\Application\UI\Base\Layout\Dashboard\DashboardLayout as UIDashboardLayout;
+use Combodo\iTop\Application\UI\Base\Layout\Dashboard\DashboardLayout as DashboardLayoutUIBlock;
 use Combodo\iTop\Application\UI\Base\Layout\Dashboard\DashboardRow;
 
 /**
  * Dashboard presentation
  *
- * @copyright   Copyright (C) 2010-2012 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 abstract class DashboardLayout
@@ -116,11 +116,14 @@ abstract class DashboardLayoutMultiCol extends DashboardLayout
 		// Trim the list of cells to remove the invisible/empty ones at the end of the array
 		$aCells = $this->TrimCellsArray($aCells);
 
-		$oDashboardLayout = new UIDashboardLayout();
-		$oPage->AddUiBlock($oDashboardLayout);
+		$oDashboardLayout = new DashboardLayoutUIBlock();
+		//$oPage->AddUiBlock($oDashboardLayout);
 
 		$iCellIdx = 0;
 		$iNbRows = ceil(count($aCells) / $this->iNbCols);
+
+		//Js given by each dashlet to reload
+		$sJSReload = "";
 
 		for ($iRows = 0; $iRows < $iNbRows; $iRows++) {
 			$oDashboardRow = new DashboardRow();
@@ -148,7 +151,10 @@ abstract class DashboardLayoutMultiCol extends DashboardLayout
 				}
 				$iCellIdx++;
 			}
+			$sJSReload .= $oDashboardRow->GetJSRefreshCallback()." ";
 		}
+
+		$oPage->add_script("function updateDashboard".$aExtraParams['dashboard_div_id']."(){".$sJSReload."}");
 
 		if ($bEditMode) // Add one row for extensibility
 		{
@@ -161,7 +167,8 @@ abstract class DashboardLayoutMultiCol extends DashboardLayout
 				$oDashboardColumn->AddUIBlock(new Html('&nbsp;'));
 			}
 		}
-		return;
+
+		return $oDashboardLayout;
 	}
 
 	/**

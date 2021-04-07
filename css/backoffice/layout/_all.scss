@@ -1,5 +1,5 @@
 /*!
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -25,11 +25,6 @@
 @import "multi-column/column";
 @import "dashboard/all";
 @import "wizard-container/wizard-container";
-@import "object-details";
-@import "activity-panel/activity-panel";
-@import "activity-panel/activity-entry";
-@import "activity-panel/caselog-entry";
-@import "activity-panel/edits-entry";
-@import "activity-panel/transition-entry";
-@import "activity-panel/caselog-entry-form";
-@import "blocks-integrations/panel-with-tab-container";
+@import "object/object-details";
+@import "activity-panel/all";
+@import "blocks-integrations/all";

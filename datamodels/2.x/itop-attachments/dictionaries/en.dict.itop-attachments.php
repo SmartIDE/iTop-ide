@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -37,6 +37,7 @@ Either you have pushed an empty file,
 or ask your iTop administrator if the iTop server disk is full.',
 	'Attachments:Render:Icons' => 'Display as icons',
 	'Attachments:Render:Table' => 'Display as list',
+	'UI:Attachments:DropYourFileHint' => 'Drop files anywhere in this area',
 ));
 
 //

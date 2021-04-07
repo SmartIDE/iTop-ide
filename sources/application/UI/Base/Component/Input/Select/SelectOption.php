@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -12,6 +12,8 @@ use Combodo\iTop\Application\UI\Base\UIBlock;
 
 class SelectOption extends UIBlock
 {
+	// Overloaded constants
+	public const BLOCK_CODE = 'ibo-select-option';
 	public const DEFAULT_HTML_TEMPLATE_REL_PATH = 'base/components/input/select/selectoption';
 
 	/** @var string */
@@ -20,6 +22,8 @@ class SelectOption extends UIBlock
 	protected $sLabel;
 	/** @var bool */
 	protected $bSelected;
+	/** @var bool */
+	protected $bDisabled;
 
 	/**
 	 * @return string
@@ -75,6 +79,25 @@ class SelectOption extends UIBlock
 	public function SetSelected(bool $bSelected): SelectOption
 	{
 		$this->bSelected = $bSelected;
+		return $this;
+	}	
+	
+	/**
+	 * @return bool
+	 */
+	public function IsDisabled(): bool
+	{
+		return $this->bDisabled;
+	}
+
+	/**
+	 * @param bool $bDisabled
+	 *
+	 * @return $this
+	 */
+	public function SetDisabled(bool $bDisabled)
+	{
+		$this->bDisabled = $bDisabled;
 		return $this;
 	}
 

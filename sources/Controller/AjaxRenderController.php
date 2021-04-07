@@ -1,16 +1,21 @@
 <?php
-/**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
 namespace Combodo\iTop\Controller;
 
 use AjaxPage;
+use ApplicationContext;
 use ApplicationMenu;
 use AttributeLinkedSet;
+use AttributeOneWayPassword;
+use BinaryExpression;
 use BulkExport;
 use BulkExportException;
+use CMDBObjectSet;
+use CMDBSource;
 use Combodo\iTop\Application\UI\Base\Component\DataTable\DataTableSettings;
 use Combodo\iTop\Application\UI\Base\Component\DataTable\DataTableUIBlockFactory;
 use DBObjectSearch;
@@ -19,8 +24,15 @@ use DBSearch;
 use Dict;
 use Exception;
 use ExecutionKPI;
+use Expression;
+use FieldExpression;
+use FunctionExpression;
+use JsonPage;
 use MetaModel;
+use ScalarExpression;
+use UILinksWidget;
 use utils;
+use WizardHelper;
 
 class AjaxRenderController
 {
@@ -157,6 +169,12 @@ class AjaxRenderController
 				}
 			}
 		}
+		if (!isset($aExtraParams['list_id'])) {
+			$sListId = utils::ReadParam('list_id', null);
+			if (!is_null($sListId)) {
+				$aExtraParams['list_id'] = $sListId;
+			}
+		}
 		$iLength = utils::ReadParam('end', 10);
 		$aColumns = utils::ReadParam('columns', array(), false, 'raw_data');
 		$sSelectMode = utils::ReadParam('select_mode', '');
@@ -217,10 +235,8 @@ class AjaxRenderController
 			// The first column is used for the selection (radio / checkbox) and is not sortable
 			$iSortCol--;
 		}
-		$bDisplayKey = utils::ReadParam('display_key', 'true') == 'true';
 		$aColumns = utils::ReadParam('columns', array(), false, 'raw_data');
 		$aClassAliases = utils::ReadParam('class_aliases', array());
-		$iListId = utils::ReadParam('list_id', 0);
 
 		// Filter the list to removed linked set since we are not able to display them here
 		$sIdName = "";
@@ -308,8 +324,11 @@ class AjaxRenderController
 			if ($sIdName != "") {
 				$aObj["id"] = $aObj[$sIdName];
 			}
-			array_push($aResult["data"], $aObj);
+			if (isset($aObj)) {
+				array_push($aResult["data"], $aObj);
+			}
 		}
+		$oKPI->ComputeAndReport('Data fetch and format');
 
 		return $aResult;
 	}
@@ -366,5 +385,225 @@ class AjaxRenderController
 		$bRet = $oSettings->ResetToDefault($bResetAll);
 
 		return $bRet;
+	}
+
+	/**
+	 * @param string $sStyle
+	 * @param string $sFilter
+	 *
+	 * @return array
+	 * @throws \ArchivedObjectException
+	 * @throws \CoreException
+	 * @throws \MissingQueryArgument
+	 * @throws \MySQLException
+	 * @throws \MySQLHasGoneAwayException
+	 * @throws \OQLException
+	 */
+	public static function RefreshDashletList(string $sStyle, string $sFilter): array
+	{
+		$aExtraParams = utils::ReadParam('extra_params', '', false, 'raw_data');
+		$oFilter = DBObjectSearch::FromOQL($sFilter);
+		$oFilter->SetShowObsoleteData(utils::ShowObsoleteData());
+
+		if (isset($aExtraParams['group_by'])) {
+
+			$sAlias = $oFilter->GetClassAlias();
+			if (isset($aExtraParams['group_by_label'])) {
+				$oGroupByExp = Expression::FromOQL($aExtraParams['group_by']);
+			} else {
+				// Backward compatibility: group_by is simply a field id
+				$oGroupByExp = new FieldExpression($aExtraParams['group_by'], $sAlias);
+			}
+
+			// Security filtering
+			$aFields = $oGroupByExp->ListRequiredFields();
+			foreach ($aFields as $sFieldAlias) {
+				$aMatches = array();
+				if (preg_match('/^([^.]+)\\.([^.]+)$/', $sFieldAlias, $aMatches)) {
+					$sFieldClass = $oFilter->GetClassName($aMatches[1]);
+					$oAttDef = MetaModel::GetAttributeDef($sFieldClass, $aMatches[2]);
+					if ($oAttDef instanceof AttributeOneWayPassword) {
+						throw new Exception('Grouping on password fields is not supported.');
+					}
+				}
+			}
+
+			$aGroupBy = [];
+			$aGroupBy['grouped_by_1'] = $oGroupByExp;
+
+			$aFunctions = [];
+			$sFctVar = '_itop_count_';
+			if (isset($aExtraParams['aggregation_function']) && !empty($aExtraParams['aggregation_attribute'])) {
+				$sAggregationFunction = $aExtraParams['aggregation_function'];
+				$sAggregationAttr = $aExtraParams['aggregation_attribute'];
+				$oAttrExpr = Expression::FromOQL('`'.$sAlias.'`.`'.$sAggregationAttr.'`');
+				$oFctExpr = new FunctionExpression(strtoupper($sAggregationFunction), [$oAttrExpr]);
+				$sFctVar = '_itop_'.$sAggregationFunction.'_';
+				$aFunctions = [$sFctVar => $oFctExpr];
+			}
+
+			$iLimit = 0;
+			if (isset($aExtraParams['limit'])) {
+				$iLimit = intval($aExtraParams['limit']);
+			}
+			$aOrderBy = [];
+			if (isset($aExtraParams['order_direction']) && isset($aExtraParams['order_by'])) {
+				switch ($aExtraParams['order_by']) {
+					case 'attribute':
+						$aOrderBy = array('grouped_by_1' => ($aExtraParams['order_direction'] === 'asc'));
+						break;
+					case 'function':
+						$aOrderBy = array($sFctVar => ($aExtraParams['order_direction'] === 'asc'));
+						break;
+				}
+			}
+			$aQueryParams = [];
+			if (isset($aExtraParams['query_params'])) {
+				$aQueryParams = $aExtraParams['query_params'];
+			}
+			$sSql = $oFilter->MakeGroupByQuery($aQueryParams, $aGroupBy, true, $aFunctions, $aOrderBy, $iLimit);
+
+			$aRes = CMDBSource::QueryToArray($sSql);
+
+			$aGroupBy = array();
+			$aLabels = array();
+			$aValues = array();
+			$iTotalCount = 0;
+			foreach ($aRes as $iRow => $aRow) {
+				$sValue = $aRow['grouped_by_1'];
+				$aValues[$iRow] = $sValue;
+				$sHtmlValue = $oGroupByExp->MakeValueLabel($oFilter, $sValue, $sValue);
+				$aLabels[$iRow] = $sHtmlValue;
+				$aGroupBy[$iRow] = (int)$aRow[$sFctVar];
+				$iTotalCount += $aRow['_itop_count_'];
+			}
+
+			$aResult = array();
+			$oAppContext = new ApplicationContext();
+			$sParams = $oAppContext->GetForLink();
+			foreach ($aGroupBy as $iRow => $iCount) {
+				// Build the search for this subset
+				$oSubsetSearch = $oFilter->DeepClone();
+				$oCondition = new BinaryExpression($oGroupByExp, '=', new ScalarExpression($aValues[$iRow]));
+				$oSubsetSearch->AddConditionExpression($oCondition);
+				if (isset($aExtraParams['query_params'])) {
+					$aQueryParams = $aExtraParams['query_params'];
+				} else {
+					$aQueryParams = array();
+				}
+				$sFilter = rawurlencode($oSubsetSearch->serialize(false, $aQueryParams));
+
+				$aResult[] = array(
+					'group' => $aLabels[$iRow],
+					'value' => "<a href=\"".utils::GetAbsoluteUrlAppRoot()."pages/UI.php?operation=search&dosearch=1&$sParams&filter=$sFilter\">$iCount</a>",
+				); // TO DO: add the context information
+			}
+
+		} else {
+			// Simply count the number of elements in the set
+			$aOrderBy = [];
+			if (isset($aExtraParams['order_direction']) && isset($aExtraParams['order_by'])) {
+				$aOrderBy = ['order_by' => $aExtraParams['order_by'], 'order_direction' => $aExtraParams['order_direction']];
+			}
+			$aQueryParams = [];
+			if (isset($aExtraParams['query_params'])) {
+				$aQueryParams = $aExtraParams['query_params'];
+			}
+			$oSet = new CMDBObjectSet($oFilter, $aOrderBy, $aQueryParams);
+			$iCount = $oSet->Count();
+			$sFormat = 'UI:CountOfObjects';
+			if (isset($aExtraParams['format'])) {
+				$sFormat = $aExtraParams['format'];
+			}
+			$aResult = ['result' => Dict::Format($sFormat, $iCount)];
+		}
+
+		return $aResult;
+	}
+
+	/**
+	 * @param string $sFilter
+	 *
+	 * @return array
+	 * @throws \CoreException
+	 * @throws \MissingQueryArgument
+	 * @throws \MySQLException
+	 * @throws \MySQLHasGoneAwayException
+	 * @throws \OQLException
+	 */
+	public static function RefreshDashletCount(string $sFilter): array
+	{
+		$aExtraParams = utils::ReadParam('extra_params', '', false, 'raw_data');
+		$oFilter = DBObjectSearch::FromOQL($sFilter);
+		$oFilter->SetShowObsoleteData(utils::ShowObsoleteData());
+		$aQueryParams = array();
+		if (isset($aExtraParams['query_params'])) {
+			$aQueryParams = $aExtraParams['query_params'];
+		}
+		$oSet = new CMDBObjectSet($oFilter, [], $aQueryParams);
+		$iCount = $oSet->Count();
+		$aResult = ['count' => $iCount];
+
+		return $aResult;
+	}
+
+	/**
+	 * @param string $sFilter
+	 *
+	 * @throws \ArchivedObjectException
+	 * @throws \CoreException
+	 * @throws \OQLException
+	 */
+	public static function DoAddObjects(AjaxPage $oPage, string $sClass, string $sFilter)
+	{
+		$sAttCode = utils::ReadParam('sAttCode', '');
+		$iInputId = utils::ReadParam('iInputId', '');
+		$sSuffix = utils::ReadParam('sSuffix', '');
+		$sRemoteClass = utils::ReadParam('sRemoteClass', $sClass, false, 'class');
+		$bDuplicates = (utils::ReadParam('bDuplicates', 'false') == 'false') ? false : true;
+		$sJson = utils::ReadParam('json', '', false, 'raw_data');
+		$iMaxAddedId = utils::ReadParam('max_added_id');
+		$oWizardHelper = WizardHelper::FromJSON($sJson);
+		/** @var \DBObject $oObj */
+		$oObj = $oWizardHelper->GetTargetObject();
+		$oKPI = new ExecutionKPI();
+		$oWidget = new UILinksWidget($sClass, $sAttCode, $iInputId, $sSuffix, $bDuplicates);
+		if ($sFilter != '') {
+			$oFullSetFilter = DBObjectSearch::unserialize($sFilter);
+		} else {
+			$oFullSetFilter = new DBObjectSearch($sRemoteClass);
+		}
+		$oWidget->DoAddObjects($oPage, $iMaxAddedId, $oFullSetFilter, $oObj);
+		$oKPI->ComputeAndReport('Data write');
+	}
+
+	/**
+	 * @param string $sFilter
+	 *
+	 * @throws \ArchivedObjectException
+	 * @throws \CoreException
+	 * @throws \OQLException
+	 */
+	public static function DoAddIndirectLinks(JsonPage $oPage, string $sClass, string $sFilter)
+	{
+		$sAttCode = utils::ReadParam('sAttCode', '');
+		$iInputId = utils::ReadParam('iInputId', '');
+		$sSuffix = utils::ReadParam('sSuffix', '');
+		$sRemoteClass = utils::ReadParam('sRemoteClass', $sClass, false, 'class');
+		$bDuplicates = (utils::ReadParam('bDuplicates', 'false') == 'false') ? false : true;
+		$sJson = utils::ReadParam('json', '', false, 'raw_data');
+		$iMaxAddedId = utils::ReadParam('max_added_id');
+		$oWizardHelper = WizardHelper::FromJSON($sJson);
+		/** @var \DBObject $oObj */
+		$oObj = $oWizardHelper->GetTargetObject();
+		$oKPI = new ExecutionKPI();
+		$oWidget = new UILinksWidget($sClass, $sAttCode, $iInputId, $sSuffix, $bDuplicates);
+		if ($sFilter != '') {
+			$oFullSetFilter = DBObjectSearch::unserialize($sFilter);
+		} else {
+			$oFullSetFilter = new DBObjectSearch($sRemoteClass);
+		}
+		$oWidget->DoAddIndirectLinks($oPage, $iMaxAddedId, $oFullSetFilter, $oObj);
+		$oKPI->ComputeAndReport('Data write');
 	}
 }

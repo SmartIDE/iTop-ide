@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -30,6 +30,7 @@ use Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenu;
 use Combodo\iTop\Application\UI\Base\UIBlock;
 use DBObjectSearch;
 use Dict;
+use iKeyboardShortcut;
 use MetaModel;
 use UIExtKeyWidget;
 use UserRights;
@@ -43,7 +44,7 @@ use utils;
  * @internal
  * @since 3.0.0
  */
-class NavigationMenu extends UIBlock
+class NavigationMenu extends UIBlock implements iKeyboardShortcut
 {
 	// Overloaded constants
 	public const BLOCK_CODE = 'ibo-navigation-menu';
@@ -356,8 +357,8 @@ class NavigationMenu extends UIBlock
 					<<<JS
 $sPageJS
 $sPageReadyJS
-$('[data-role="ibo-navigation-menu--silo-selection--form"] #org_id').bind('extkeychange', function() { $('[data-role="ibo-navigation-menu--silo-selection--form"]').submit(); } )
-$('[data-role="ibo-navigation-menu--silo-selection--form"] #label_org_id').click( function() { if ($('[data-role="ibo-navigation-menu--silo-selection--form"] #org_id').val() == '') { $(this).val(''); } } );
+$('[data-role="ibo-navigation-menu--silo-selection--form"] #org_id').on('extkeychange', function() { $('[data-role="ibo-navigation-menu--silo-selection--form"]').submit(); } )
+$('[data-role="ibo-navigation-menu--silo-selection--form"] #label_org_id').on('click', function() { if ($('[data-role="ibo-navigation-menu--silo-selection--form"] #org_id').val() == '') { $(this).val(''); } } );
 JS;
 		}
 	}
@@ -376,13 +377,20 @@ JS;
 		// Check if menu should be opened only if we re not in demo mode
 		if (false === MetaModel::GetConfig()->Get('demo_mode'))
 		{
+			// Force state if necessary...
 			if (utils::ReadParam('force_menu_pane', null) === 0)
 			{
 				$bIsExpanded = false;
 			}
-			elseif (appUserPreferences::GetPref('menu_pane', 'closed') === 'opened')
+			// ... otherwise look for the new user pref ...
+			elseif (appUserPreferences::GetPref('navigation_menu.expanded', null) !== null)
 			{
-				$bIsExpanded = true;
+				$bIsExpanded = appUserPreferences::GetPref('navigation_menu.expanded', null) === 'expanded';
+			}
+			// ... or fallback on the old one
+			elseif (appUserPreferences::GetPref('menu_pane', null) !== null)
+			{
+				$bIsExpanded = appUserPreferences::GetPref('menu_pane', null) === 'opened';
 			}
 		}
 
@@ -402,7 +410,7 @@ JS;
 	 */
 	protected function ComputeMenuFilterHintState(): void
 	{
-		$this->bShowMenuFilterHint = (true === appUserPreferences::GetPref('navigation_menu_filter_hint', static::DEFAULT_SHOW_MENU_FILTER_HINT));
+		$this->bShowMenuFilterHint = (true === appUserPreferences::GetPref('navigation_menu.show_filter_hint', static::DEFAULT_SHOW_MENU_FILTER_HINT));
 	}
 
 	/**
@@ -414,10 +422,9 @@ JS;
 	protected function ComputeUserData()
 	{
 		// Use a picture set in the preferences is there is none in the user's contact
-		$sPictureUrl = UserRights::GetContactPictureAbsUrl('', false);
-		if(empty($sPictureUrl))
-		{
-			$sPictureUrl = utils::GetAbsoluteUrlAppRoot().'images/user-pictures/' . appUserPreferences::GetPref('user_picture_placeholder', 'user-profile-default-256px.png');
+		$sPictureUrl = UserRights::GetUserPictureAbsUrl('', false);
+		if (empty($sPictureUrl)) {
+			$sPictureUrl = utils::GetAbsoluteUrlAppRoot().'images/user-pictures/'.appUserPreferences::GetPref('user_picture_placeholder', 'user-profile-default-256px.png');
 		}
 
 		// TODO 3.0.0 : what do we show if no contact is linked to the user ?
@@ -436,5 +443,15 @@ JS;
 		$this->aUserData = $aData;
 
 		return $this;
+	}
+
+	public static function GetShortcutKeys(): array
+	{
+		return [['id' => 'ibo-open-menu-filter', 'label' => 'UI:Layout:NavigationMenu:KeyboardShortcut:FocusFilter', 'key'=> 'alt+m', 'event' => 'filter_shortcut']];
+	}
+
+	public static function GetShortcutTriggeredElementSelector(): string
+	{
+		return "[data-role='".static::BLOCK_CODE."']";
 	}
 }

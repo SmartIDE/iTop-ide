@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2019 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -23,6 +23,7 @@
 define('ITOP_APPLICATION', 'iTop');
 define('ITOP_APPLICATION_SHORT', 'iTop');
 define('ITOP_VERSION', '3.0.0-dev');
+define('ITOP_VERSION_NAME', 'Fullmoon');
 define('ITOP_REVISION', 'svn');
 define('ITOP_BUILD_DATE', '$WCNOW$');
 define('ITOP_VERSION_FULL', ITOP_VERSION.'-'.ITOP_REVISION);
@@ -35,7 +36,7 @@ define('ACCESS_READONLY', 0);
 /**
  * Configuration read/write
  *
- * @copyright   Copyright (C) 2010-2018 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -227,6 +228,7 @@ class Config
 			'source_of_value' => '',
 			'show_in_conf_sample' => false,
 		],
+		// Deprecated in 3.0.0  N°2591 Will be removed in 3.1
 		'skip_strong_security' => [
 			'type' => 'bool',
 			'description' => 'Disable strong security - TEMPORARY: this flag should be removed when we are more confident in the recent change in security',
@@ -763,12 +765,12 @@ class Config
 		],
 		'buttons_position' => [
 			'type' => 'string',
-			'description' => 'Position of the forms buttons: bottom | top | both',
+			'description' => 'Deprecated since 3.0.0, buttons are now always on top of the form.',
 			// examples... not used
 			'default' => 'both',
 			'value' => 'both',
 			'source_of_value' => '',
-			'show_in_conf_sample' => true,
+			'show_in_conf_sample' => false,
 		],
 		'shortcut_actions' => [
 			'type' => 'string',
@@ -1051,6 +1053,14 @@ class Config
 			'source_of_value' => '',
 			'show_in_conf_sample' => false,
 		],
+		'transactions_gc_threshold' => [
+			'type' => 'integer',
+			'description' => 'probability in percent for the garbage collector to be triggered (100 mean always)',
+			'default' => 10, // added in itop 2.7.4, before the GC was always called
+			'value' => '',
+			'source_of_value' => '',
+			'show_in_conf_sample' => false,
+		],
 		'log_transactions' => [
 			'type' => 'bool',
 			'description' => 'Whether or not to enable the debug log for the transactions.',
@@ -1123,6 +1133,14 @@ class Config
 			'source_of_value' => '',
 			'show_in_conf_sample' => true,
 		],
+		'navigation_menu.show_menus_count' => [
+			'type' => 'bool',
+			'description' => 'Display count badges for OQL menu entries',
+			'default' => true,
+			'value' => true,
+			'source_of_value' => '',
+			'show_in_conf_sample' => false,
+		],
 		'quick_create.enabled' => [
 			'type' => 'bool',
 			'description' => 'Whether or not the quick create is enabled',
@@ -1154,16 +1172,6 @@ class Config
 			'value' => 10,
 			'source_of_value' => '',
 			'show_in_conf_sample' => false,
-		],
-		'mentions.allowed_classes' => [
-			'type' => 'array',
-			'description' => 'Classes which can be mentioned through the autocomplete in the caselogs. Key of the array must be a single character that will trigger the autocomplete (eg. "@" => "Person")',
-			'default' => [
-				'@' => 'Person',
-			],
-			'value' => false,
-			'source_of_value' => '',
-			'show_in_conf_sample' => true,
 		],
 		'global_search.enabled' => [
 			'type' => 'bool',
@@ -1204,6 +1212,48 @@ class Config
 			'value' => 8,
 			'source_of_value' => '',
 			'show_in_conf_sample' => false,
+		],
+		'activity_panel.datetimes_reformat_limit' => [
+			'type' => 'integer',
+			'description' => 'Limit (in days) for the dates / times to be displayed in a relative format (eg. "2 days ago") instead of in absolute format (eg. "2021-05-01 10:00"). After that limit, they will all be displayed in absolute format using the "date_and_time_format" parameter.',
+			'default' => 7,
+			'value' => 7,
+			'source_of_value' => '',
+			'show_in_conf_sample' => false,
+		],
+		'activity_panel.show_author_name_below_entries' => [
+			'type' => 'bool',
+			'description' => 'Whether or not to show the author friendlyname next to the date on the last entry.',
+			'default' => false,
+			'value' => '',
+			'source_of_value' => '',
+			'show_in_conf_sample' => true,
+		],
+		'activity_panel.lock_watcher_period' => [
+			'type' => 'integer',
+			'description' => 'Period (in second) between lock status update.',
+			'default' => 30,
+			'value' => 30,
+			'source_of_value' => '',
+			'show_in_conf_sample' => false,
+		],
+		'activity_panel.entry_form_opened_by_default' => [
+			'type' => 'bool',
+			'description' => 'Whether or not the new entry form will be automatically opened when viewing an object.',
+			'default' => false,
+			'value' => '',
+			'source_of_value' => '',
+			'show_in_conf_sample' => true,
+		],
+		'mentions.allowed_classes' => [
+			'type' => 'array',
+			'description' => 'Classes which can be mentioned through the autocomplete in the caselogs. Key of the array must be a single character that will trigger the autocomplete (eg. "@" => "Person")',
+			'default' => [
+				'@' => 'Person',
+			],
+			'value' => false,
+			'source_of_value' => '',
+			'show_in_conf_sample' => true,
 		],
 		'obsolescence.show_obsolete_data' => [
 			'type' => 'bool',
@@ -1309,14 +1359,6 @@ class Config
 			'source_of_value' => '',
 			'show_in_conf_sample' => false,
 		],
-		'display_menus_count' => [
-			'type' => 'bool',
-			'description' => 'Display count badges for OQL menu entries',
-			'default' => true,
-			'value' => true,
-			'source_of_value' => '',
-			'show_in_conf_sample' => false,
-		],
 		'security_header_xframe' => [
 			'type' => 'string',
 			'description' => 'Value of the X-Frame-Options HTTP header sent by iTop. Possible values : DENY, SAMEORIGIN, or empty string.',
@@ -1325,8 +1367,15 @@ class Config
 			'source_of_value' => '',
 			'show_in_conf_sample' => false,
 		],
+		'behind_reverse_proxy' => [
+			'type' => 'bool',
+			'description' => 'If true, then proxies custom header (X-Forwarded-*) are taken into account. Use only if the webserver is not publicly accessible (reachable only by the reverse proxy)',
+			'default' => false,
+			'value' => false,
+			'source_of_value' => '',
+			'show_in_conf_sample' => true,
+		],
 	];
-
 
 	public function IsProperty($sPropCode)
 	{

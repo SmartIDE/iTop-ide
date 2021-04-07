@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2018 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -19,7 +19,7 @@
 /**
  * The standardized result of any pass/fail check performed by the setup
  *
- * @copyright   Copyright (C) 2010-2018 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 class CheckResult {
@@ -87,14 +87,14 @@ class CheckResult {
 /**
  * All of the functions/utilities needed by both the setup wizard and the installation process
  *
- * @copyright   Copyright (C) 2010-2012 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 class SetupUtils
 {
 	// -- Minimum versions (requirements : forbids installation if not met)
 	const PHP_MIN_VERSION = '7.1.3'; // 7 will be supported until the end of 2019 (see http://php.net/supported-versions.php)
-	const MYSQL_MIN_VERSION = '5.6.0'; // 5.6 to have fulltext on InnoDB for Tags fields (N°931)
+	const MYSQL_MIN_VERSION = '5.7.0'; // 5.6 is no longer supported
 	const MYSQL_NOT_VALIDATED_VERSION = ''; // MySQL 8 is now OK (N°2010 in 2.7.0) but has no query cache so mind the perf on large volumes !
 
 	// -- versions that will be the minimum in next iTop major release (warning if not met)
@@ -613,7 +613,22 @@ class SetupUtils
 		// availability of dot / dot.exe
 		if (empty($sGraphvizPath)) {
 			$sGraphvizPath = 'dot';
+		} else {
+			clearstatcache();
+			if (!is_file($sGraphvizPath) || !is_executable($sGraphvizPath)) {
+				//N°3412 avoid shell injection
+				$aResult = [];
+				$aResult[] =  new CheckResult(CheckResult::WARNING,
+					self::GetStringForJsonEncode("$sGraphvizPath could not be executed: Please make sure it is installed and in the path", 'Graphviz could not be executed')
+				);
+				return $aResult;
+			}
+
+			if (!utils::IsWindowsEnvironment()){
+				$sGraphvizPath = escapeshellcmd($sGraphvizPath);
+			}
 		}
+
 		$sCommand = "\"$sGraphvizPath\" -V 2>&1";
 
 		$aOutput = array();
@@ -1074,11 +1089,11 @@ JS
 		}
 		$oPage->add_ready_script(
 			<<<'JS'
-$("tbody.collapsable-options>tr>th>label").click(function() {
+$("tbody.collapsable-options>tr>th>label").on('click', function() {
 	var $tbody = $(this).closest("tbody");
 	toggleCollapsableOptions($tbody);
 });
-$("#db_tls_enabled").click(function() {
+$("#db_tls_enabled").on('click', function() {
 	var bTlsEnabled = $("#db_tls_enabled").is(":checked");
 	$("#db_tls_ca").prop("disabled", !bTlsEnabled);
 });

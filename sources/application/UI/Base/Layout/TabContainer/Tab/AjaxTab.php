@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -24,6 +24,7 @@ use Combodo\iTop\Application\UI\Base\iUIBlock;
 use Combodo\iTop\Application\UI\Base\UIException;
 use Dict;
 use TabManager;
+use utils;
 
 /**
  * Class AjaxTab
@@ -32,15 +33,56 @@ use TabManager;
  * @internal
  * @since   3.0.0
  */
-class AjaxTab extends Tab {
+class AjaxTab extends Tab
+{
+
+	/**
+	 * @see static::$sPlaceholderRelPath
+	 * @var string
+	 */
+	public const ENUM_TAB_PLACEHOLDER_LIST = 'images/placeholders/skeleton-list.svg';
+	/**
+	 * @see static::$sPlaceholderRelPath
+	 * @var string
+	 */
+	public const ENUM_TAB_PLACEHOLDER_DASHBOARD = 'images/placeholders/skeleton-dashboard.svg';
+	/**
+	 * @see static::$sPlaceholderRelPath
+	 * @var string
+	 */
+	public const ENUM_TAB_PLACEHOLDER_OBJECT = 'images/placeholders/skeleton-object.svg';
+	/**
+	 * @see static::$sPlaceholderRelPath
+	 * @var string
+	 */
+	public const ENUM_TAB_PLACEHOLDER_MISC = 'images/placeholders/skeleton.svg';
+
+	/** @var string */
+	public const DEFAULT_TAB_PLACEHOLDER = self::ENUM_TAB_PLACEHOLDER_MISC;
+
 	// Overloaded constants
 	public const BLOCK_CODE = 'ibo-ajax-tab';
 	public const TAB_TYPE = TabManager::ENUM_TAB_TYPE_AJAX;
 
+	/** @var string Placeholder displayed before tab is loaded (relative path from the app. root) */
+	private $sPlaceholderRelPath;
 	/** @var string The target URL to be loaded asynchronously */
 	private $sUrl;
 	/** @var bool Whether the tab should should be cached by the browser or always refreshed */
 	private $bCache;
+
+	/**
+	 * Tab constructor.
+	 *
+	 * @param string $sTabCode
+	 * @param string $sTitle
+	 * @param string $sPlaceholderRelPath
+	 */
+	public function __construct(string $sTabCode, string $sTitle, string $sPlaceholderRelPath = AjaxTab::DEFAULT_TAB_PLACEHOLDER)
+	{
+		parent::__construct($sTabCode, $sTitle);
+		$this->sPlaceholderRelPath = $sPlaceholderRelPath;
+	}
 
 	/**
 	 * @param string $sUrl
@@ -80,6 +122,35 @@ class AjaxTab extends Tab {
 	 */
 	public function GetCache(): string {
 		return $this->bCache ? 'true' : 'false';
+	}
+
+	/**
+	 *
+	 * @param string $sPlaceholderRelPath
+	 *
+	 * @return $this
+	 */
+	public function SetPlaceholderRelPath(string $sPlaceholderRelPath) {
+		$this->sPlaceholderRelPath = $sPlaceholderRelPath;
+
+		return $this;
+	}
+
+	/**
+	 *
+	 * @return string
+	 */
+	public function GetPlaceholderRelPath(): string {
+		return $this->sPlaceholderRelPath;
+	}
+
+	/**
+	 *
+	 * @return string
+	 * @throws \Exception
+	 */
+	public function GetPlaceholderAbsPath(): string {
+		return utils::GetAbsoluteUrlAppRoot().$this->sPlaceholderRelPath;
 	}
 
 	//-------------------------------

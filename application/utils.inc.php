@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -24,7 +24,7 @@ use ScssPhp\ScssPhp\Compiler;
 /**
  * Static class utils
  *
- * @copyright   Copyright (C) 2010-2017 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 define('ITOP_CONFIG_FILE', 'config-itop.php');
@@ -189,14 +189,26 @@ class utils
 	{
 		$sSAPIName = php_sapi_name();
 		$sCleanName = strtolower(trim($sSAPIName));
-		if ($sCleanName == 'cli')
-		{
+		if ($sCleanName == 'cli') {
 			return true;
-		}
-		else
-		{
+		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * @return bool true if we're in an XHR query
+	 * @see \Symfony\Component\HttpFoundation\Request::IsXmlHttpRequest
+	 *
+	 * @since 3.0.0 N°3750 method creation
+	 */
+	public static function IsXmlHttpRequest()
+	{
+		$sXhrHeaderName = 'X-Requested-With';
+		$sXhrHeaderIndexName = 'HTTP_'.str_replace('-', '_', strtoupper($sXhrHeaderName));
+		$sXhrHeader = $_SERVER[$sXhrHeaderIndexName] ?? null;
+
+		return ('XMLHttpRequest' === $sXhrHeader);
 	}
 
 	protected static $bPageMode = null;
@@ -848,24 +860,42 @@ class utils
 		//		}
 	}
 
+	/**
+	 * @return bool The boolean value of the conf. "behind_reverse_proxy" (except if there is no REMOTE_ADDR int his case, it return false)
+	 *
+	 * @since 2.7.4
+	 */
+	public static function IsProxyTrusted()
+	{
+		if (empty($_SERVER['REMOTE_ADDR'])) {
+			return false;
+		}
+
+		$bTrustProxies = (bool) self::GetConfig()->Get('behind_reverse_proxy');
+
+		return $bTrustProxies;
+	}
+
     /**
      * Returns the absolute URL to the application root path
      *
-     * @param bool $bTrustProxy
+     * @param bool $bForceTrustProxy
      *
      * @return string The absolute URL to the application root, without the first slash
      *
      * @throws \Exception
+     *
+     * @since 2.7.4 $bForceTrustProxy param added
      */
-	public static function GetAbsoluteUrlAppRoot($bTrustProxy=false)
+	public static function GetAbsoluteUrlAppRoot($bForceTrustProxy = false)
 	{
 		static $sUrl = null;
-		if ($sUrl === null)
+		if ($sUrl === null || $bForceTrustProxy)
 		{
 			$sUrl = self::GetConfig()->Get('app_root_url');
 			if ($sUrl == '')
 			{
-				$sUrl = self::GetDefaultUrlAppRoot($bTrustProxy);
+				$sUrl = self::GetDefaultUrlAppRoot($bForceTrustProxy);
 			}
 			elseif (strpos($sUrl, SERVER_NAME_PLACEHOLDER) > -1)
 			{
@@ -889,33 +919,116 @@ class utils
 	 * For most usages, when an root url is needed, use utils::GetAbsoluteUrlAppRoot() instead as uses this only as a fallback when the
 	 * app_root_url conf parameter is not defined.
 	 *
-	 * @param bool $bTrustProxy
-	 * 
+	 * @param bool $bForceTrustProxy
+	 *
 	 * @return string
 	 *
 	 * @throws \Exception
-     */
-    public static function GetDefaultUrlAppRoot($bTrustProxy=false)
+	 *
+	 * @since 2.7.4 $bForceTrustProxy param added
+	 */
+	public static function GetDefaultUrlAppRoot($bForceTrustProxy = false)
+	{
+		$sAbsoluteUrl = self::GetCurrentAbsoluteUrl($bForceTrustProxy, true);
+
+		$sCurrentScript = realpath($_SERVER['SCRIPT_FILENAME']);
+		$sAppRoot       = realpath(APPROOT);
+
+		return self::GetAppRootUrl($sCurrentScript, $sAppRoot, $sAbsoluteUrl);
+	}
+
+
+	/**
+	 * Build the current absolute URL from the server's variables.
+	 *
+	 * For almost every usage, you should use the more secure utils::GetAbsoluteUrlAppRoot() : instead of reading the current uri, it provide you the configured application's root URL (this is done during the setup and chn be changed in the configuration file)
+	 *
+	 * @see utils::GetAbsoluteUrlAppRoot
+	 *
+	 * @param bool $bForceTrustProxy
+	 * @param bool $bTrimQueryString
+	 *
+	 * @return string
+	 *
+	 * @since 2.7.4
+	 */
+	public static function GetCurrentAbsoluteUrl($bForceTrustProxy = false, $bTrimQueryString = false)
 	{
 		// Build an absolute URL to this page on this server/port
-		$sServerName = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '';
-		$sProtocol = self::IsConnectionSecure($bTrustProxy) ? 'https' : 'http';
-		$iPort = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
-		if ($sProtocol == 'http')
-		{
+		$sServerName = self::GetServerName($bForceTrustProxy);
+		$bIsSecure = self::IsConnectionSecure($bForceTrustProxy);
+		$sProtocol = $bIsSecure ? 'https' : 'http';
+		$iPort = self::GetServerPort($bForceTrustProxy);
+		if ($bIsSecure) {
+			$sPort = ($iPort == 443) ? '' : ':'.$iPort;
+		} else {
 			$sPort = ($iPort == 80) ? '' : ':'.$iPort;
 		}
-		else
-		{
-			$sPort = ($iPort == 443) ? '' : ':'.$iPort;
+
+		$sPath = self::GetRequestUri($bForceTrustProxy);
+
+		if ($bTrimQueryString) {
+			// remove all the parameters from the query string
+			$iQuestionMarkPos = strpos($sPath, '?');
+			if ($iQuestionMarkPos !== false) {
+				$sPath = substr($sPath, 0, $iQuestionMarkPos);
+			}
 		}
+
+		$sAbsoluteUrl = "$sProtocol://{$sServerName}{$sPort}{$sPath}";
+
+		return $sAbsoluteUrl;
+	}
+
+	/**
+	 * @param bool $bForceTrustProxy
+	 *
+	 * @return string
+	 *
+	 * @since 2.7.4
+	 */
+	public static function GetServerName($bForceTrustProxy = false)
+	{
+		$bTrustProxy = $bForceTrustProxy || self::IsProxyTrusted();
+
+		$sServerName = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '';
+
+		if ($bTrustProxy) {
+			$sServerName = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $sServerName;
+		}
+
+		return $sServerName;
+	}
+
+	/**
+	 * @param bool $bForceTrustProxy
+	 *
+	 * @return int|mixed
+	 * @since 2.7.4
+	 */
+	public static function GetServerPort($bForceTrustProxy = false)
+	{
+		$bTrustProxy = $bForceTrustProxy || self::IsProxyTrusted();
+
+		$sServerPort = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
+
+		if ($bTrustProxy) {
+			$sServerPort = isset($_SERVER['HTTP_X_FORWARDED_PORT']) ? $_SERVER['HTTP_X_FORWARDED_PORT'] : $sServerPort;
+		}
+
+		return $sServerPort;
+	}
+
+	/**
+	 * @return string
+	 *
+	 * @since 2.7.4
+	 */
+	public static function GetRequestUri()
+	{
 		// $_SERVER['REQUEST_URI'] is empty when running on IIS
 		// Let's use Ivan Tcholakov's fix (found on www.dokeos.com)
-		if (!empty($_SERVER['REQUEST_URI']))
-		{
-			$sPath = $_SERVER['REQUEST_URI'];
-		}
-		else
+		if (empty($_SERVER['REQUEST_URI']))
 		{
 			$sPath = $_SERVER['SCRIPT_NAME'];
 			if (!empty($_SERVER['QUERY_STRING']))
@@ -926,18 +1039,7 @@ class utils
 		}
 		$sPath = $_SERVER['REQUEST_URI'];
 
-		// remove all the parameters from the query string
-		$iQuestionMarkPos = strpos($sPath, '?');
-		if ($iQuestionMarkPos !== false)
-		{
-			$sPath = substr($sPath, 0, $iQuestionMarkPos);
-		}
-		$sAbsoluteUrl = "$sProtocol://{$sServerName}{$sPort}{$sPath}";
-
-		$sCurrentScript = realpath($_SERVER['SCRIPT_FILENAME']);
-		$sAppRoot       = realpath(APPROOT);
-
-		return self::GetAppRootUrl($sCurrentScript, $sAppRoot, $sAbsoluteUrl);
+		return $sPath;
 	}
 
 	/**
@@ -1003,28 +1105,32 @@ class utils
 	/**
 	 * Helper to handle the variety of HTTP servers
 	 * See N°286 (fixed in [896]), and N°634 (this fix)
-	 * 	 
+	 *
 	 * Though the official specs says 'a non empty string', some servers like IIS do set it to 'off' !
 	 * nginx set it to an empty string
-	 * Others might leave it unset (no array entry)	 
+	 * Others might leave it unset (no array entry)
 	 *
-	 * @param bool $bTrustProxy
+	 * @param bool $bForceTrustProxy
 	 *
 	 * @return bool
-	 */	 	
-	public static function IsConnectionSecure($bTrustProxy=false)
+	 *
+	 * @since 2.7.4 reverse proxies handling
+	 */
+	public static function IsConnectionSecure($bForceTrustProxy = false)
 	{
 		$bSecured = false;
 
-		if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $bTrustProxy)
+		$bTrustProxy = $bForceTrustProxy || self::IsProxyTrusted();
+
+		if ($bTrustProxy && !empty($_SERVER['HTTP_X_FORWARDED_PROTO']))
 		{
 			$bSecured = ($_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
 		}
-		elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTOCOL']) && $bTrustProxy)
+		elseif ($bTrustProxy && !empty($_SERVER['HTTP_X_FORWARDED_PROTOCOL']))
 		{
 			$bSecured = ($_SERVER['HTTP_X_FORWARDED_PROTOCOL'] === 'https');
 		}
-		elseif (isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']))
+		elseif ((!empty($_SERVER['HTTPS'])) && (strtolower($_SERVER['HTTPS']) != 'off'))
 		{
 			$bSecured = (strcasecmp($_SERVER['HTTPS'], 'off') !== 0);
 		}
@@ -1068,84 +1174,73 @@ class utils
 	 * Execute the given iTop PHP script, passing it the current credentials
 	 * Only CLI mode is supported, because of the need to hand the credentials over to the next process
 	 * Throws an exception if the execution fails or could not be attempted (config issue)
-	 * @param string $sScript Name and relative path to the file (relative to the iTop root dir)
-	 * @param hash $aArguments Associative array of 'arg' => 'value'
-	 * @return array(iCode, array(output lines))
-	 */
-	/**
-	 * @param string $sScriptName
-	 * @param array $aArguments
 	 *
-	 * @return array
+	 * @param string $sScriptName Name and relative path to the file (relative to the iTop root dir)
+	 * @param array $aArguments Associative array of 'arg' => 'value'
+	 * @param string|null $sAuthUser
+	 * @param string|null $sAuthPwd
+	 *
+	 * @return array(iCode, array(output lines))
+	 *
 	 * @throws \ConfigException
 	 * @throws \CoreException
+	 * @throws \Exception
 	 */
-	public static function ExecITopScript($sScriptName, $aArguments)
+	public static function ExecITopScript(string $sScriptName, array $aArguments, string $sAuthUser = null, string $sAuthPwd = null)
 	{
 		$aDisabled = explode(', ', ini_get('disable_functions'));
-		if (in_array('exec', $aDisabled))
-		{
+		if (in_array('exec', $aDisabled)) {
 			throw new Exception("The PHP exec() function has been disabled on this server");
 		}
 
 		$sPHPExec = trim(self::GetConfig()->Get('php_path'));
-		if (strlen($sPHPExec) == 0)
-		{
+		if (strlen($sPHPExec) == 0) {
 			throw new Exception("The path to php must not be empty. Please set a value for 'php_path' in your configuration file.");
 		}
 
-		if (!isset($aArguments['auth_user'])) {
+		if (is_null($sAuthUser)) {
 			$sAuthUser = self::ReadParam('auth_user', '', 'raw_data');
-			$aArguments['auth_user'] = $sAuthUser;
-		}
-		if (!isset($aArguments['auth_pwd'])) {
 			$sAuthPwd = self::ReadParam('auth_pwd', '', 'raw_data');
-			$aArguments['auth_pwd'] = $sAuthPwd;
 		}
-		if (!isset($aArguments['param_file'])) {
-			$sParamFile = self::ReadParam('param_file', '', 'raw_data');
+		$sParamFile = self::GetParamSourceFile('auth_user');
+		if (is_null($sParamFile)) {
+			$aArguments['auth_user'] = $sAuthUser;
+			$aArguments['auth_pwd'] = $sAuthPwd;
+		} else {
 			$aArguments['param_file'] = $sParamFile;
 		}
 
 		$aArgs = array();
-		foreach($aArguments as $sName => $value)
-		{
+		foreach ($aArguments as $sName => $value) {
 			// Note: See comment from the 23-Apr-2004 03:30 in the PHP documentation
 			//    It suggests to rely on pctnl_* function instead of using escapeshellargs
 			$aArgs[] = "--$sName=".escapeshellarg($value);
 		}
 		$sArgs = implode(' ', $aArgs);
-		
+
 		$sScript = realpath(APPROOT.$sScriptName);
-		if (!file_exists($sScript))
-		{
+		if (!file_exists($sScript)) {
 			throw new Exception("Could not find the script file '$sScriptName' from the directory '".APPROOT."'");
 		}
 
 		$sCommand = '"'.$sPHPExec.'" '.escapeshellarg($sScript).' -- '.$sArgs;
 
-		if (version_compare(phpversion(), '5.3.0', '<'))
-		{
-			if (substr(PHP_OS,0,3) == 'WIN')
-			{
+		if (version_compare(phpversion(), '5.3.0', '<')) {
+			if (substr(PHP_OS, 0, 3) == 'WIN') {
 				// Under Windows, and for PHP 5.2.x, the whole command has to be quoted
 				// Cf PHP doc: http://php.net/manual/fr/function.exec.php, comment from the 27-Dec-2010
 				$sCommand = '"'.$sCommand.'"';
 			}
 		}
 
-		$sLastLine = exec($sCommand, $aOutput, $iRes);
-		if ($iRes == 1)
-		{
+		exec($sCommand, $aOutput, $iRes);
+		if ($iRes == 1) {
 			throw new Exception(Dict::S('Core:ExecProcess:Code1')." - ".$sCommand);
-		}
-		elseif ($iRes == 255)
-		{
+		} elseif ($iRes == 255) {
 			$sErrors = implode("\n", $aOutput);
 			throw new Exception(Dict::S('Core:ExecProcess:Code255')." - ".$sCommand.":\n".$sErrors);
 		}
 
-		//$aOutput[] = $sCommand;
 		return array($iRes, $aOutput);
 	}
 
@@ -2297,28 +2392,6 @@ class utils
 	}
 
 	/**
-	 * Check if iTop is in a development environment (VCS vs build number)
-	 *
-	 * @return bool
-	 */
-	public static function IsDevelopmentEnvironment()
-	{
-		return ITOP_REVISION  === 'svn';
-	}
-
-	/**
-	 * Check if debug is enabled in the current environment.
-	 * Currently just checking if the "debug=true" parameter is in the URL, but could be more complex.
-	 *
-	 * @return bool
-	 * @since 3.0.0
-	 */
-	public static function IsDebugEnabled()
-	{
-		return utils::ReadParam('debug') === 'true';
-	}
-
-	/**
 	 * @see https://php.net/manual/en/function.finfo-file.php
 	 *
 	 * @param string $sFilePath file full path
@@ -2353,41 +2426,11 @@ class utils
 	}
 
 	/**
-	 * helper to test if a string starts with another
-	 * @param $haystack
-	 * @param $needle
-	 *
-	 * @return bool
-	 */
-	final public static function StartsWith($haystack, $needle)
-	{
-		if (strlen($needle) > strlen($haystack))
-		{
-			return false;
-		}
-
-		return substr_compare($haystack, $needle, 0, strlen($needle)) === 0;
-	}
-
-	/**
-	 * helper to test if a string ends with another
-	 * @param $haystack
-	 * @param $needle
-	 *
-	 * @return bool
-	 */
-	final public static function EndsWith($haystack, $needle) {
-		if (strlen($needle) > strlen($haystack))
-		{
-			return false;
-		}
-		
-		return substr_compare($haystack, $needle, -strlen($needle)) === 0;
-	}
-
-	/**
-	 * @param string $sPath for example '/var/www/html/itop/data/backups/manual/itop_27-2019-10-03_15_35.tar.gz'
-	 * @param string $sBasePath for example '/var/www/html/itop/data/'
+	 * @param string $sPath for example `/var/www/html/itop/data/backups/manual/itop_27-2019-10-03_15_35.tar.gz`
+	 *    **Warning**, if path is a symlink, it will be resolved !
+	 *      So `C:\Dev\wamp64\www\itop-dev/env-production/itop-hub-connector/land.php`
+	 *      Will become `C:\Dev\wamp64\www\itop-dev\datamodels\2.x\itop-hub-connector\land.php`
+	 * @param string $sBasePath for example `/var/www/html/itop/data/`
 	 *
 	 * @return bool|string false if path :
 	 *      * invalid
@@ -2395,7 +2438,10 @@ class utils
 	 *      * not contained in base path
 	 *    Otherwise return the real path (see realpath())
 	 *
+	 * @uses \realpath()
+	 * @uses static::StartsWith
 	 * @since 2.6.5 2.7.0 N°2538
+	 * @since 2.7.5 details in PHPDoc about symlink resolution
 	 */
 	final public static function RealPath($sPath, $sBasePath)
 	{
@@ -2468,19 +2514,6 @@ class utils
 		return getenv('username');
 	}
 
-	/**
-	 * Transform a snake_case $sInput into a CamelCase string
-	 *
-	 * @since 2.7.0
-	 * @param string $sInput
-	 *
-	 * @return string
-	 */
-	public static function ToCamelCase($sInput)
-	{
-		return str_replace(' ', '', ucwords(strtr($sInput, '_-', '  ')));
-	}
-
 	public static function FilterXSS($sHTML)
 	{
 		return str_ireplace('<script', '&lt;script', $sHTML);
@@ -2509,14 +2542,6 @@ class utils
 	}
 
 	/**
-	 * @since 3.0.0
-	 */
-	public static function IsEasterEggAllowed()
-	{
-		return (stripos(ITOP_VERSION, 'alpha') !== false) || utils::IsDevelopmentEnvironment();
-	}
-
-	/**
 	 * Get an ID (for any kind of HTML tag) that is guaranteed unique in this page
 	 *
 	 * @return int The unique ID (in this page)
@@ -2538,10 +2563,10 @@ class utils
 	public static function GetCkeditorPref()
 	{
 		$sLanguage = strtolower(trim(UserRights::GetUserLanguage()));
-		
+
 		$aDefaultConf = array(
 			'language'=> $sLanguage,
-			'contentsLanguage' => $sLanguage, 
+			'contentsLanguage' => $sLanguage,
 			'extraPlugins' => 'disabler,codesnippet,mentions',
 		);
 
@@ -2556,7 +2581,7 @@ class utils
 				$sMentionItemUrl = utils::GetAbsoluteUrlAppRoot().'pages/UI.php?operation=details&class='.$sMentionClass.'&id={id}';
 
 				$sMentionItemPictureTemplate = (empty(MetaModel::GetImageAttributeCode($sMentionClass))) ? '' : <<<HTML
-<span class="ibo-vendors-ckeditor--autocomplete-item-image" style="background-image: url('{picture_url}');"></span>
+<span class="ibo-vendors-ckeditor--autocomplete-item-image" style="background-image: url('{picture_url}');">{initials}</span>
 HTML;
 				$sMentionItemTemplate = <<<HTML
 <li class="ibo-vendors-ckeditor--autocomplete-item" data-id="{id}">{$sMentionItemPictureTemplate}<span class="ibo-vendors-ckeditor--autocomplete-item-title">{friendlyname}</span></li>
@@ -2575,10 +2600,234 @@ HTML;
 				];
 			}
 		}
-		
+
 		$aRichTextConfig = 	json_decode(appUserPreferences::GetPref('richtext_config', '{}'), true);
 
-		
+
 		return array_merge($aDefaultConf, $aRichTextConfig);
+	}
+
+	/**
+	 * @param string $sInterface
+	 * @param string $sClassNameFilter
+	 * @param array $aExcludedPath Reg. exp. of the paths to exclude. Note that backslashes (typically for Windows env.) need to be 4 backslashes, 2 for the escaping backslash, 2 for the actual backslash 😅
+	 *
+	 * @return array
+	 * @since 3.0.0
+	 */
+	public static function GetClassesForInterface(string $sInterface, string $sClassNameFilter = '', $aExcludedPath = []): array
+	{
+		$aMatchingClasses = [];
+
+		if (!utils::IsDevelopmentEnvironment()) {
+			// Try to read from cache
+			$aFilePath = explode("\\", $sInterface);
+			$sInterfaceName = end($aFilePath);
+			$sCacheFileName = utils::GetCachePath()."ImplementingInterfaces/$sInterfaceName.php";
+			if (is_file($sCacheFileName)) {
+				$aMatchingClasses = include $sCacheFileName;
+			}
+		}
+
+		if (empty($aMatchingClasses)) {
+			$aAutoloadClassMaps = [APPROOT.'lib/composer/autoload_classmap.php'];
+			// guess all the autoload class maps from the extensions
+			$aAutoloadClassMaps = array_merge($aAutoloadClassMaps, glob(APPROOT.'env-'.utils::GetCurrentEnvironment().'/*/vendor/composer/autoload_classmap.php'));
+
+			$aClassMap = [];
+			foreach ($aAutoloadClassMaps as $sAutoloadFile) {
+				$aTmpClassMap = include $sAutoloadFile;
+				$aClassMap = array_merge($aClassMap, $aTmpClassMap);
+			}
+
+			// Add already loaded classes
+			$aCurrentClasses = array_fill_keys(get_declared_classes(), '');
+			$aClassMap = array_merge($aClassMap, $aCurrentClasses);
+
+			foreach ($aClassMap as $sPHPClass => $sPHPFile) {
+				$bSkipped = false;
+				
+				// Check if our class matches name filter, or is in an excluded path
+				if ($sClassNameFilter !== '' && strpos($sPHPClass, $sClassNameFilter) === false) {
+					$bSkipped = true;
+				}
+				else {
+					foreach ($aExcludedPath as $sExcludedPath) {
+						// Note: We use '#' as delimiters as usual '/' is often used in paths.
+						if ($sExcludedPath !== '' && preg_match('#'.$sExcludedPath.'#', $sPHPFile) === 1) {
+							$bSkipped = true;
+							break;
+						}
+					}
+				}
+				
+				if(!$bSkipped){
+					try {
+						$oRefClass = new ReflectionClass($sPHPClass);
+						if ($oRefClass->implementsInterface($sInterface) && $oRefClass->isInstantiable()) {
+							$aMatchingClasses[] = $sPHPClass;
+						}
+					} catch (Exception $e) {
+					}
+				}
+			}
+
+			if (!utils::IsDevelopmentEnvironment()) {
+				// Save to cache
+				$sCacheContent = "<?php\n\nreturn ".var_export($aMatchingClasses, true).";";
+				SetupUtils::builddir(dirname($sCacheFileName));
+				file_put_contents($sCacheFileName, $sCacheContent);
+			}
+		}
+
+		return $aMatchingClasses;
+	}
+
+	/**
+	 * Return keyboard shortcuts config as an array
+	 *
+	 * @return array
+	 * @throws \CoreException
+	 * @throws \CoreUnexpectedValue
+	 * @throws \MySQLException
+	 * @since 3.0.0
+	 */
+	public static function GetKeyboardShortcutPref(): array
+	{
+		$aResultPref = [];
+		$aShortcutPrefs = appUserPreferences::GetPref('keyboard_shortcuts', []);
+		// Note: Mind the 4 blackslashes, see utils::GetClassesForInterface()
+		$aShortcutClasses = utils::GetClassesForInterface('iKeyboardShortcut', '', array('[\\\\/]lib[\\\\/]', '[\\\\/]node_modules[\\\\/]', '[\\\\/]test[\\\\/]'));
+
+		foreach ($aShortcutClasses as $cShortcutPlugin) {
+			$sTriggeredElement = $cShortcutPlugin::GetShortcutTriggeredElementSelector();
+			foreach ($cShortcutPlugin::GetShortcutKeys() as $aShortcutKey) {
+				$sKey = isset($aShortcutPrefs[$aShortcutKey['id']]) ? $aShortcutPrefs[$aShortcutKey['id']] : $aShortcutKey['key'];
+				$aResultPref[$aShortcutKey['id']] = ['key' => $sKey, 'label' => $aShortcutKey['label'], 'event' => $aShortcutKey['event'], 'triggered_element_selector' => $sTriggeredElement];
+			}
+		}
+
+		return $aResultPref;
+	}
+
+	//----------------------------------------------
+	// Environment helpers
+	//----------------------------------------------
+
+	/**
+	 * Check if iTop is in a development environment (VCS vs build number)
+	 *
+	 * @return bool
+	 */
+	public static function IsDevelopmentEnvironment()
+	{
+		return ITOP_REVISION === 'svn';
+	}
+
+	/**
+	 * @return bool : indicate whether we run under a windows environnement or not
+	 * @since 2.7.4 : N°3412
+	 */
+	public static function IsWindowsEnvironment()
+	{
+		return (substr(PHP_OS, 0, 3) === 'WIN');
+	}
+
+	/**
+	 * Check if debug is enabled in the current environment.
+	 * Currently just checking if the "debug=true" parameter is in the URL, but could be more complex.
+	 *
+	 * @return bool
+	 * @since 3.0.0
+	 */
+	public static function IsDebugEnabled()
+	{
+		return utils::ReadParam('debug') === 'true';
+	}
+
+	/**
+	 * @since 3.0.0
+	 */
+	public static function IsEasterEggAllowed()
+	{
+		return (stripos(ITOP_VERSION, 'alpha') !== false) || utils::IsDevelopmentEnvironment();
+	}
+
+	//----------------------------------------------
+	// String helpers
+	//----------------------------------------------
+
+	/**
+	 * helper to test if a string starts with another
+	 *
+	 * @param $haystack
+	 * @param $needle
+	 *
+	 * @return bool
+	 */
+	final public static function StartsWith($haystack, $needle)
+	{
+		if (strlen($needle) > strlen($haystack)) {
+			return false;
+		}
+
+		return substr_compare($haystack, $needle, 0, strlen($needle)) === 0;
+	}
+
+	/**
+	 * helper to test if a string ends with another
+	 *
+	 * @param $haystack
+	 * @param $needle
+	 *
+	 * @return bool
+	 */
+	final public static function EndsWith($haystack, $needle)
+	{
+		if (strlen($needle) > strlen($haystack)) {
+			return false;
+		}
+
+		return substr_compare($haystack, $needle, -strlen($needle)) === 0;
+	}
+
+	/**
+	 * Transform a snake_case $sInput into a CamelCase string
+	 *
+	 * @param string $sInput
+	 *
+	 * @return string
+	 * @since 2.7.0
+	 */
+	public static function ToCamelCase($sInput)
+	{
+		return str_replace(' ', '', ucwords(strtr($sInput, '_-', '  ')));
+	}
+
+	/**
+	 * @param string $sInput
+	 *
+	 * @return string First letter of first word + first letter of any other word if capitalized
+	 * @since 3.0.0
+	 */
+	public static function ToAcronym(string $sInput): string
+	{
+		$sAcronym = '';
+		// - Capitalize the first letter no matter what
+		$sReworkedInput = ucfirst($sInput);
+		// - Replace dashes with spaces to interpret all parts of the input
+		$sReworkedInput = str_replace('-', ' ', $sReworkedInput);
+		// - Explode input to check parts individually
+		$aInputParts = explode(' ', $sReworkedInput);
+		foreach ($aInputParts as $sInputPart) {
+			// Keep only upper case first letters
+			// eg. "My first name My last name" => "MM"
+			// eg. "Carrie Anne Moss" => "CAM"
+			if (preg_match('/^\p{Lu}/u', $sInputPart) > 0) {
+				$sAcronym .= mb_substr($sInputPart, 0, 1);
+			}
+		}
+
+		return $sAcronym;
 	}
 }

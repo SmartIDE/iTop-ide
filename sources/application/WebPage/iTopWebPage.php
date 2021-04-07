@@ -1,20 +1,7 @@
 <?php
-/**
- * Copyright (C) 2013-2020 Combodo SARL
- *
- * This file is part of iTop.
- *
- * iTop is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * iTop is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
 
@@ -94,7 +81,7 @@ class iTopWebPage extends NiceWebPage implements iTabbedPage
 		$this->SetTopBarLayout(TopBarFactory::MakeStandard($this->GetBreadCrumbsNewEntry()));
 
 		utils::InitArchiveMode();
-
+		
 		$this->m_aMessages = array();
 		$this->SetRootUrl(utils::GetAbsoluteUrlAppRoot());
 		$this->add_header("Content-type: text/html; charset=".self::PAGES_CHARSET);
@@ -131,7 +118,7 @@ class iTopWebPage extends NiceWebPage implements iTabbedPage
 		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/ckeditor/ckeditor.js');
 		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/ckeditor/adapters/jquery.js');
 		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/ckeditor/plugins/codesnippet/lib/highlight/highlight.pack.js');
-		/** @deprecated qTip will be removed in 3.1.0, use Tippy.js instead */
+		/** @deprecated since 3.0.0 N°3748 qTip will be removed in 3.x, use Tippy.js instead */
 		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/jquery.qtip-1.0.min.js');
 		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'node_modules/@popperjs/core/dist/umd/popper.js');
 		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'node_modules/tippy.js/dist/tippy-bundle.umd.js');
@@ -147,6 +134,9 @@ class iTopWebPage extends NiceWebPage implements iTabbedPage
 		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/jquery.magnific-popup.min.js');
 		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/moment-with-locales.min.js');
 		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/showdown.min.js');
+		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/mousetrap/mousetrap.min.js');
+		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/mousetrap/mousetrap-record.min.js');
+		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/pages/backoffice/keyboard-shortcuts.js');
 		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/pages/backoffice/toolbox.js');
 	}
 
@@ -165,6 +155,9 @@ class iTopWebPage extends NiceWebPage implements iTabbedPage
 		$this->add_dict_entries('UI:Search:');
 		$this->add_dict_entry('UI:UndefinedObject');
 		$this->add_dict_entries('Enum:Undefined');
+		$this->add_dict_entry('UI:Datatables:Language:Processing');
+		$this->add_dict_entries('UI:Newsroom');
+
 	}
 
 	/**
@@ -176,9 +169,7 @@ class iTopWebPage extends NiceWebPage implements iTabbedPage
 		parent::InitializeLinkedStylesheets();
 
 		// TODO 3.0.0: Add only what's necessary
-		$this->add_linked_stylesheet(utils::GetAbsoluteUrlAppRoot().'css/jquery.treeview.css');
 		$this->add_linked_stylesheet(utils::GetAbsoluteUrlAppRoot().'css/jquery-ui-timepicker-addon.css');
-		$this->add_linked_stylesheet(utils::GetAbsoluteUrlAppRoot().'css/jquery.multiselect.css');
 		$this->add_linked_stylesheet(utils::GetAbsoluteUrlAppRoot().'css/magnific-popup.css');
 		$this->add_linked_stylesheet(utils::GetAbsoluteUrlAppRoot().'css/c3.min.css');
 		$this->add_linked_stylesheet(utils::GetAbsoluteUrlAppRoot().'node_modules/tippy.js/dist/tippy.css');
@@ -187,6 +178,16 @@ class iTopWebPage extends NiceWebPage implements iTabbedPage
 		$this->add_linked_stylesheet(utils::GetAbsoluteUrlAppRoot().'css/font-combodo/font-combodo.css');
 		$this->add_linked_stylesheet(utils::GetAbsoluteUrlAppRoot().'js/ckeditor/plugins/codesnippet/lib/highlight/styles/obsidian.css');
 		$this->add_linked_stylesheet(utils::GetAbsoluteUrlAppRoot().'css/selectize.default.css');
+	}
+
+	/**
+	 * @since 3.0.0
+	 */
+	protected function InitializeKeyboardShortcuts(): void
+	{
+		$aShortcuts = utils::GetKeyboardShortcutPref();
+		$sShortcuts = json_encode($aShortcuts);
+		$this->add_script("aKeyboardShortcuts = $sShortcuts;");
 	}
 
 	/**
@@ -305,63 +306,14 @@ class iTopWebPage extends NiceWebPage implements iTabbedPage
 JS
 		);
 
-		// TODO 3.0.0: This is for tag sets, refactor the attribute markup so it contains the necessary
-		// TODO 3.0.0: data-tooltip-* attributes to activate the tooltips automatically (see /js/pages/backoffice/toolbox.js)
-		// Attribute set tooltip on items
-		$this->add_ready_script(
-			<<<JS
-	$('.attribute-set-item').each(function(){
-		// Encoding only title as the content is already sanitized by the HTML attribute.
-        var sLabel = $('<div/>').text($(this).attr('data-label')).html();
-		var sDescription = $(this).attr('data-description');
-		
-		var oContent = {};
-		
-		// Make nice tooltip if item has a description, otherwise just make a title attribute so the truncated label can be read.
-		if(sDescription !== '')
-		{
-			oContent.title = { text: sLabel };
-			oContent.text = sDescription;
-	    }
-	    else
-	    {
-	    	oContent.text = sLabel;
-	    }
-	    
-	    $(this).qtip({
-	       content: oContent,
-	       show: { delay: 300, when: 'mouseover' },
-	       hide: { delay: 140, when: 'mouseout', fixed: true },
-	       style: { name: 'dark', tip: 'bottomLeft' },
-	       position: { corner: { target: 'topMiddle', tooltip: 'bottomLeft' }}
-	    });
-	});
-JS
-		);
-
 		// TODO 3.0.0: Change CSS class and extract this in backoffice/toolbox.js
 		// Make image attributes zoomable
 		$this->add_ready_script(
 			<<<JS
-		$('.view-image img').each(function(){
+		$('.ibo-input-image--image-view img').each(function(){
 			$(this).attr('href', $(this).attr('src'))
 		})
 		.magnificPopup({type: 'image', closeOnContentClick: true });
-JS
-		);
-
-		// TODO 3.0.0: Change CSS class and extract this in backoffice/toolbox.js
-		// Highlight code content created with CKEditor
-		$this->add_ready_script(
-			<<<JS
-		// Highlight code content for AttributeHTML and HTML AttributeText
-        $('[data-attribute-type="AttributeHTML"], [data-attribute-type="AttributeText"]').find('.HTML pre').each(function(i, block) {
-            hljs.highlightBlock(block);
-        });        
-		// Highlight code content for CaseLogs
-		$('[data-role="ibo-activity-entry--main-information-content"] pre').each(function(i, block) {
-            hljs.highlightBlock(block);
-        });
 JS
 		);
 
@@ -402,7 +354,7 @@ JS
 	} );
 	
 	// Shortcut menu actions
-	$('.actions_button a').click( function() {
+	$('.actions_button a').on('click', function() {
 		aMatches = /#(.*)$/.exec(window.location.href);
 		if (aMatches != null)
 		{
@@ -435,7 +387,7 @@ JS
 	ShowDebug();
 	$('#logOffBtn>ul').popupmenu();
 	
-	$('.caselog_header').click( function () { $(this).toggleClass('open').next('.caselog_entry,.caselog_entry_html').toggle(); });
+	$('.caselog_header').on('click', function () { $(this).toggleClass('open').next('.caselog_entry,.caselog_entry_html').toggle(); });
 	
 	$(document).ajaxSend(function(event, jqxhr, options) {
 		jqxhr.setRequestHeader('X-Combodo-Ajax', 'true');
@@ -454,6 +406,13 @@ JS
 				]
 			});
 		}
+	});
+	$(document).ajaxSuccess(function(){
+		// Async. markup, small timeout to allow markup to be built if necessary
+		setTimeout(function(){
+			CombodoTooltip.InitAllNonInstantiatedTooltips();
+			CombodoBackofficeToolbox.InitCodeHighlighting();
+		}, 500);
 	});
 JS
 		);
@@ -506,8 +465,6 @@ JS
 		}
 JS
 		);
-
-
 	}
 
 
@@ -586,6 +543,7 @@ JS
 		foreach ($oPrevContentLayout->GetSubBlocks() as $oBlock){
 			$this->AddUiBlock($oBlock);
 		}
+
 		return $this;
 	}
 
@@ -596,10 +554,11 @@ JS
 	 * @return \Combodo\iTop\Application\UI\Base\Layout\PageContent\PageContent
 	 * @since 3.0.0
 	 */
-	protected function GetContentLayout()
+	public function GetContentLayout()
 	{
 		/** @var PageContent $oPageContent */
 		$oPageContent = $this->oContentLayout;
+
 		return $oPageContent;
 	}
 
@@ -916,6 +875,8 @@ HTML;
 		// Components
 		// Note: For now all components are either included in the layouts above or put in page through the AddUiBlock() API, so there is no need to do anything more.
 
+		$this->InitializeKeyboardShortcuts();
+
 		// Variable content of the page
 		$aData['aPage'] = array_merge(
 			$aData['aPage'],
@@ -924,7 +885,7 @@ HTML;
 				'aCssInline' => $this->a_styles,
 				'aJsFiles' => $this->a_linked_scripts,
 				'aJsInlineOnInit' => $this->a_init_scripts,
-				'aJsInlineOnDomReady' => $this->a_ready_scripts,
+				'aJsInlineOnDomReady' => $this->GetReadyScripts(),
 				'aJsInlineLive' => $this->a_scripts,
 				// TODO 3.0.0: TEMP, used while developping, remove it.
 				'sSanitizedContent' => utils::FilterXSS($this->s_content),
@@ -1043,9 +1004,9 @@ EOF
 	 * @throws \Exception
 	 * @since 2.0.3
 	 */
-	public function AddAjaxTab($sTabCode, $sUrl, $bCache = true, $sTabTitle = null)
+	public function AddAjaxTab($sTabCode, $sUrl, $bCache = true, $sTabTitle = null, $sPlaceholder = null)
 	{
-		$this->add($this->m_oTabs->AddAjaxTab($sTabCode, $sUrl, $bCache, $sTabTitle));
+		$this->add($this->m_oTabs->AddAjaxTab($sTabCode, $sUrl, $bCache, $sTabTitle, $sPlaceholder));
 	}
 
 	/**
@@ -1092,14 +1053,13 @@ EOF
 	 * @inheritDoc
 	 * @throws \Exception
 	 */
-	public function add($sHtml): ?iUIBlock
+	public function add($sHtml)
 	{
 		if (($this->m_oTabs->GetCurrentTabContainer() != '') && ($this->m_oTabs->GetCurrentTab() != '')) {
 			$this->m_oTabs->AddToCurrentTab($sHtml);
 		} else {
-			return parent::add($sHtml);
+			parent::add($sHtml);
 		}
-		return null;
 	}
 
 	public function AddUiBlock(?iUIBlock $oBlock): ?iUIBlock
@@ -1193,15 +1153,28 @@ EOF
 	 * @param string $sContent
 	 * @param string $sCssClasses CSS classes to add to the container
 	 *
-	 * @throws \Exception
 	 * @since 2.6.0
 	 */
-	public function AddHeaderMessage($sContent, $sCssClasses = 'message_info')
+	public function AddHeaderMessage(string $sContent, string $sCssClasses = 'message_info')
 	{
-		$this->add(<<<EOF
-<div class="header_message $sCssClasses">$sContent</div>
-EOF
-		);
+		switch ($sCssClasses) {
+			case 'message_ok':
+				$oAlert = AlertUIBlockFactory::MakeForSuccess('', $sContent);
+				break;
+			case 'message_warning':
+				$oAlert = AlertUIBlockFactory::MakeForWarning('', $sContent);
+				break;
+			case 'message_error':
+				$oAlert = AlertUIBlockFactory::MakeForDanger('', $sContent);
+				break;
+			case 'message_info':
+			default:
+				$oAlert = AlertUIBlockFactory::MakeForInformation('', $sContent);
+				break;
+
+		}
+		$oAlert->AddCSSClass($sCssClasses);
+		$this->AddUiBlock($oAlert);
 	}
 
 
@@ -1230,9 +1203,8 @@ EOF
 	 */
 	protected function OutputPrintable(): BlockPrintHeader
 	{
-		$oBlock= new BlockPrintHeader();
+		$oBlock = new BlockPrintHeader();
+
 		return $oBlock;
 	}
-
-
 }

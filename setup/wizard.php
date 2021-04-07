@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -59,6 +59,8 @@ if (!function_exists('json_decode'))
 	}
 }
 /////////////////////////////////////////////////////////////////////
+//N°3671 setup context: force $bForceTrustProxy to be persisted in next calls
+utils::GetAbsoluteUrlAppRoot(true);
 
 $oWizard = new WizardController('WizStepWelcome');
 $oWizard->Run();

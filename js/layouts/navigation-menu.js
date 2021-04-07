@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -49,14 +49,14 @@ $(function()
 					menu_filter_hint_close: '[data-role="ibo-navigation-menu--menu-filter-hint-close"]',
 					user_menu_toggler: '[data-role="ibo-navigation-menu--user-menu--toggler"]',
 					user_menu_container: '[data-role="ibo-navigation-menu--user-menu-container"]',
-					user_menu: '[data-role="ibo-navigation-menu--user-menu-container"] > [data-role="ibo-popover-menu"]'
+					user_menu: '[data-role="ibo-navigation-menu--user-menu-container"] > [data-role="ibo-popover-menu"]',
+					menu_node: '[data-role="ibo-navigation-menu--menu-node"]',
 				},
 			filter_throttle_timeout: null,
 
 			// the constructor
 			_create: function () {
 				this.element.addClass('ibo-navigation-menu');
-				$(this.js_selectors.user_menu).popover_menu({'toggler': this.js_selectors.user_menu_toggler});
 				this._bindEvents();
 			},
 			// events bound via _bind are removed automatically
@@ -75,6 +75,9 @@ $(function()
 				// Click on menu group
 				this.element.find(this.js_selectors.menu_group).on('click', function (oEvent) {
 					me._onMenuGroupClick(oEvent, $(this))
+				});
+				this.element.on('filter_shortcut', function(oEvent){
+					me._filterShortcut();
 				});
 				// Mostly for outside clicks that should close elements
 				oBodyElem.on('click', function (oEvent) {
@@ -99,9 +102,9 @@ $(function()
 					me._onFilterHintCloseClick(oEvent);
 				});
 
-				// User info
-				this.element.find(this.js_selectors.user_menu_toggler).on('click', function (oEvent) {
-					me._onUserMenuTogglerClick(oEvent);
+				// External events
+				oBodyElem.on('add_shortcut_node.navigation_menu.itop', function (oEvent, oData) {
+					me._onAddShortcutNode(oData);
 				});
 			},
 
@@ -115,8 +118,8 @@ $(function()
 				this.element.toggleClass(this.css_classes.menu_expanded);
 
 				// Save state in user preferences
-				const sPrefValue = this.element.hasClass(this.css_classes.menu_expanded) ? 'opened' : 'closed';
-				SetUserPreference('menu_pane', sPrefValue, true);
+				const sPrefValue = this.element.hasClass(this.css_classes.menu_expanded) ? 'expanded' : 'collapsed';
+				SetUserPreference('navigation_menu.expanded', sPrefValue, true);
 			},
 			_onMenuGroupClick: function(oEvent, oMenuGroupElem)
 			{
@@ -140,18 +143,16 @@ $(function()
 			},
 			_onBodyKeyUp: function(oEvent)
 			{
-				// Note: We thought about extracting the oEvent.key in a variable to lower case it, but this would be done
-				// on every single key up in the application, which might not be what we want... (time consuming)
-				if((oEvent.altKey === true) && (oEvent.key === 'm' || oEvent.key === 'M'))
+			},
+			_filterShortcut: function()
+			{
+				if(this._getActiveMenuGroupId() === null)
 				{
-					if(this._getActiveMenuGroupId() === null)
-					{
-						const sFirstMenuGroupId = this.element.find(this.js_selectors.menu_group+':first').attr('data-menu-group-id');
-						this._openDrawer(sFirstMenuGroupId);
-					}
-
-					this._focusFilter();
+					const sFirstMenuGroupId = this.element.find(this.js_selectors.menu_group+':first').attr('data-menu-group-id');
+					this._openDrawer(sFirstMenuGroupId);
 				}
+
+				this._focusFilter();
 			},
 
 			_onFilterKeyUp: function(oEvent)
@@ -187,37 +188,24 @@ $(function()
 				// Position focus in the input for better UX
 				this._focusFilter();
 			},
-			_onFilterHintCloseClick: function(oEvent)
-			{
+			_onFilterHintCloseClick: function (oEvent) {
 				this.element.find(this.js_selectors.menu_filter_hint).hide();
 
 				// Save state in user preferences
-				SetUserPreference('navigation_menu_filter_hint', false, true);
+				SetUserPreference('navigation_menu.show_filter_hint', false, true);
 			},
 
-			_onUserMenuTogglerClick: function(oEvent)
-			{
-				// Avoid anchor glitch
-				oEvent.preventDefault();
-				var oEventTarget = $(oEvent.target);
-				var aEventTargetPos = oEventTarget.position();
-
-				$(this.js_selectors.user_menu_container).css({
-					'top': (aEventTargetPos.top + parseInt(oEventTarget.css('marginTop'), 10) -  $(this.js_selectors.user_menu).height()) + 'px',
-					'left': (aEventTargetPos.left + parseInt(oEventTarget.css('marginLeft'), 10) + oEventTarget.width()) + 'px'
-				});
-				$(this.js_selectors.user_menu).popover_menu('togglePopup');
+			_onAddShortcutNode: function (oData) {
+				this._addShortcut(oData.parent_menu_node_id, oData.new_menu_node_html_rendering);
 			},
 
 			// Methods
-			_checkIfClickShouldCloseDrawer: function(oEvent)
-			{
-				if(
+			_checkIfClickShouldCloseDrawer: function (oEvent) {
+				if (
 					$(oEvent.target.closest(this.js_selectors.menu_drawer)).length === 0
 					&& $(oEvent.target.closest('[data-role="ibo-navigation-menu--menu-group"]')).length === 0
 					&& $(oEvent.target.closest(this.js_selectors.menu_toggler)).length === 0
-				)
-				{
+				) {
 					this._closeDrawer();
 				}
 			},
@@ -371,13 +359,27 @@ $(function()
 						.done(function (data) {
 							if (data.code === "done") {
 								for (const [key, value] of Object.entries(data.counts)) {
-									let menuEntry = me.element.find('[data-menu-id="' + key + '"]');
+									let menuEntry = me.element.find('[data-menu-id="'+key+'"]');
 									menuEntry.html(value);
 									menuEntry.show();
 								}
 							}
 						});
 				}
+			},
+			/**
+			 * @param sParentMenuNodeId {string} ID of the parent menu node the shortcut should be added to
+			 * @param sNewMenuNodeHtmlRendering {string} HTML rendering of the new menu node to add
+			 * @return {boolean}
+			 */
+			_addShortcut: function (sParentMenuNodeId, sNewMenuNodeHtmlRendering) {
+				const oNewMenuNodeContainerElem = this.element.find(this.js_selectors.menu_node+'[data-menu-node-id="'+sParentMenuNodeId+'"] > ul');
+				if (oNewMenuNodeContainerElem.length === 0) {
+					return false;
+				}
+
+				oNewMenuNodeContainerElem.append(sNewMenuNodeHtmlRendering);
+				return true;
 			}
 		});
 });

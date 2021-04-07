@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -20,8 +20,11 @@
 namespace Combodo\iTop\Application\UI\Base\Layout\ActivityPanel;
 
 
+use appUserPreferences;
 use AttributeDateTime;
 use cmdbAbstractObject;
+use Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenu;
+use Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenuItem\PopoverMenuItemFactory;
 use Combodo\iTop\Application\UI\Base\Layout\ActivityPanel\ActivityEntry\ActivityEntry;
 use Combodo\iTop\Application\UI\Base\Layout\ActivityPanel\ActivityEntry\CaseLogEntry;
 use Combodo\iTop\Application\UI\Base\Layout\ActivityPanel\CaseLogEntryForm\CaseLogEntryForm;
@@ -29,6 +32,8 @@ use Combodo\iTop\Application\UI\Base\UIBlock;
 use DBObject;
 use Exception;
 use MetaModel;
+use URLPopupMenuItem;
+use utils;
 
 /**
  * Class ActivityPanel
@@ -48,23 +53,42 @@ class ActivityPanel extends UIBlock
 		'js/layouts/activity-panel/activity-panel.js',
 	];
 
+	/**
+	 * @var bool
+	 * @see static::$bShowMultipleEntriesSubmitConfirmation
+	 */
+	public const DEFAULT_SHOW_MULTIPLE_ENTRIES_SUBMI_CONFIRMATION = true;
+
 	/** @var \DBObject $oObject The object for which the activity panel is for */
 	protected $oObject;
 	/**
-	 * @var string $sObjectMode Display mode of $oObject (create, edit, view, ...)
 	 * @see \cmdbAbstractObject::ENUM_OBJECT_MODE_XXX
+	 * @var string $sObjectMode Display mode of $oObject (create, edit, view, ...)
 	 */
 	protected $sObjectMode;
+	/** @var null|string $sTransactionId Only when $sObjectMode is set to \cmdbAbstractObject::ENUM_OBJECT_MODE_VIEW */
+	protected $sTransactionId;
 	/** @var array $aCaseLogs Metadata of the case logs (att. code, color, ...), will be use to make the tabs and identify them easily */
 	protected $aCaseLogs;
 	/** @var ActivityEntry[] $aEntries */
 	protected $aEntries;
 	/** @var bool $bAreEntriesSorted True if the entries have been sorted by date */
 	protected $bAreEntriesSorted;
-	/** @var bool $bHasLifecycle True if the host object has a lifecycle */
-	protected $bHasLifecycle;
+	/** @var bool True if there are more entries to load asynchroniously */
+	protected $bHasMoreEntriesToLoad;
+	/** @var array IDs of the last loaded entries of each type, makes it easier to load the next entries asynchronioulsy */
+	protected $aLastLoadedEntriesIds;
+	/**
+	 * @see MetaModel::HasStateAttributeCode()
+	 * @var bool True if the host object has states (but not necessary a lifecycle)
+	 */
+	protected $bHasStates;
 	/** @var \Combodo\iTop\Application\UI\Base\Layout\ActivityPanel\CaseLogEntryForm\CaseLogEntryForm[] $aCaseLogTabsEntryForms */
 	protected $aCaseLogTabsEntryForms;
+	/** @var \Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenu Menu displaying the editable log entry forms the user can go to */
+	protected $oComposeMenu;
+	/** @var bool Whether a confirmation dialog should be prompt when multiple entries are about to be submitted at once */
+	protected $bShowMultipleEntriesSubmitConfirmation;
 
 	/**
 	 * ActivityPanel constructor.
@@ -82,10 +106,14 @@ class ActivityPanel extends UIBlock
 
 		$this->InitializeCaseLogTabs();
 		$this->InitializeCaseLogTabsEntryForms();
-		$this->SetObject($oObject);
+		$this->InitializeComposeMenu();
 		$this->SetObjectMode(cmdbAbstractObject::DEFAULT_OBJECT_MODE);
+		$this->SetObject($oObject);
 		$this->SetEntries($aEntries);
 		$this->bAreEntriesSorted = false;
+		$this->bHasMoreEntriesToLoad = false;
+		$this->aLastLoadedEntriesIds = [];
+		$this->ComputedShowMultipleEntriesSubmitConfirmation();
 	}
 
 	/**
@@ -103,17 +131,23 @@ class ActivityPanel extends UIBlock
 		$sObjectClass = get_class($this->oObject);
 
 		// Check if object has a lifecycle
-		$this->bHasLifecycle = !empty(MetaModel::GetStateAttributeCode($sObjectClass));
+		$this->bHasStates = MetaModel::HasStateAttributeCode($sObjectClass);
 
 		// Initialize the case log tabs
 		$this->InitializeCaseLogTabs();
 		$this->InitializeCaseLogTabsEntryForms();
+		$this->InitializeComposeMenu();
 
-		$aCaseLogAttCodes = MetaModel::GetCaseLogs($sObjectClass);
-		foreach($aCaseLogAttCodes as $sCaseLogAttCode)
-		{
+		// Get only case logs from the "details" zlist, but if none (2.7 and older) show them all
+		$aCaseLogAttCodes = MetaModel::GetCaseLogs($sObjectClass, 'details');
+		if (empty($aCaseLogAttCodes)) {
+			$aCaseLogAttCodes = MetaModel::GetCaseLogs($sObjectClass);
+		}
+
+		foreach ($aCaseLogAttCodes as $sCaseLogAttCode) {
 			$this->AddCaseLogTab($sCaseLogAttCode);
 		}
+
 
 		return $this;
 	}
@@ -176,6 +210,63 @@ class ActivityPanel extends UIBlock
 	public function GetObjectMode(): string
 	{
 		return $this->sObjectMode;
+	}
+
+	/**
+	 * @return bool True if it should be expanded, false otherwise. Based on the user pref. or reduced by default.
+	 * @throws \CoreException
+	 * @throws \CoreUnexpectedValue
+	 * @throws \MySQLException
+	 */
+	public function IsExpanded(): bool
+	{
+		$bDefault = false;
+		$aStates = appUserPreferences::GetPref('activity_panel.is_expanded', []);
+
+		return $aStates[$this->GetObjectClass().'::'.$this->GetObjectMode()] ?? $bDefault;
+	}
+
+	/**
+	 * @return bool True if it should be closed, false otherwise. Based on the user pref. or closed by default if the object has no case log.
+	 * @throws \CoreException
+	 * @throws \CoreUnexpectedValue
+	 * @throws \MySQLException
+	 */
+	public function IsClosed(): bool
+	{
+		$bDefault = !$this->HasCaseLogTabs();
+		$aStates = appUserPreferences::GetPref('activity_panel.is_closed', []);
+
+		return $aStates[$this->GetObjectClass().'::'.$this->GetObjectMode()] ?? $bDefault;
+	}
+
+	/**
+	 * @return bool
+	 * @uses static::$sTransactionId
+	 */
+	public function HasTransactionId(): bool
+	{
+		return (null !== $this->sTransactionId);
+	}
+
+	/**
+	 * @return string|null
+	 * @uses static::$sTransactionId
+	 */
+	public function GetTransactionId(): ?string
+	{
+		return $this->sTransactionId;
+	}
+
+	/**
+	 * @return bool True if the lock mechanism has to be enabled
+	 * @uses \cmdbAbstractObject::ENUM_OBJECT_MODE_VIEW
+	 * @uses static::HasAnEditableCaseLogTab()
+	 * @uses "concurrent_lock_enabled" config. param.
+	 */
+	public function IsLockEnabled(): bool
+	{
+		return (cmdbAbstractObject::ENUM_OBJECT_MODE_VIEW === $this->sObjectMode) && (MetaModel::GetConfig()->Get('concurrent_lock_enabled')) && (true === $this->HasAnEditableCaseLogTab());
 	}
 
 	/**
@@ -377,6 +468,52 @@ class ActivityPanel extends UIBlock
 	}
 
 	/**
+	 * @see static::$bHasMoreEntriesToLoad
+	 *
+	 * @param bool $bHasMoreEntriesToLoad
+	 *
+	 * @return $this
+	 */
+	public function SetHasMoreEntriesToLoad(bool $bHasMoreEntriesToLoad)
+	{
+		$this->bHasMoreEntriesToLoad = $bHasMoreEntriesToLoad;
+
+		return $this;
+	}
+
+	/**
+	 * @see static::$bHasMoreEntriesToLoad
+	 * @return bool
+	 */
+	public function HasMoreEntriesToLoad(): bool
+	{
+		return $this->bHasMoreEntriesToLoad;
+	}
+
+	/**
+	 * @param string $sEntryType Type of entry (eg. cmdbchangeop, caselog, notification)
+	 * @param string $sEntryId ID of the last loaded entry
+	 *
+	 * @return $this
+	 * @uses static::$aLastLoadedEntriesIds
+	 */
+	public function SetLastEntryId(string $sEntryType, string $sEntryId)
+	{
+		$this->aLastLoadedEntriesIds[$sEntryType] = $sEntryId;
+
+		return $this;
+	}
+
+	/**
+	 * @return array Hash array of the last loaded entries
+	 * @uses static::$aLastLoadedEntriesIds
+	 */
+	public function GetLastEntryIds(): array
+	{
+		return $this->aLastLoadedEntriesIds;
+	}
+
+	/**
 	 * Return all the case log tabs metadata, not their entries
 	 *
 	 * @return array
@@ -416,13 +553,33 @@ class ActivityPanel extends UIBlock
 
 			// Only if not hidden
 			if (false === $bIsHidden) {
+				$sLogLabel = MetaModel::GetLabel(get_class($this->oObject), $sAttCode);
+
 				$this->aCaseLogs[$sAttCode] = [
 					'rank' => count($this->aCaseLogs) + 1,
-					'title' => MetaModel::GetLabel(get_class($this->oObject), $sAttCode),
+					'title' => $sLogLabel,
 					'total_messages_count' => 0,
 					'authors' => [],
 					'is_read_only' => $bIsReadOnly,
 				];
+
+				// Transaction ID is generated only when:
+				// - There is a least 1 *writable* case log
+				// - And object is in view mode (in edit mode, it will be handled by the general form)
+				// Otherwise we generate unnecessary transaction IDs that could saturate the system
+				if ((false === $bIsReadOnly) && (false === $this->HasTransactionId()) && (cmdbAbstractObject::ENUM_OBJECT_MODE_VIEW === $this->sObjectMode)) {
+					$this->sTransactionId = (cmdbAbstractObject::ENUM_OBJECT_MODE_VIEW === $this->sObjectMode) ? utils::GetNewTransactionId() : null;
+				}
+
+				// Add log to compose button menu only if it is editable
+				if (false === $bIsReadOnly) {
+					$oItem = PopoverMenuItemFactory::MakeFromApplicationPopupMenuItem(
+						new URLPopupMenuItem('log-'.$sAttCode, $sLogLabel, '#')
+					)
+						->AddDataAttribute('caselog-attribute-code', $sAttCode);
+
+					$this->oComposeMenu->AddItem('editable-logs', $oItem);
+				}
 			}
 		}
 
@@ -467,6 +624,23 @@ class ActivityPanel extends UIBlock
 	public function HasCaseLogTabs()
 	{
 		return !empty($this->aCaseLogs);
+	}
+
+	/**
+	 * @return bool true if there is at least 1 editable case log
+	 */
+	public function HasAnEditableCaseLogTab(): bool
+	{
+		$bHasEditable = false;
+
+		foreach ($this->GetCaseLogTabs() as $aCaseLogTabData) {
+			if (false === $aCaseLogTabData['is_read_only']) {
+				$bHasEditable = true;
+				break;
+			}
+		}
+
+		return $bHasEditable;
 	}
 
 	/**
@@ -531,6 +705,15 @@ class ActivityPanel extends UIBlock
 	}
 
 	/**
+	 * @uses static::$bShowMultipleEntriesSubmitConfirmation
+	 * @return bool
+	 */
+	public function GetShowMultipleEntriesSubmitConfirmation(): bool
+	{
+		return $this->bShowMultipleEntriesSubmitConfirmation;
+	}
+
+	/**
 	 * Whether the submission of the case logs present in the activity panel is autonomous or will be handled by another form
 	 *
 	 * @return bool
@@ -556,13 +739,70 @@ class ActivityPanel extends UIBlock
 	}
 
 	/**
-	 * Return true if the host object has a lifecycle
-	 *
-	 * @return bool
+	 * @return bool Whether the "compose a new entry" button is enabled
+	 * @throws \Exception
 	 */
-	public function HasLifecycle()
+	public function IsComposeButtonEnabled(): bool
 	{
-		return $this->bHasLifecycle;
+		return $this->HasAnEditableCaseLogTab() && $this->IsCaseLogsSubmitAutonomous();
+	}
+
+	/**
+	 * @return bool Whether there is a menu on the "compose" button to select which log entry form to open
+	 * @uses static::$oComposeMenu
+	 */
+	public function HasComposeMenu(): bool
+	{
+		return $this->oComposeMenu->HasItems();
+	}
+
+	/**
+	 * @return \Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenu
+	 * @uses static::$oComposeMenu
+	 */
+	public function GetComposeMenu()
+	{
+		return $this->oComposeMenu;
+	}
+
+	/**
+	 * @return $this
+	 * @uses static::$oComposeMenu
+	 */
+	protected function InitializeComposeMenu()
+	{
+		// Note: There is no toggler set on purpose, menu will be toggle depending on the active tab
+		$this->oComposeMenu = new PopoverMenu('ibo-activity-panel--compose-menu');
+		$this->oComposeMenu->SetTogglerJSSelector('#ibo-activity-panel--add-caselog-entry-button');
+
+		return $this;
+	}
+
+	/**
+	 * @return bool True if the entry form shouldbe opened by default, false otherwise. Based on the user pref. or the config. param. by default.
+	 * @throws \CoreException
+	 * @throws \CoreUnexpectedValue
+	 * @throws \MySQLException
+	 */
+	public function IsEntryFormOpened(): bool
+	{
+		// First check if user has a pref.
+		$bValue = appUserPreferences::GetPref('activity_panel.is_entry_form_opened', null);
+		if (null === $bValue) {
+			// Otherwise get the default config. param.
+			$bValue = MetaModel::GetConfig()->Get('activity_panel.entry_form_opened_by_default');
+		}
+
+		return $bValue;
+	}
+
+	/**
+	 * @return bool
+	 * @uses $bHasStates
+	 */
+	public function HasStates(): bool
+	{
+		return $this->bHasStates;
 	}
 
 	/**
@@ -574,7 +814,35 @@ class ActivityPanel extends UIBlock
 	public function GetDateTimeFormatForJSWidget()
 	{
 		$oDateTimeFormat = AttributeDateTime::GetFormat();
+
 		return $oDateTimeFormat->ToMomentJS();
+	}
+
+	/**
+	 * @return string The endpoint for all "lock" related operations
+	 * @throws \Exception
+	 */
+	public function GetLockEndpoint(): string
+	{
+		return utils::GetAbsoluteUrlAppRoot().'pages/ajax.render.php';
+	}
+
+	/**
+	 * @return string The endpoint for the state (expanded, closed, ...) changes to be saved
+	 * @throws \Exception
+	 */
+	public function GetSaveStateEndpoint(): string
+	{
+		return utils::GetAbsoluteUrlAppRoot().'pages/ajax.render.php';
+	}
+
+	/**
+	 * @return string The endpoint to load the remaining entries
+	 * @throws \Exception
+	 */
+	public function GetLoadMoreEntriesEndpoint(): string
+	{
+		return utils::GetAbsoluteUrlAppRoot().'pages/ajax.render.php';
 	}
 
 	/**
@@ -584,10 +852,27 @@ class ActivityPanel extends UIBlock
 	{
 		$aSubBlocks = array();
 
-		foreach($this->GetCaseLogTabsEntryForms() as $sCaseLogId => $oCaseLogEntryForm) {
+		foreach ($this->GetCaseLogTabsEntryForms() as $sCaseLogId => $oCaseLogEntryForm) {
 			$aSubBlocks[$oCaseLogEntryForm->GetId()] = $oCaseLogEntryForm;
 		}
 
+		$aSubBlocks[$this->GetComposeMenu()->GetId()] = $this->GetComposeMenu();
+
 		return $aSubBlocks;
+	}
+
+	/**
+	 * @see static::$bShowMultipleEntriesSubmitConfirmation
+	 * @return $this
+	 * @throws \CoreException
+	 * @throws \CoreUnexpectedValue
+	 * @throws \MySQLException
+	 */
+	protected function ComputedShowMultipleEntriesSubmitConfirmation()
+	{
+		// Note: Test on a string is necessary as we can only store strings from the JS API, not booleans.
+		// Note 2: Do not invert the test to "=== 'true'" as it won't work. Default value is a bool ("true"), values from the DB are strings (true|false)
+		$this->bShowMultipleEntriesSubmitConfirmation = appUserPreferences::GetPref('activity_panel.show_multiple_entries_submit_confirmation', static::DEFAULT_SHOW_MULTIPLE_ENTRIES_SUBMI_CONFIRMATION) !== 'false';
+		return $this;
 	}
 }

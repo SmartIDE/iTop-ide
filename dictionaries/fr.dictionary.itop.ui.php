@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2017 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -16,7 +16,7 @@
 //   You should have received a copy of the GNU Affero General Public License
 //   along with iTop. If not, see <http://www.gnu.org/licenses/>
 /**
- * @copyright   Copyright (C) 2010-2017 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 Dict::Add('FR FR', 'French', 'Français', array(
@@ -367,6 +367,14 @@ Dict::Add('FR FR', 'French', 'Français', array(
 <li>Contrôlez l\'actif le plus important de votre SI&nbsp;: la documentation.</li>
 </ul>
 </p>',
+	'UI:WelcomeMenu:Text'=> '<div>Félicitations, vous avez atterri sur '.ITOP_APPLICATION.' '.ITOP_VERSION_NAME.' !</div>
+
+<div>Cette version présente un tout nouveau design moderne, accessible et responsive pour la console de support.</div>
+
+<div>Nous avons conservé les fonctions de base d\''.ITOP_APPLICATION.' que vous aviez apprécié et les avons modernisées pour vous les faire adorer.
+Nous espérons que vous aimerez cette version autant que nous avons eu du plaisir à l\'imaginer et à la créer.</div>
+
+<div>Configurez vos préférences '.ITOP_APPLICATION.' pour une expérience personnalisée.</div>',
 	'UI:WelcomeMenu:AllOpenRequests' => 'Requêtes en cours: %1$d',
 	'UI:WelcomeMenu:MyCalls' => 'Mes Appels Support',
 	'UI:WelcomeMenu:OpenIncidents' => 'Incidents en cours: %1$d',
@@ -379,12 +387,17 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'UI:Button:Logoff' => 'Déconnexion',
 	'UI:Button:GlobalSearch' => 'Rechercher',
 	'UI:Button:Search' => 'Rechercher',
+	'UI:Button:Clear' => ' Clear ~~',
+	'UI:Button:SearchInHierarchy' => ' Search in hierachy ~~',
 	'UI:Button:Query' => ' Lancer la requête ',
 	'UI:Button:Ok' => 'Ok',
 	'UI:Button:Save' => 'Sauver',
+	'UI:Button:SaveAnd' => 'Sauver et %1$s',
 	'UI:Button:Cancel' => 'Annuler',
 	'UI:Button:Close' => 'Fermer',
 	'UI:Button:Apply' => 'Appliquer',
+	'UI:Button:Send' => 'Envoyer',
+	'UI:Button:SendAnd' => 'Envoyer et %1$s',
 	'UI:Button:Back' => ' << Retour ',
 	'UI:Button:Restart' => ' |<< Recommencer ',
 	'UI:Button:Next' => ' Suite >> ',
@@ -412,6 +425,9 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'UI:Button:Wait' => 'Patientez pendant la mise à jour des champs',
 	'UI:Treeview:CollapseAll' => 'Tout replier',
 	'UI:Treeview:ExpandAll' => 'Tout déplier',
+	'UI:UserPref:DoNotShowAgain' => 'Ne plus afficher ce message',
+	'UI:InputFile:NoFileSelected' => 'Aucun fichier sélectionné',
+	'UI:InputFile:SelectFile' => 'Sélectionner un fichier',
 
 	'UI:SearchToggle' => 'Recherche',
 	'UI:ClickToCreateNew' => 'Créer un(e) %1$s',
@@ -443,7 +459,8 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'UI:Error:ObjectCannotBeUpdated' => 'Erreur: l\'objet ne peut pas être mis à jour.',
 	'UI:Error:ObjectsAlreadyDeleted' => 'Erreur: les objets ont déjà été supprimés !',
 	'UI:Error:BulkDeleteNotAllowedOn_Class' => 'Vous n\'êtes pas autorisé à faire une suppression massive sur les objets de type %1$s',
-	'UI:Error:DeleteNotAllowedOn_Class' => 'Vous n\'êtes pas autorisé supprimer des objets de type %1$s',
+	'UI:Error:DeleteNotAllowedOn_Class' => 'Vous n\'êtes pas autorisé à supprimer des objets de type %1$s',
+	'UI:Error:ReadNotAllowedOn_Class' => 'Vous n\'êtes pas autorisé à voir des objets de type %1$s',
 	'UI:Error:BulkModifyNotAllowedOn_Class' => 'Vous n\'êtes pas autorisé à faire une modification massive sur les objets de type %1$s',
 	'UI:Error:ObjectAlreadyCloned' => 'Erreur: l\'objet a déjà été dupliqué !',
 	'UI:Error:ObjectAlreadyCreated' => 'Erreur: l\'objet a déjà été créé !',
@@ -452,6 +469,7 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'UI:Error:InvalidDashboard' => 'Erreur: Le tableau de bord est invalide',
 	'UI:Error:MaintenanceMode' => 'L\'application est en maintenance',
 	'UI:Error:MaintenanceTitle' => 'Maintenance',
+	'UI:Error:InvalidToken' => 'Erreur: l\'opération a déjà été effectuée (CSRF token not found)',
 
 	'UI:GroupBy:Count' => 'Nombre',
 	'UI:GroupBy:Count+' => 'Nombre d\'éléments',
@@ -479,6 +497,8 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'UI:Loading' => 'Chargement...',
 	'UI:Menu:Actions' => 'Actions',
 	'UI:Menu:OtherActions' => 'Autres Actions',
+	'UI:Menu:Transitions' => 'Transitions~~',
+	'UI:Menu:OtherTransitions' => 'Other Transitions~~',
 	'UI:Menu:New' => 'Créer...',
 	'UI:Menu:Add' => 'Ajouter...',
 	'UI:Menu:Manage' => 'Gérer...',
@@ -666,14 +686,24 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'UI:CSVExport:LostChars' => 'Problème d\'encodage',
 	'UI:CSVExport:LostChars+' => 'Le fichier téléchargé sera encodé en %1$s. iTop a détecté des caractères incompatible avec ce format. Ces caractères seront soit remplacés par des caractères de substitution (par exemple: \'é\' transformé en \'e\'), soit perdus. Vous pouvez utiliser le copier/coller depuis votre navigateur web, ou bien contacter votre administrateur pour que l\'encodage corresponde mieux à votre besoin (Cf. paramètre \'csv_file_default_charset\').',
 
-	'UI:Audit:Title' => 'iTop - Audit de la CMDB',
+	'UI:Audit:Title' => 'ITOP_APPLICATION_SHORT - Audit de la CMDB',
 	'UI:Audit:InteractiveAudit' => 'Audit Interactif',
 	'UI:Audit:HeaderAuditRule' => 'Règle d\'audit',
 	'UI:Audit:HeaderNbObjects' => 'Nb d\'Objets',
 	'UI:Audit:HeaderNbErrors' => 'Nb d\'Erreurs',
 	'UI:Audit:PercentageOk' => '% Ok',
+	'UI:Audit:OqlError' => 'OQL Error~~',
+	'UI:Audit:Error:ValueNA' => 'n/a~~',
+	'UI:Audit:ErrorIn_Rule' => 'Error in Rule~~',
 	'UI:Audit:ErrorIn_Rule_Reason' => 'Erreur OQL dans la règle %1$s: %2$s.',
+	'UI:Audit:ErrorIn_Category' => 'Error in Category~~',
 	'UI:Audit:ErrorIn_Category_Reason' => 'Erreur OQL dans la catégorie %1$s: %2$s.',
+	'UI:Audit:AuditErrors' => 'Audit Errors~~',
+	'UI:Audit:Dashboard:ObjectsAudited' => 'Objects audited~~',
+	'UI:Audit:Dashboard:ObjectsInError' => 'Objects in errors~~',
+	'UI:Audit:Dashboard:ObjectsValidated' => 'Objects validated~~',
+	'UI:Audit:AuditCategory:Subtitle' => '%1$s errors ouf of %2$s - %3$s%%~~',
+
 
 	'UI:RunQuery:Title' => 'iTop - Evaluation de requêtes OQL',
 	'UI:RunQuery:QueryExamples' => 'Exemples de requêtes',
@@ -887,7 +917,7 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'UI:UserManagement:LinkBetween_User_And_Profile' => 'Lien entre %1$s et %2$s',
 	'UI:UserManagement:LinkBetween_User_And_Org' => 'Lien entre %1$s et %2$s',
 
-	'Menu:AdminTools' => 'Outils d\'admin', // Duplicated into itop-welcome-itil (will be removed from here...)
+	'Menu:AdminTools' => 'Administration', // Duplicated into itop-welcome-itil (will be removed from here...)
 	'Menu:AdminTools+' => 'Outils d\'administration', // Duplicated into itop-welcome-itil (will be removed from here...)
 	'Menu:AdminTools?' => 'Ces outils sont accessibles uniquement aux utilisateurs possédant le profil Administrateur.', // Duplicated into itop-welcome-itil (will be removed from here...)
 	'Menu:SystemTools' => 'Système',
@@ -941,8 +971,8 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'Menu:DataModelMenu' => 'Modèle de Données', // Duplicated into itop-welcome-itil (will be removed from here...)
 	'Menu:DataModelMenu+' => 'Résumé du Modèle de Données', // Duplicated into itop-welcome-itil (will be removed from here...)
 
-	'Menu:ExportMenu' => 'Exportation', // Duplicated into itop-welcome-itil (will be removed from here...)
-	'Menu:ExportMenu+' => 'Exportation des résultats d\'une requête en HTML, CSV ou XML', // Duplicated into itop-welcome-itil (will be removed from here...)
+	'Menu:ExportMenu' => 'Export', // Duplicated into itop-welcome-itil (will be removed from here...)
+	'Menu:ExportMenu+' => 'Export des résultats d\'une requête en HTML, CSV ou XML', // Duplicated into itop-welcome-itil (will be removed from here...)
 
 	'Menu:NotificationsMenu' => 'Notifications', // Duplicated into itop-welcome-itil (will be removed from here...)
 	'Menu:NotificationsMenu+' => 'Configuration des Notifications', // Duplicated into itop-welcome-itil (will be removed from here...)
@@ -981,7 +1011,7 @@ Lors de l\'association à un déclencheur, on attribue à chaque action un numé
 	'Menu:Notifications:Title' => 'Catégories d\'audit', // Duplicated into itop-welcome-itil (will be removed from here...)
 
 	'Menu:RunQueriesMenu' => 'Requêtes OQL', // Duplicated into itop-welcome-itil (will be removed from here...)
-	'Menu:RunQueriesMenu+' => 'Exécuter une requête OQL', // Duplicated into itop-welcome-itil (will be removed from here...)
+	'Menu:RunQueriesMenu+' => 'Executer une requête OQL', // Duplicated into itop-welcome-itil (will be removed from here...)
 
 	'Menu:QueryMenu' => 'Livre des requêtes', // Duplicated into itop-welcome-itil (will be removed from here...)
 	'Menu:QueryMenu+' => 'Livre des requêtes', // Duplicated into itop-welcome-itil (will be removed from here...)
@@ -1130,10 +1160,10 @@ Lors de l\'association à un déclencheur, on attribue à chaque action un numé
 	'UI:ArchiveMode:Banner+' => 'Les objets archivés sont visibles, et aucune modification n\'est possible',
 	'UI:FavoriteOrganizations' => 'Organisations Favorites',
 	'UI:FavoriteOrganizations+' => 'Cochez dans la liste ci-dessous les organisations que vous voulez voir listées dans le menu principal. Ceci n\'est pas un réglage de sécurité. Les objets de toutes les organisations sont toujours visibles en choisissant "Toutes les Organisations" dans le menu.',
-	'UI:FavoriteLanguage' => 'Langue de l\'interface utilisateur',
+	'UI:FavoriteLanguage' => 'Langue préférée',
 	'UI:Favorites:SelectYourLanguage' => 'Choisissez votre langue préférée',
 	'UI:FavoriteOtherSettings' => 'Autres réglages',
-	'UI:Favorites:Default_X_ItemsPerPage' => 'Longueur par défaut des listes:  %1$s éléments par page',
+	'UI:Favorites:Default_X_ItemsPerPage' => 'Longueur par défaut :  %1$s éléments par page',
 	'UI:Favorites:ShowObsoleteData' => 'Voir les données obsolètes',
 	'UI:Favorites:ShowObsoleteData+' => 'Voir les données obsolètes dans les résultats de recherche et dans les listes de choix',
 	'UI:NavigateAwayConfirmationMessage' => 'Toute modification sera perdue.',
@@ -1150,8 +1180,8 @@ Lors de l\'association à un déclencheur, on attribue à chaque action un numé
 	'UI:PrintResolution:A4Landscape' => 'A4 Paysage',
 	'UI:PrintResolution:LetterPortrait' => 'US Letter Portrait',
 	'UI:PrintResolution:LetterLandscape' => 'US Letter Paysage',
-	'UI:Toggle:StandardDashboard' => 'Standard',
-	'UI:Toggle:CustomDashboard' => 'Modifié',
+	'UI:Toggle:SwitchToStandardDashboard' => 'Basculer sur le tableau de bord standard',
+	'UI:Toggle:SwitchToCustomDashboard' => 'Basculer sur le tableau de bord modifié',
 
 	'UI:ConfigureThisList' => 'Configurer Cette Liste...',
 	'UI:ListConfigurationTitle' => 'Configuration de la liste',
@@ -1172,13 +1202,15 @@ Lors de l\'association à un déclencheur, on attribue à chaque action un numé
 	'UI:OQL:UnknownClassAndFix' => 'La classe "%1$s" est inconnue. Essayez plutôt "%2$s".',
 	'UI:OQL:UnknownClassNoFix' => 'La classe "%1$s" est inconnue',
 
-	'UI:Dashboard:Edit' => 'Editer cette page...',
-	'UI:Dashboard:Revert' => 'Revenir à la version d\'origine...',
+	'UI:Dashboard:EditCustom' => 'Éditer la version modifiée...',
+	'UI:Dashboard:CreateCustom' => 'Créer une version modifiée...',
+	'UI:Dashboard:DeleteCustom' => 'Supprimer la version modifiée...',
 	'UI:Dashboard:RevertConfirm' => 'Toutes modifications apportées à la version d\'origine seront perdues. Veuillez confirmer l\'opération.',
 	'UI:ExportDashBoard' => 'Exporter dans un fichier',
 	'UI:ImportDashBoard' => 'Importer depuis un fichier...',
 	'UI:ImportDashboardTitle' => 'Importation depuis un fichier',
 	'UI:ImportDashboardText' => 'Choisissez un fichier de définition de tableau de bord :',
+	'UI:Dashboard:Actions' => 'Actions du tableau de bord',
 
 
 	'UI:DashletCreation:Title' => 'Créer un Indicateur',
@@ -1186,7 +1218,7 @@ Lors de l\'association à un déclencheur, on attribue à chaque action un numé
 	'UI:DashletCreation:DashletType' => 'Type d\'Indicateur',
 	'UI:DashletCreation:EditNow' => 'Modifier le tableau de bord',
 
-	'UI:DashboardEdit:Title' => 'Editeur de tableau de bord',
+	'UI:DashboardEdit:Title' => 'Éditeur de tableau de bord',
 	'UI:DashboardEdit:DashboardTitle' => 'Titre',
 	'UI:DashboardEdit:AutoReload' => 'Réactualisation automatique',
 	'UI:DashboardEdit:AutoReloadSec' => 'Réactualisation toutes les (secondes)',
@@ -1413,6 +1445,7 @@ Lors de l\'association à un déclencheur, on attribue à chaque action un numé
 
 	'UI:CurrentObjectIsLockedBy_User' => 'L\'objet est verrouillé car il est en train d\'être modifié par %1$s.',
 	'UI:CurrentObjectIsLockedBy_User_Explanation' => 'L\'objet est en train d\'être modifié par %1$s. Vos modifications ne peuvent pas être acceptées car elles risquent d\'être écrasées.',
+	'UI:CurrentObjectIsSoftLockedBy_User' => 'L\'objet est en train d\'être modifié par %1$s. Vous pourrez envoyer vos modifications quand il/elle aura fini.',
 	'UI:CurrentObjectLockExpired' => 'Le verrouillage interdisant les modifications concurrentes a expiré.',
 	'UI:CurrentObjectLockExpired_Explanation' => 'Le verrouillage interdisant les modifications concurrentes a expiré. Vos modifications ne peuvent pas être acceptées car d\'autres utilisateurs peuvent modifier cet objet.',
 	'UI:ConcurrentLockKilled' => 'Le verrouillage en édition de l\'objet courant a été supprimé.',
@@ -1430,6 +1463,7 @@ Lors de l\'association à un déclencheur, on attribue à chaque action un numé
 	'UI:ToggleFullScreen' => 'Agrandir / Minimiser',
 	'UI:Button:ResetImage' => 'Récupérer l\'image initiale',
 	'UI:Button:RemoveImage' => 'Supprimer l\'image',
+	'UI:Button:UploadImage' => 'Upload an image from the disk~~',
 	'UI:UploadNotSupportedInThisMode' => 'La modification d\'images ou de fichiers n\'est pas supportée dans ce mode.',
 
 	'UI:Button:RemoveDocument' => 'Supprimer le document',
@@ -1541,6 +1575,8 @@ Lors de l\'association à un déclencheur, on attribue à chaque action un numé
 
 	'UI:Search:Criteria:Raw:Filtered' => 'Filtré',
 	'UI:Search:Criteria:Raw:FilteredOn' => 'Filtré sur %1$s',
+
+	'UI:StateChanged' => 'Etat modifié',
 ));
 
 //
@@ -1569,6 +1605,7 @@ Dict::Add('FR FR', 'French', 'Français', array(
 //
 Dict::Add('FR FR', 'French', 'Français', array(
 	'UI:Newsroom:NoNewMessage' => 'Aucun nouveau message',
+	'UI:Newsroom:XNewMessage' => '%1$s new message(s)~~',
 	'UI:Newsroom:MarkAllAsRead' => 'Marquer tous les messages comme lus',
 	'UI:Newsroom:ViewAllMessages' => 'Voir tous les messages',
 	'UI:Newsroom:Preferences' => 'Préférences du centre d\'information',
@@ -1577,6 +1614,7 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'UI:Newsroom:DisplayMessagesFor_Provider' => 'Afficher les messages de %1$s',
 	'UI:Newsroom:DisplayAtMost_X_Messages' => 'Afficher au plus %1$s messages dans le menu %2$s.',
 ));
+
 
 Dict::Add('FR FR', 'French', 'Français', array(
 	'Menu:DataSources' => 'Synchronisation',

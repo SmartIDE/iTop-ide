@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2012-2018 Combodo SARL
+// Copyright (C) 2012-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -28,7 +28,7 @@ require_once(APPROOT.'application/forms.class.inc.php');
 /**
  * Base class for all 'dashlets' (i.e. widgets to be inserted into a dashboard)
  *
- * @copyright   Copyright (C) 2010-2017 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 abstract class Dashlet
@@ -221,10 +221,7 @@ abstract class Dashlet
 			$oDashletContainer->AddCSSClasses($this->aCSSClasses);
 		} else {
 			$oDashletContainer = new DashletContainer();
-
-			foreach ($this->aCSSClasses as $sCSSClass) {
-				$oPage->add_ready_script("$('#dashlet_".$sId."').addClass('$sCSSClass');");
-			}
+			$oDashletContainer->AddCSSClasses($this->aCSSClasses);
 		}
 
 		try {
@@ -441,17 +438,21 @@ EOF
 					$sAttType = $aTargetAttCodes[$sTargetAttCode];
 					$sExtFieldAttCode = $sTargetAttCode;
 				}
-				if (is_a($sAttType, 'AttributeLinkedSet', true))
-				{
-					continue;
-				}
-				if (is_a($sAttType, 'AttributeFriendlyName', true))
-				{
-					continue;
-				}
-				if (is_a($sAttType, 'AttributeOneWayPassword', true))
-				{
-					continue;
+
+				$aForbidenAttType = [
+					'AttributeLinkedSet',
+					'AttributeFriendlyName',
+
+					'iAttributeNoGroupBy', //we cannot only use iAttributeNoGroupBy since this method is also used by the designer who do not have access to the classes' PHP reflection API. So the known classes has to be listed altogether
+					'AttributeOneWayPassword',
+					'AttributeEncryptedString',
+					'AttributePassword',
+				];
+				foreach ($aForbidenAttType as $sForbidenAttType) {
+					if (is_a($sAttType, $sForbidenAttType, true))
+					{
+						continue 2;
+					}
 				}
 
 				$sLabel = $this->oModelReflection->GetLabel($sClass, $sAttCode);
@@ -847,12 +848,13 @@ class DashletPlainText extends Dashlet
 	 */
 	public function Render($oPage, $bEditMode = false, $aExtraParams = array())
 	{
-		$sText = utils::HtmlEntities($this->aProperties['text']);
+		$sText = $this->aProperties['text'];
+		$sText = utils::EscapeHtml($sText);
 		$sText = str_replace(array("\r\n", "\n", "\r"), "<br/>", $sText);
 
 		$sId = 'plaintext_'.($bEditMode ? 'edit_' : '').$this->sId;
 
-		return DashletFactory::MakeForDashletText($sId, $sText);
+		return DashletFactory::MakeForDashletPlainText($sText, $sId);
 	}
 
 	/**
@@ -904,7 +906,8 @@ class DashletObjectList extends Dashlet
 		$sShowMenu = $this->aProperties['menu'] ? '1' : '0';
 		$oFilter = $this->GetDBSearch($aExtraParams);
 		$sClass = $oFilter->GetClass();
-		$oPanel = PanelUIBlockFactory::MakeForClass($sClass, Dict::S($sTitle));
+		$oPanel = PanelUIBlockFactory::MakeForClass($sClass, Dict::S($sTitle))
+			->AddCSSClass('ibo-datatable-panel');
 
 		$oBlock = new DisplayBlock($oFilter, 'list');
 		$aParams = array(
@@ -1890,7 +1893,7 @@ class DashletHeaderStatic extends Dashlet
 	 */
 	public function Render($oPage, $bEditMode = false, $aExtraParams = array())
 	{
-		$sTitle = utils::HtmlEntities($this->aProperties['title']);
+		$sTitle = $this->aProperties['title'];
 		$sIcon = $this->aProperties['icon'];
 
 		$oIconSelect = $this->oModelReflection->GetIconSelectionField('icon');
@@ -2020,7 +2023,7 @@ class DashletHeaderDynamic extends Dashlet
 		$sGroupBy = $this->aProperties['group_by'];
 
 		$oIconSelect = $this->oModelReflection->GetIconSelectionField('icon');
-		$sIconPath = utils::HtmlEntities($oIconSelect->MakeFileUrl($sIcon));
+		$sIconPath = $oIconSelect->MakeFileUrl($sIcon);
 
 		$aValues = $this->GetValues();
 		if (count($aValues) > 0) {
@@ -2042,8 +2045,6 @@ class DashletHeaderDynamic extends Dashlet
 			);
 		}
 
-		$oPanel = PanelUIBlockFactory::MakeEnhancedNeutral(Dict::S(str_replace('_', ':', $sTitle)), $sIconPath);
-
 		if (isset($aExtraParams['query_params'])) {
 			$aQueryParams = $aExtraParams['query_params'];
 		} elseif (isset($aExtraParams['this->class'])) {
@@ -2053,13 +2054,17 @@ class DashletHeaderDynamic extends Dashlet
 			$aQueryParams = array();
 		}
 		$oFilter = DBObjectSearch::FromOQL($sQuery, $aQueryParams);
+		$oFilter->SetShowObsoleteData(utils::ShowObsoleteData());
 		$sClass = $oFilter->GetClass();
-		PanelUIBlockFactory::SetClassColor($sClass, $oPanel);
+
+		$oPanel = PanelUIBlockFactory::MakeNeutral(Dict::S(str_replace('_', ':', $sTitle)))
+			->SetIcon($sIconPath)
+			->SetColorFromClass($sClass);
 		$oBlock = new DisplayBlock($oFilter, 'summary');
 		$sBlockId = 'block_'.$this->sId.($bEditMode ? '_edit' : ''); // make a unique id (edition occuring in the same DOM)
 		$oBlock->DisplayIntoContentBlock($oPanel, $oPage, $sBlockId, array_merge($aExtraParams, $aParams));
 
-		$oSubTitle = $oPanel->GetSubTitle();
+		$oSubTitle = $oPanel->GetSubTitleBlock();
 		$oSet = new DBObjectSet($oFilter);
 		$iCount = $oSet->Count();
 		$oAppContext = new ApplicationContext();
@@ -2289,6 +2294,7 @@ class DashletBadge extends Dashlet
 		$oFilter = new DBObjectSearch($sClass);
 		$oBlock = new DisplayBlock($oFilter, 'actions');
 		$aExtraParams['context_filter'] = 1;
+		$aExtraParams['withJSRefreshCallBack'] = true;
 		$sBlockId = 'block_'.$this->sId.($bEditMode ? '_edit' : ''); // make a unique id (edition occurring in the same DOM)
 		$oBlock->DisplayIntoContentBlock($oDashletContainer, $oPage, $sBlockId, $aExtraParams);
 

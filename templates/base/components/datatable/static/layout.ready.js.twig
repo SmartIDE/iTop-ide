@@ -1,10 +1,10 @@
-{# @copyright   Copyright (C) 2010-2020 Combodo SARL #}
+{# @copyright   Copyright (C) 2010-2021 Combodo SARL #}
 {# @license     http://opensource.org/licenses/AGPL-3.0 #}
 
-{% if oUIBlock.GetOptions() is not empty %}
-{% set iPageSize = oUIBlock.GetOptions()["iPageSize"] %}
+{% if oUIBlock.GetOption("iPageSize") is not empty %}
+    {% set iPageSize = oUIBlock.GetOption("iPageSize") %}
 {% else %}
-{% set iPageSize = 10 %}
+    {% set iPageSize = 10 %}
 {% endif %}
 
 $('#{{ oUIBlock.GetId() }}').DataTable({
@@ -18,27 +18,38 @@ $('#{{ oUIBlock.GetId() }}').DataTable({
         infoFiltered: "({{ 'UI:Datatables:Language:InfoFiltered'|dict_s }})",
         emptyTable: "{{ 'UI:Datatables:Language:EmptyTable'|dict_s }}",
         paginate: {
-            first: "<<",
+            first: "<i class=\"fas fa-angle-double-left\"></i>",
             previous: "<i class=\"fas fa-angle-left\"></i>",
             next: "<i class=\"fas fa-angle-right\"></i>",
-            last: ">>"
+            last: "<i class=\"fas fa-angle-double-right\"></i>"
         },
         aria: {
             sortAscending: ": {{ 'UI:Datatables:Language:Sort:Ascending'|dict_s }}",
             sortDescending: ": {{ 'UI:Datatables:Language:Sort:Descending'|dict_s }}"
         }
     },
+    scrollX: true,
+    scrollCollapse: true,
     order: [],
+    autoWidth: false,
     rowId: "id",
     filter: false,
+    {% if oUIBlock.GetOption("pageLength") is not empty %}
+    pageLength: {{ oUIBlock.GetOption("pageLength") }},
+    {% endif %}
     {% if oUIBlock.GetData()|length <= iPageSize %}
     paging: false,
     {% endif %}
-    dom: "<'ibo-datatable-toolbar'pil>t<'ibo-datatable-toolbar'pil>",
-    lengthMenu: [[ {{ iPageSize }},  {{ iPageSize*2 }},  {{ iPageSize*3 }}, {{ iPageSize*4 }}, -1], [ {{ iPageSize }},  {{ iPageSize*2 }},  {{ iPageSize*3 }}, {{ iPageSize*4 }}, "{{ 'Portal:Datatables:Language:DisplayLength:All'|dict_s }}"]],
+    {% if oUIBlock.GetOption("dom") is not empty %}
+    dom: "<'ibo-datatable-toolbar'{{ oUIBlock.GetOption("dom") }}>t",
+    {% else %}
+    dom: "<'ibo-datatable--toolbar'<'ibo-datatable--toolbar-left' pl><'ibo-datatable--toolbar-right' i>>t<'ibo-datatable--toolbar'<'ibo-datatable--toolbar-left' pl><'ibo-datatable--toolbar-right' i>>",
+    {% endif %}
+    lengthMenu: [[ {{ iPageSize }},  {{ iPageSize*2 }},  {{ iPageSize*3 }}, {{ iPageSize*4 }}, -1], [ {{ iPageSize }},  {{ iPageSize*2 }},  {{ iPageSize*3 }}, {{ iPageSize*4 }}, "{{ 'UI:Datatables:Language:DisplayLength:All'|dict_s }}"]],
     columns: [
-        {% for column in oUIBlock.GetColumns() %}
+        {% for key, column in oUIBlock.GetColumns() %}
         {
+            data: "{{ key }}",
             width: "auto",
             sortable: true
         },

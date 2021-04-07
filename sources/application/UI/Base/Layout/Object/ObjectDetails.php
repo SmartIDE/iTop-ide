@@ -1,6 +1,6 @@
 <?php
 /*
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -11,13 +11,15 @@ use cmdbAbstractObject;
 use Combodo\iTop\Application\UI\Base\Component\Panel\Panel;
 use Combodo\iTop\Application\UI\Helper\UIHelper;
 use DBObject;
+use iKeyboardShortcut;
 use MetaModel;
 
-class ObjectDetails extends Panel
+class ObjectDetails extends Panel implements iKeyboardShortcut
 {
 	// Overloaded constants
 	public const BLOCK_CODE = 'ibo-object-details';
 	public const DEFAULT_HTML_TEMPLATE_REL_PATH = 'base/layouts/object/object-details/layout';
+	public const DEFAULT_JS_TEMPLATE_REL_PATH = 'base/layouts/object/object-details/layout';
 
 	/** @var string Class name of the object (eg. "UserRequest") */
 	protected $sClassName;
@@ -44,30 +46,28 @@ class ObjectDetails extends Panel
 	/**
 	 * ObjectDetails constructor.
 	 *
-	 * @param \DBObject   $oObject  The object for which we display the details
-	 * @param string $sMode         See \cmdbAbstractObject::ENUM_OBJECT_MODE_XXX
-	 * @param string|null $sId      ID of the block itself, not the $oObject ID
+	 * @param \DBObject $oObject The object for which we display the details
+	 * @param string $sMode See \cmdbAbstractObject::ENUM_OBJECT_MODE_XXX
+	 * @param string|null $sId ID of the block itself, not the $oObject ID
 	 *
 	 * @throws \ArchivedObjectException
 	 * @throws \CoreException
 	 * @throws \DictExceptionMissingString
 	 */
-	public function __construct(DBObject $oObject, string $sMode = cmdbAbstractObject::DEFAULT_OBJECT_MODE, ?string $sId = null) {
+	public function __construct(DBObject $oObject, string $sMode = cmdbAbstractObject::DEFAULT_OBJECT_MODE, ?string $sId = null)
+	{
 		$this->sClassName = get_class($oObject);
 		$this->sClassLabel = MetaModel::GetName($this->GetClassName());
 		$this->sObjectId = $oObject->GetKey();
 		// Note: We get the raw name as only the front-end consumer knows when and how to encode it.
 		$this->sObjectName = $oObject->GetRawName();
 		$this->sObjectMode = $sMode;
-		$this->sIconUrl = $oObject->GetIcon(false);
 
-		if(MetaModel::HasStateAttributeCode($this->sClassName)) {
-			$this->sStatusCode = $oObject->GetState();
-			$this->sStatusLabel = $oObject->GetStateLabel();
-			$this->sStatusColor = UIHelper::GetColorFromStatus($this->sClassName, $this->sStatusCode);
-		}
+		parent::__construct($this->sObjectName, [], static::DEFAULT_COLOR, $sId);
 
-		parent::__construct('', [], static::DEFAULT_COLOR, $sId);
+		$this->SetColorFromClass($this->sClassName);
+		$this->ComputeIconUrl($oObject);
+		$this->ComputeState($oObject);
 	}
 
 	/**
@@ -158,5 +158,58 @@ class ObjectDetails extends Panel
 	public function GetStatusColor(): string
 	{
 		return $this->sStatusColor;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function HasSubTitle(): bool
+	{
+		return !empty($this->sStatusCode);
+	}
+
+	protected function ComputeIconUrl(DBObject $oObject): void
+	{
+		// Default icon is the class icon
+		$sIconUrl = $oObject->GetIcon(false);
+		// Note: Class icons are a square image with no margin around, so they need to be zoomed out in the medallion
+		$sIconCoverMethod = static::ENUM_ICON_COVER_METHOD_ZOOMOUT;
+		// Use object image from semantic attribute only if it's not the default image
+		if (!$oObject->IsNew() && MetaModel::HasImageAttributeCode($this->sClassName)) {
+			$sImageAttCode = MetaModel::GetImageAttributeCode($this->sClassName);
+			if (!empty($sImageAttCode)) {
+				/** @var \ormDocument $oImage */
+				$oImage = $oObject->Get($sImageAttCode);
+				if (!$oImage->IsEmpty()) {
+					$sIconUrl = $oImage->GetDisplayURL($this->sClassName, $this->sObjectId, $sImageAttCode);
+					$sIconCoverMethod = static::ENUM_ICON_COVER_METHOD_COVER;
+				}
+			}
+
+		}
+
+		$this->SetIcon($sIconUrl, $sIconCoverMethod, true);
+	}
+
+	protected function ComputeState(DBObject $oObject): void
+	{
+		if (MetaModel::HasStateAttributeCode($this->sClassName)) {
+			$this->sStatusCode = $oObject->GetState();
+			$this->sStatusLabel = $oObject->GetStateLabel();
+			$this->sStatusColor = UIHelper::GetColorFromStatus($this->sClassName, $this->sStatusCode);
+		}
+	}
+	
+	public static function GetShortcutKeys(): array
+	{
+		return [['id' => 'ibo-edit-object', 'label' => 'UI:Layout:ObjectDetails:KeyboardShortcut:EditObject', 'key' => 'e', 'event' => 'edit_object'],
+			['id' => 'ibo-delete-object', 'label' => 'UI:Layout:ObjectDetails:KeyboardShortcut:DeleteObject', 'key' => 'd', 'event' => 'delete_object'],
+			['id' => 'ibo-new-object', 'label' => 'UI:Layout:ObjectDetails:KeyboardShortcut:NewObject', 'key' => 'n', 'event' => 'new_object'],
+			['id' => 'ibo-save-object', 'label' => 'UI:Layout:ObjectDetails:KeyboardShortcut:SaveObject', 'key' => 's', 'event' => 'save_object']];
+	}
+
+	public static function GetShortcutTriggeredElementSelector(): string
+	{
+		return "[data-role='".static::BLOCK_CODE."']";
 	}
 }

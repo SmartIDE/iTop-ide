@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2015 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -16,12 +16,10 @@
 //   You should have received a copy of the GNU Affero General Public License
 //   along with iTop. If not, see <http://www.gnu.org/licenses/>
 
-use Combodo\iTop\Application\UI\Base\iUIBlock;
-
 /**
  * Class XMLPage
  *
- * @copyright   Copyright (C) 2010-2015 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -64,22 +62,17 @@ class XMLPage extends WebPage
 			}
 			echo $this->s_content;
 		}
-		if (class_exists('DBSearch'))
-		{
+		if (class_exists('DBSearch')) {
 			DBSearch::RecordQueryTrace();
 		}
 	}
 
-	public function add($sText): ?iUIBlock
+	public function add($sText)
 	{
-		if (!$this->m_bPassThrough)
-		{
+		if (!$this->m_bPassThrough) {
 			parent::add($sText);
-		}
-		else
-		{
-			if ($this->m_bHeaderSent)
-			{
+		} else {
+			if ($this->m_bHeaderSent) {
 				echo $sText;
 			}
 			else
@@ -97,7 +90,6 @@ class XMLPage extends WebPage
 				$this->m_bHeaderSent = true;
 			}
 		}
-		return null;
 	}
 
 	public function small_p($sText)

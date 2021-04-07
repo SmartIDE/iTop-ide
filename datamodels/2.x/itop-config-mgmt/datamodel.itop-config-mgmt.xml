@@ -16,7 +16,7 @@
 					</attributes>
 				</naming>
 				<style>
-					<icon>images/server.png</icon>
+					<icon>../../images/icons/icons8-server.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -268,7 +268,7 @@
 					<state_attribute>status</state_attribute>
 				</fields_semantic>
 				<style>
-					<icon>images/server.png</icon>
+					<icon>../../images/icons/icons8-server.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -515,7 +515,7 @@
 					</attributes>
 				</naming>
 				<style>
-					<icon>images/server.png</icon>
+					<icon>../../images/icons/icons8-server.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -683,7 +683,7 @@
 					</attributes>
 				</naming>
 				<style>
-					<icon>images/server.png</icon>
+					<icon>../../images/icons/icons8-server.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -1244,7 +1244,7 @@
 					</attributes>
 				</naming>
 				<style>
-					<icon>images/server.png</icon>
+					<icon>../../images/icons/icons8-server.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -1549,7 +1549,7 @@
 					<state_attribute>status</state_attribute>
 				</fields_semantic>
 				<style>
-					<icon>images/solution.png</icon>
+					<icon>../../images/icons/icons8-application-window.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -1709,7 +1709,7 @@
 					<state_attribute>status</state_attribute>
 				</fields_semantic>
 				<style>
-					<icon>images/business-process.png</icon>
+					<icon>../../images/icons/icons8-process-improvement.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -1839,7 +1839,7 @@
 					<state_attribute>status</state_attribute>
 				</fields_semantic>
 				<style>
-					<icon>images/application.png</icon>
+					<icon>../../images/icons/icons8-software.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -2164,7 +2164,7 @@
 					</attributes>
 				</naming>
 				<style>
-					<icon>images/database.png</icon>
+					<icon>../../images/icons/icons8-database.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -2422,7 +2422,7 @@
 					</attributes>
 				</naming>
 				<style>
-					<icon>images/application.png</icon>
+					<icon>../../images/icons/icons8-desktop.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -2873,7 +2873,7 @@
 					</attributes>
 				</naming>
 				<style>
-					<icon>images/webapp.png</icon>
+					<icon>../../images/icons/icons8-web.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -3168,7 +3168,7 @@
 					</attributes>
 				</naming>
 				<style>
-					<icon>images/patch.png</icon>
+					<icon>../../images/icons/icons8-bandage.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -3256,7 +3256,7 @@
 					</attributes>
 				</naming>
 				<style>
-					<icon>images/patch.png</icon>
+					<icon>../../images/icons/icons8-bandage.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -3345,7 +3345,7 @@
 					</attributes>
 				</naming>
 				<style>
-					<icon>images/patch.png</icon>
+					<icon>../../images/icons/icons8-bandage.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -3434,7 +3434,7 @@
 					</attributes>
 				</naming>
 				<style>
-					<icon>images/licence.png</icon>
+					<icon>../../images/icons/icons8-licence.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -3620,7 +3620,7 @@
 					</attributes>
 				</naming>
 				<style>
-					<icon>images/licence.png</icon>
+					<icon>../../images/icons/icons8-licence.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -3759,7 +3759,7 @@
 					</attributes>
 				</naming>
 				<style>
-					<icon>images/licence.png</icon>
+					<icon>../../images/icons/icons8-software-licence.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -4950,12 +4950,12 @@
 				</field>
 				<field id="ip" xsi:type="AttributeIPAddress">
 					<sql>ip</sql>
-					<default_value/>
+          <default_value>0.0.0.0</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
 				<field id="ip_mask" xsi:type="AttributeIPAddress">
 					<sql>ip_mask</sql>
-					<default_value/>
+          <default_value>0.0.0.0</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
 				<field id="vlans_list" xsi:type="AttributeLinkedSetIndirect">
@@ -6156,7 +6156,7 @@
 					<state_attribute>status</state_attribute>
 				</fields_semantic>
 				<style>
-					<icon>images/group.png</icon>
+					<icon>../../images/icons/icons8-department.svg</icon>
 				</style>
 				<reconciliation>
 					<attributes>
@@ -6547,7 +6547,7 @@
 			<parent>ConfigManagement</parent>
 			<definition>
 				<layout>DashboardLayoutOneCol</layout>
-				<title/>
+        <title>Menu:ConfigManagementOverview</title>
 				<cells>
 					<cell id="0">
 						<rank>0</rank>
@@ -6655,6 +6655,45 @@
 				</cells>
 			</definition>
 		</menu>
+    <menu id="Typology" xsi:type="DashboardMenuNode" _delta="if_exists">
+      <rank>80</rank>
+      <parent>Catalogs</parent>
+      <definition>
+        <layout>DashboardLayoutOneCol</layout>
+        <title>Menu:ConfigManagement:Typology</title>
+        <cells>
+          <cell id="0">
+            <rank>0</rank>
+            <dashlets>
+              <dashlet id="2" xsi:type="DashletBadge" _delta="define">
+                <rank>1</rank>
+                <class>Brand</class>
+              </dashlet>
+              <dashlet id="3" xsi:type="DashletBadge" _delta="define">
+                <rank>2</rank>
+                <class>Model</class>
+              </dashlet>
+              <dashlet id="4" xsi:type="DashletBadge" _delta="define">
+                <rank>3</rank>
+                <class>OSFamily</class>
+              </dashlet>
+              <dashlet id="5" xsi:type="DashletBadge" _delta="define">
+                <rank>4</rank>
+                <class>OSVersion</class>
+              </dashlet>
+              <dashlet id="6" xsi:type="DashletBadge" _delta="define">
+                <rank>5</rank>
+                <class>IOSVersion</class>
+              </dashlet>
+              <dashlet id="7" xsi:type="DashletBadge" _delta="define">
+                <rank>6</rank>
+                <class>NetworkDeviceType</class>
+              </dashlet>
+            </dashlets>
+          </cell>
+        </cells>
+      </definition>
+    </menu>
 		<menu id="NewCI" xsi:type="NewObjectMenuNode" _delta="define">
 			<rank>4</rank>
 			<parent>ConfigManagement</parent>

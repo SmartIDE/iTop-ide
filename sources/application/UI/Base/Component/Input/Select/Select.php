@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -12,13 +12,15 @@ use Combodo\iTop\Application\UI\Base\Layout\UIContentBlock;
 
 class Select extends UIContentBlock
 {
+	// Overloaded constants
+	public const BLOCK_CODE = 'ibo-select';
 	public const DEFAULT_HTML_TEMPLATE_REL_PATH = 'base/components/input/select/select';
 
 	/** @var string */
 	protected $sName;
 	/** @var string */
 	protected $sValue;
-	/** @var bool  */
+	/** @var bool */
 	protected $bSubmitOnChange = false;
 
 

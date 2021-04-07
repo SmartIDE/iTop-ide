@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -19,7 +19,6 @@ class FormTableRow extends UIBlock
 	// Overloaded constants
 	public const BLOCK_CODE = 'ibo-formtablerow';
 	public const DEFAULT_HTML_TEMPLATE_REL_PATH = 'base/components/datatable/static/formtablerow/layout';
-	public const DEFAULT_JS_TEMPLATE_REL_PATH = 'base/components/datatable/static/formtablerow/layout';
 
 	/** @var string */
 	private $sRef;

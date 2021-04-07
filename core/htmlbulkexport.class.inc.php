@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2015 Combodo SARL
+// Copyright (C) 2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -19,7 +19,7 @@
 /**
  * Bulk export: HTML export
  *
- * @copyright   Copyright (C) 2015 Combodo SARL
+ * @copyright   Copyright (C) 2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -36,16 +36,21 @@ class HTMLBulkExport extends TabularBulkExport
 		return array_merge(parent::EnumFormParts(), array('interactive_fields_html' => array('interactive_fields_html')));
 	}
 
-	public function DisplayFormPart(WebPage $oP, $sPartId)
+	/**
+	 * @param \WebPage $oP
+	 * @param $sPartId
+	 *
+	 * @return UIContentBlock
+	 */
+	public function GetFormPart(WebPage $oP, $sPartId)
 	{
-		switch($sPartId)
-		{
+		switch ($sPartId) {
 			case 'interactive_fields_html':
-				$this->GetInteractiveFieldsWidget($oP, 'interactive_fields_html');
+				return $this->GetInteractiveFieldsWidget($oP, 'interactive_fields_html');
 				break;
-					
+
 			default:
-				return parent:: DisplayFormPart($oP, $sPartId);
+				return parent:: GetFormPart($oP, $sPartId);
 		}
 	}
 

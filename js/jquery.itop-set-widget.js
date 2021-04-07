@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2010-2018 Combodo SARL
+ *  Copyright (c) 2010-2021 Combodo SARL
  *
  *    This file is part of iTop.
  *
@@ -150,7 +150,9 @@ $.widget('itop.set_widget',
 				options: this.possibleValues,
 				create: false,
 				placeholder: Dict.S("Core:AttributeSet:placeholder"),
-				inputClass: 'selectize-input ibo-input ibo-input-tagset ibo-input-selectize',
+				inputClass: 'selectize-input ibo-input ibo-input-set ibo-input-selectize',
+				// To avoid dropdown to be cut by the container's overflow hidden rule
+				dropdownParent: 'body',
 				onInitialize: function () {
 					var selectizeWidget = this;
 					setWidget._onInitialize(selectizeWidget);
@@ -269,6 +271,8 @@ $.widget('itop.set_widget',
 				console.debug("tagAdd");
 			}
 			this.setItemsCodesStatus[setItemCode] = this.STATUS_ADDED;
+
+			$item.addClass(this.ITEM_CSS_CLASS);
 
 			if (this._isCodeInPartialValues(setItemCode)) {
 				this._partialCodeRemove(setItemCode);

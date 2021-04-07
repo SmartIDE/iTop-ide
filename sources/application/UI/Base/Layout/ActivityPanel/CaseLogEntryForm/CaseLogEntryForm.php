@@ -1,15 +1,15 @@
 <?php
 /*
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 namespace Combodo\iTop\Application\UI\Base\Layout\ActivityPanel\CaseLogEntryForm;
 
 use cmdbAbstractObject;
 use Combodo\iTop\Application\UI\Base\Component\Input\RichText\RichText;
-use Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenu;
 use Combodo\iTop\Application\UI\Base\Layout\UIContentBlock;
 use Combodo\iTop\Application\UI\Base\UIBlock;
+use DBObject;
 
 /**
  * Class CaseLogEntryForm
@@ -30,30 +30,21 @@ class CaseLogEntryForm extends UIContentBlock
 	public const ENUM_SUBMIT_MODE_AUTONOMOUS = 'autonomous';
 	/** @var string Form is bridged to its host object form */
 	public const ENUM_SUBMIT_MODE_BRIDGED = 'bridged';
-	/** @var string Container of the form is a specific caselog tab */
-	public const ENUM_CONTAINER_TAB_TYPE_CASELOG = 'caselog';
-	/** @var string Container of the form is the activity tab */
-	public const ENUM_CONTAINER_TAB_TYPE_ACTIVITY = 'activity';
 
 	/** @var string */
 	public const DEFAULT_SUBMIT_MODE = self::ENUM_SUBMIT_MODE_AUTONOMOUS;
-	/** @var string */
-	public const DEFAULT_CONTAINER_TAB_TYPE = self::ENUM_CONTAINER_TAB_TYPE_ACTIVITY;
 
+	/** @var DBObject Object hosting the case log attribute */
+	protected $oObject;
+	/** @var string Attribute code of the case log in $oObject */
+	protected $sAttCode;
 	/**
 	 * @var string Whether the form can send data on its own or if it's bridged with its host object form
 	 * @see static::ENUM_SUBMIT_MODE_XXX
 	 */
 	protected $sSubmitMode;
-	/**
-	 * @var string Whether the form container is a caselog tab or an activity tab
-	 * @see static::ENUM_CONTAINER_TAB_TYPE_XXX
-	 */
-	protected $sContainerTabType;
 	/** @var \Combodo\iTop\Application\UI\Base\Component\Input\RichText\RichText $oTextInput The main input to write a case log entry */
 	protected $oTextInput;
-	/** @var \Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenu Menu for possible options on the send button */
-	protected $oSendButtonPopoverMenu;
 	/** @var array $aMainActionButtons The form main actions (send, cancel, ...) */
 	protected $aMainActionButtons;
 	/** @var array $aExtraActionButtons The form extra actions, can be populated through a public API */
@@ -62,16 +53,54 @@ class CaseLogEntryForm extends UIContentBlock
 	/**
 	 * CaseLogEntryForm constructor.
 	 *
-	 * @param null $sId
+	 * @param \DBObject $oObject
+	 * @param string|null $sId
 	 */
-	public function __construct($sId = null)
+	public function __construct(DBObject $oObject, string $sAttCode, string $sId = null)
 	{
 		parent::__construct($sId);
+		$this->oObject = $oObject;
+		$this->sAttCode = $sAttCode;
 		$this->sSubmitMode = static::DEFAULT_SUBMIT_MODE;
-		$this->sContainerTabType = static::DEFAULT_CONTAINER_TAB_TYPE;
-		$this->SetTextInput(new RichText());
 		$this->aMainActionButtons = [];
 		$this->aExtraActionButtons = [];
+		$this->InitTextInput();
+	}
+
+	/**
+	 * @uses static::$oObject
+	 * @return \DBObject
+	 */
+	public function GetObject(): DBObject
+	{
+		return $this->oObject;
+	}
+
+	/**
+	 * @uses static::$oObject
+	 * @return string The class of $oObject
+	 */
+	public function GetObjectClass(): string
+	{
+		return get_class($this->oObject);
+	}
+
+	/**
+	 * @uses static::$oObject
+	 * @return string The ID of $oObject
+	 */
+	public function GetObjectId(): string
+	{
+		return $this->oObject->GetKey();
+	}
+
+	/**
+	 * @uses static::$sAttCode
+	 * @return string
+	 */
+	public function GetAttCode(): string
+	{
+		return $this->sAttCode;
 	}
 
 	/**
@@ -138,28 +167,6 @@ class CaseLogEntryForm extends UIContentBlock
 	}
 
 	/**
-	 * @see $sContainerTabType
-	 *
-	 * @return string
-	 */
-	public function GetContainerTabType(): string
-	{
-		return $this->sContainerTabType;
-	}
-
-	/**
-	 * @param string $sContainerTabType
-	 * @see $sContainerTabType
-	 *
-	 * @return $this
-	 */
-	public function SetContainerTabType(string $sContainerTabType)
-	{
-		$this->sContainerTabType = $sContainerTabType;
-		return $this;
-	}
-
-	/**
 	 * @return \Combodo\iTop\Application\UI\Base\Component\Input\RichText\RichText
 	 */
 	public function GetTextInput(): RichText
@@ -175,6 +182,16 @@ class CaseLogEntryForm extends UIContentBlock
 	public function SetTextInput(RichText $oTextInput)
 	{
 		$this->oTextInput = $oTextInput;
+		return $this;
+	}
+
+	/**
+	 * @uses $oTextInput
+	 * @return $this
+	 */
+	protected function InitTextInput()
+	{
+		$this->oTextInput = new RichText();
 		return $this;
 	}
 
@@ -244,34 +261,6 @@ class CaseLogEntryForm extends UIContentBlock
 	}
 
 	/**
-	 * @return \Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenu
-	 */
-	public function GetSendButtonPopoverMenu(): PopoverMenu
-	{
-		return $this->oSendButtonPopoverMenu;
-	}
-
-	/**
-	 * @param \Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenu $oCaseLogSelectionPopOverMenu
-	 * @return $this
-	 */
-	public function SetSendButtonPopoverMenu(PopoverMenu $oCaseLogSelectionPopOverMenu)
-	{
-		$this->oSendButtonPopoverMenu = $oCaseLogSelectionPopOverMenu;
-		return $this;
-	}
-
-	/**
-	 * Return true is there is a PopoverMenu for the send button
-	 *
-	 * @return bool
-	 */
-	public function HasSendButtonPopoverMenu(): bool
-	{
-		return $this->oSendButtonPopoverMenu !== null;
-	}
-
-	/**
 	 * @inheritdoc
 	 */
 	public function GetSubBlocks(): array
@@ -279,18 +268,14 @@ class CaseLogEntryForm extends UIContentBlock
 		$aSubBlocks = [];
 		$aSubBlocks[$this->GetTextInput()->GetId()] = $this->GetTextInput();
 
-		foreach ($this->GetExtraActionButtons() as $oExtraActionButton)
-		{
+		foreach ($this->GetExtraActionButtons() as $oExtraActionButton) {
 			$aSubBlocks[$oExtraActionButton->GetId()] = $oExtraActionButton;
 		}
 
-		foreach ($this->GetMainActionButtons() as $oMainActionButton)
-		{
+		foreach ($this->GetMainActionButtons() as $oMainActionButton) {
 			$aSubBlocks[$oMainActionButton->GetId()] = $oMainActionButton;
 		}
 
-		$aSubBlocks[$this->GetSendButtonPopoverMenu()->GetId()] = $this->GetSendButtonPopoverMenu();
-		
 		return $aSubBlocks;
 	}
 	

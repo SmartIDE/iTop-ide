@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -20,8 +20,6 @@
 namespace Combodo\iTop\Application\UI\Base\Component\Panel;
 
 use Combodo\iTop\Application\UI\Base\AbstractUIBlockFactory;
-use MetaModel;
-use ormStyle;
 
 /**
  * Class PanelUIBlockFactory
@@ -35,9 +33,11 @@ use ormStyle;
  */
 class PanelUIBlockFactory extends AbstractUIBlockFactory
 {
+	/** @inheritDoc */
 	public const TWIG_TAG_NAME = 'UIPanel';
+	/** @inheritDoc */
 	public const UI_BLOCK_CLASS_NAME = Panel::class;
-	
+
 	/**
 	 * Make a basis Panel component
 	 *
@@ -48,8 +48,7 @@ class PanelUIBlockFactory extends AbstractUIBlockFactory
 	public static function MakeNeutral(string $sTitle)
 	{
 		$oPanel = new Panel($sTitle);
-		// TODO 3.0.0: Set this back to neutral when object details are done
-		$oPanel->SetColor(Panel::ENUM_COLOR_BLUE);
+		$oPanel->SetColor(Panel::ENUM_COLOR_NEUTRAL);
 
 		return $oPanel;
 	}
@@ -170,45 +169,8 @@ class PanelUIBlockFactory extends AbstractUIBlockFactory
 	public static function MakeForClass(string $sClass, string $sTitle)
 	{
 		$oPanel = new Panel($sTitle);
-		self::SetClassColor($sClass, $oPanel);
+		$oPanel->SetColorFromClass($sClass);
 
 		return $oPanel;
-	}
-
-	/**
-	 * Make a basis Panel component
-	 *
-	 * @param string $sTitle
-	 * @param String $sIconUrl
-	 *
-	 * @return \Combodo\iTop\Application\UI\Base\Component\Panel\Panel
-	 */
-	public static function MakeEnhancedNeutral(string $sTitle, string $sIconUrl)
-	{
-		$oPanel = new PanelEnhanced($sTitle, $sIconUrl);
-		// TODO 3.0.0: Change this to class color when done
-		$oPanel->SetColor(Panel::ENUM_COLOR_BLUE);
-
-		return $oPanel;
-	}
-
-	/**
-	 * @param string $sClass
-	 * @param \Combodo\iTop\Application\UI\Base\Component\Panel\Panel $oPanel
-	 *
-	 * @throws \CoreException
-	 */
-	public static function SetClassColor(string $sClass, Panel $oPanel): void
-	{
-		/** @var ormStyle $oStyle */
-		$sColor = null;
-		$oStyle = MetaModel::GetClassStyle($sClass);
-		if ($oStyle) {
-			$sColor = $oStyle->GetMainColor();
-		}
-		if (strlen($sColor) == 0) {
-			$sColor = Panel::ENUM_COLOR_BLUE;
-		}
-		$oPanel->SetColor($sColor);
 	}
 }

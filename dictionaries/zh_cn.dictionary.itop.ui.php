@@ -3,7 +3,7 @@
  * Localized data
  *
  * @author    Robert Deng <denglx@gmail.com>
- * @copyright Copyright (C) 2010-2018 Combodo SARL
+ * @copyright Copyright (C) 2010-2021 Combodo SARL
  * @license	http://opensource.org/licenses/AGPL-3.0
  *
  * This file is part of iTop.
@@ -84,6 +84,10 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'Class:Query/Attribute:name+' => '查询的名称',
 	'Class:Query/Attribute:description' => '描述',
 	'Class:Query/Attribute:description+' => '请描述本查询 (目的、用法等等.)',
+	'Class:Query/Attribute:is_template' => 'Template for OQL fields~~',
+	'Class:Query/Attribute:is_template+' => 'Usable as source for recipient OQL in Notifications~~',
+	'Class:Query/Attribute:is_template/Value:yes' => 'Yes~~',
+	'Class:Query/Attribute:is_template/Value:no' => 'No~~',
 	'Class:QueryOQL/Attribute:fields' => '区域',
 	'Class:QueryOQL/Attribute:fields+' => '属性之间使用逗号分隔 (or alias.attribute) to export~~',
 	'Class:QueryOQL' => 'OQL 查询',
@@ -376,6 +380,7 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 <li>管理IT 中最重要的资产: 文档.</li>
 </ul>
 </p>',
+	'UI:WelcomeMenu:Text'=> '~~',
 	'UI:WelcomeMenu:AllOpenRequests' => '所有打开的需求: %1$d',
 	'UI:WelcomeMenu:MyCalls' => '我办理的需求',
 	'UI:WelcomeMenu:OpenIncidents' => '所有打开的事件: %1$d',
@@ -388,12 +393,17 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:Button:Logoff' => '注销',
 	'UI:Button:GlobalSearch' => '搜索',
 	'UI:Button:Search' => '搜索',
+	'UI:Button:Clear' => ' 清空',
+	'UI:Button:SearchInHierarchy' => ' 递归搜索',
 	'UI:Button:Query' => ' 查询 ',
 	'UI:Button:Ok' => '确认',
 	'UI:Button:Save' => '保存',
+	'UI:Button:SaveAnd' => '保存并 %1$s',
 	'UI:Button:Cancel' => '取消',
 	'UI:Button:Close' => '关闭',
 	'UI:Button:Apply' => '应用',
+	'UI:Button:Send' => '发送',
+	'UI:Button:SendAnd' => '发送并 %1$s',
 	'UI:Button:Back' => ' << 上一步 ',
 	'UI:Button:Restart' => ' |<< 重来 ',
 	'UI:Button:Next' => ' 下一步 >> ',
@@ -418,19 +428,22 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:Button:Insert' => '插入',
 	'UI:Button:More' => '更多',
 	'UI:Button:Less' => '更少',
-	'UI:Button:Wait' => 'Please wait while updating fields~~',
-	'UI:Treeview:CollapseAll' => 'Collapse All~~',
-	'UI:Treeview:ExpandAll' => 'Expand All~~',
+	'UI:Button:Wait' => '正在更新字段，请稍候',
+	'UI:Treeview:CollapseAll' => '全部收起',
+	'UI:Treeview:ExpandAll' => '全部展开',
+	'UI:UserPref:DoNotShowAgain' => '不再显示',
+	'UI:InputFile:NoFileSelected' => '未选择文件',
+	'UI:InputFile:SelectFile' => '选择文件',
 
 	'UI:SearchToggle' => '搜索',
-	'UI:ClickToCreateNew' => '新建 %1$s~~',
+	'UI:ClickToCreateNew' => '新建 %1$s',
 	'UI:SearchFor_Class' => '搜索 %1$s ',
 	'UI:NoObjectToDisplay' => '没有可显示的对象.',
-	'UI:Error:SaveFailed' => 'The object cannot be saved :~~',
+	'UI:Error:SaveFailed' => '对象无法被保存:',
 	'UI:Error:MandatoryTemplateParameter_object_id' => '当link_attr 被指定时,参数 object_id 是必须的. 检查显示模板的定义.',
 	'UI:Error:MandatoryTemplateParameter_target_attr' => '当link_attr 被指定时, 参数 target_attr 是必须的. 检查显示模板的定义.',
 	'UI:Error:MandatoryTemplateParameter_group_by' => '参数 group_by 是必须的. 检查显示模板的定义.',
-	'UI:Error:InvalidGroupByFields' => 'group by 的栏目列表是无效的: "%1$s".',
+	'UI:Error:InvalidGroupByFields' => '分组栏目列表是无效的: "%1$s".',
 	'UI:Error:UnsupportedStyleOfBlock' => '错误: 不被支持的 block 格式: "%1$s".',
 	'UI:Error:IncorrectLinkDefinition_LinkedClass_Class' => '关联错误: 关联的对象: %1$s 不是 %2$s 的外键',
 	'UI:Error:Object_Class_Id_NotFound' => '对象: %1$s:%2$d 找不到.',
@@ -453,17 +466,19 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:Error:ObjectsAlreadyDeleted' => '错误: 对象已被删除!',
 	'UI:Error:BulkDeleteNotAllowedOn_Class' => '您无权进行 %1$s 类对象的批量删除',
 	'UI:Error:DeleteNotAllowedOn_Class' => '您无权删除 %1$s 类的对象',
+	'UI:Error:ReadNotAllowedOn_Class' => '您无权查看对象的 %1$s',
 	'UI:Error:BulkModifyNotAllowedOn_Class' => '您无权进行 %1$s 类对象的批量更新',
 	'UI:Error:ObjectAlreadyCloned' => '错误: 该对象已被克隆!',
 	'UI:Error:ObjectAlreadyCreated' => '错误: 该对象已被创建!',
 	'UI:Error:Invalid_Stimulus_On_Object_In_State' => '错误: 在对象 %2$s 的 "%3$s" 状态上的无效刺激 "%1$s" .',
-	'UI:Error:InvalidDashboardFile' => 'Error: invalid dashboard file~~',
-	'UI:Error:InvalidDashboard' => 'Error: invalid dashboard~~',
-	'UI:Error:MaintenanceMode' => 'Application is currently in maintenance~~',
-	'UI:Error:MaintenanceTitle' => 'Maintenance~~',
+	'UI:Error:InvalidDashboardFile' => 'Error: 无效的仪表板文件',
+	'UI:Error:InvalidDashboard' => 'Error: 无效的仪表板',
+	'UI:Error:MaintenanceMode' => '应用正处于维护中',
+	'UI:Error:MaintenanceTitle' => '维护',
+	'UI:Error:InvalidToken' => 'Error: 所请求的操作已执行 (未发现 CSRF token )',
 
 	'UI:GroupBy:Count' => '个数',
-	'UI:GroupBy:Count+' => '元素数量',
+	'UI:GroupBy:Count+' => '项目数',
 	'UI:CountOfObjects' => '%1$d 个对象符合指定的条件.',
 	'UI_CountOfObjectsShort' => '%1$d 个对象.',
 	'UI:NoObject_Class_ToDisplay' => '没有 %1$s 可以显示',
@@ -488,6 +503,8 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:Loading' => '载入...',
 	'UI:Menu:Actions' => '操作',
 	'UI:Menu:OtherActions' => '其他操作',
+	'UI:Menu:Transitions' => 'Transitions~~',
+	'UI:Menu:OtherTransitions' => 'Other Transitions~~',
 	'UI:Menu:New' => '新建...',
 	'UI:Menu:Add' => '添加...',
 	'UI:Menu:Manage' => '管理...',
@@ -527,7 +544,7 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:Login:ForgotPwdForm+' => 'iTop 将会给您发送一封密码重置邮件.',
 	'UI:Login:ResetPassword' => '立即发送!',
 	'UI:Login:ResetPwdFailed' => '邮件发送失败: %1$s',
-	'UI:Login:SeparatorOr' => 'Or~~',
+	'UI:Login:SeparatorOr' => '或',
 
 	'UI:ResetPwd-Error-WrongLogin' => '\'%1$s\' 用户名无效',
 	'UI:ResetPwd-Error-NotPossible' => '外部账户不允许重置密码.',
@@ -535,8 +552,8 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:ResetPwd-Error-NoContact' => '该账户没有关联到个人.',
 	'UI:ResetPwd-Error-NoEmailAtt' => '该账户未关联邮箱地址，请联系管理员.',
 	'UI:ResetPwd-Error-NoEmail' => '缺少邮箱地址. 请联系管理员.',
-	'UI:ResetPwd-Error-Send' => '邮件传输存在技术原因. 请联系管理员.',
-	'UI:ResetPwd-EmailSent' => 'Please check your email box and follow the instructions. If you receive no email, please check the login you typed.~~',
+	'UI:ResetPwd-Error-Send' => '邮件发送存在技术原因. 请联系管理员.',
+	'UI:ResetPwd-EmailSent' => '请检查您的收件箱并根据指引进行操作. 如果您没有收到邮件, 请检查您登录时的输入是否存在错误.',
 	'UI:ResetPwd-EmailSubject' => '重置iTop 密码',
 	'UI:ResetPwd-EmailBody' => '<body><p>您已请求重置iTop 密码.</p><p>请点击这个链接 (一次性) <a href="%1$s">来输入新的密码</a></p>.',
 
@@ -565,7 +582,7 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:Login:Error:AccessRestricted' => 'iTop 访问被限制. 请联系管理员.',
 	'UI:Login:Error:AccessAdmin' => '只有具有管理员权限的人才能访问. 请联系管理员.',
 	'UI:Login:Error:WrongOrganizationName' => 'Unknown organization~~',
-	'UI:Login:Error:MultipleContactsHaveSameEmail' => 'Multiple contacts have the same e-mail~~',
+	'UI:Login:Error:MultipleContactsHaveSameEmail' => '多个联系人存在相同的邮箱',
 	'UI:Login:Error:NoValidProfiles' => 'No valid profile provided~~',
 	'UI:CSVImport:MappingSelectOne' => '-- 请选择 --',
 	'UI:CSVImport:MappingNotApplicable' => '-- 忽略该栏 --',
@@ -681,8 +698,18 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:Audit:HeaderNbObjects' => '# 对象',
 	'UI:Audit:HeaderNbErrors' => '# 错误',
 	'UI:Audit:PercentageOk' => '% Ok',
+	'UI:Audit:OqlError' => 'OQL Error~~',
+	'UI:Audit:Error:ValueNA' => 'n/a~~',
+	'UI:Audit:ErrorIn_Rule' => '规则中有错误',
 	'UI:Audit:ErrorIn_Rule_Reason' => 'OQL Error in the Rule %1$s: %2$s.',
+	'UI:Audit:ErrorIn_Category' => 'Error in Category~~',
 	'UI:Audit:ErrorIn_Category_Reason' => 'OQL Error in the Category %1$s: %2$s.',
+	'UI:Audit:AuditErrors' => '审计出错',
+	'UI:Audit:Dashboard:ObjectsAudited' => '对象已审计',
+	'UI:Audit:Dashboard:ObjectsInError' => 'Objects in errors~~',
+	'UI:Audit:Dashboard:ObjectsValidated' => '对象已验证',
+	'UI:Audit:AuditCategory:Subtitle' => '%1$s errors ouf of %2$s - %3$s%%~~',
+
 
 	'UI:RunQuery:Title' => 'iTop - OQL 查询评估',
 	'UI:RunQuery:QueryExamples' => '示例查询',
@@ -768,6 +795,7 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:Schema:Attribute/Filter' => '过滤器',
 	'UI:Schema:DefaultNullValue' => 'Default null : "%1$s"',
 	'UI:LinksWidget:Autocomplete+' => '输入前3个字符...',
+	'UI:Edit:SearchQuery' => '请选择预定义的查询',
 	'UI:Edit:TestQuery' => '测试查询',
 	'UI:Combo:SelectValue' => '--- 请选择 ---',
 	'UI:Label:SelectedObjects' => '被选的对象: ',
@@ -897,7 +925,7 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 
 	'Menu:AdminTools' => '管理工具', // Duplicated into itop-welcome-itil (will be removed from here...)
 	'Menu:AdminTools+' => '管理工具', // Duplicated into itop-welcome-itil (will be removed from here...)
-	'Menu:AdminTools?' => '具有管理员角色的用户才能获得的工具', // Duplicated into itop-welcome-itil (will be removed from here...)
+	'Menu:AdminTools?' => '具有管理员角色的用户才能使用的工具', // Duplicated into itop-welcome-itil (will be removed from here...)
 	'Menu:SystemTools' => 'System~~',
 
 	'UI:ChangeManagementMenu' => '变更管理',
@@ -950,10 +978,10 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'Menu:DataModelMenu+' => '数据模型概况', // Duplicated into itop-welcome-itil (will be removed from here...)
 
 	'Menu:ExportMenu' => '导出', // Duplicated into itop-welcome-itil (will be removed from here...)
-	'Menu:ExportMenu+' => '以HTML, CSV or XML格式导出任何查询的结果', // Duplicated into itop-welcome-itil (will be removed from here...)
+	'Menu:ExportMenu+' => '以HTML, CSV 或XML 格式导出任何查询的结果', // Duplicated into itop-welcome-itil (will be removed from here...)
 
 	'Menu:NotificationsMenu' => '通知', // Duplicated into itop-welcome-itil (will be removed from here...)
-	'Menu:NotificationsMenu+' => '通知的配置', // Duplicated into itop-welcome-itil (will be removed from here...)
+	'Menu:NotificationsMenu+' => '配置通知', // Duplicated into itop-welcome-itil (will be removed from here...)
 	'UI:NotificationsMenu:Title' => '配置 通知',
 	'UI:NotificationsMenu:Help' => '帮助',
 	'UI:NotificationsMenu:HelpContent' => '<p>在iTop 中, 通知可以被自定义. 它们是基于两个对象集: <i>触发器和操作</i>.</p>
@@ -1139,10 +1167,10 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:ArchiveMode:Banner+' => '已归档的对象可见但不允许修改',
 	'UI:FavoriteOrganizations' => '快速访问',
 	'UI:FavoriteOrganizations+' => '进入组织下的列表，可实现通过下拉菜单快速访问.请注意，这并不是一个安全设置, 其他组织的对象依然可以通过选择 "所有组织" 下拉列表看到.',
-	'UI:FavoriteLanguage' => '用户界面',
+	'UI:FavoriteLanguage' => '用户界面~~',
 	'UI:Favorites:SelectYourLanguage' => '选择语言',
 	'UI:FavoriteOtherSettings' => '其他设置',
-	'UI:Favorites:Default_X_ItemsPerPage' => '默认列表: 每页 %1$s 个项目',
+	'UI:Favorites:Default_X_ItemsPerPage' => '默认列表: 每页 %1$s 个项目~~',
 	'UI:Favorites:ShowObsoleteData' => '显示废弃的数据',
 	'UI:Favorites:ShowObsoleteData+' => '在搜索结果中显示已废弃的数据',
 	'UI:NavigateAwayConfirmationMessage' => '所有修改都将丢失.',
@@ -1159,8 +1187,8 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:PrintResolution:A4Landscape' => 'A4 横向',
 	'UI:PrintResolution:LetterPortrait' => 'Letter Portrait~~',
 	'UI:PrintResolution:LetterLandscape' => 'Letter Landscape~~',
-	'UI:Toggle:StandardDashboard' => '标准',
-	'UI:Toggle:CustomDashboard' => '自定义',
+	'UI:Toggle:SwitchToStandardDashboard' => 'Switch to standard dashboard~~',
+	'UI:Toggle:SwitchToCustomDashboard' => 'Switch to custom dashboard~~',
 
 	'UI:ConfigureThisList' => '配置这个列表...',
 	'UI:ListConfigurationTitle' => '列表配置',
@@ -1181,13 +1209,15 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:OQL:UnknownClassAndFix' => '未知类别 "%1$s". 您可以试试 "%2$s" .',
 	'UI:OQL:UnknownClassNoFix' => '未知类别 "%1$s"',
 
-	'UI:Dashboard:Edit' => '编辑这个页面...',
-	'UI:Dashboard:Revert' => '还原到初始版本...',
+	'UI:Dashboard:EditCustom' => 'Edit custom version...~~',
+	'UI:Dashboard:CreateCustom' => 'Create a custom version...~~',
+	'UI:Dashboard:DeleteCustom' => 'Delete custom version...~~',
 	'UI:Dashboard:RevertConfirm' => '每个地方都会恢复到初始版本. 请确认您要这样做.',
 	'UI:ExportDashBoard' => '导出到文件',
 	'UI:ImportDashBoard' => '从文件导入...',
 	'UI:ImportDashboardTitle' => '从文件导入',
 	'UI:ImportDashboardText' => '选择要导入的仪表盘文件:',
+	'UI:Dashboard:Actions' => 'Dashboard actions~~',
 
 
 	'UI:DashletCreation:Title' => '创建新组件',
@@ -1289,7 +1319,7 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:DashletHeaderDynamic:Prop-Subtitle' => '副标题',
 	'UI:DashletHeaderDynamic:Prop-Subtitle:Default' => '联系人',
 	'UI:DashletHeaderDynamic:Prop-Query' => '查询',
-	'UI:DashletHeaderDynamic:Prop-GroupBy' => 'Group by',
+	'UI:DashletHeaderDynamic:Prop-GroupBy' => '分组依据',
 	'UI:DashletHeaderDynamic:Prop-Values' => '值',
 
 	'UI:DashletBadge:Label' => 'Badge',
@@ -1422,6 +1452,7 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 
 	'UI:CurrentObjectIsLockedBy_User' => '对象被锁住,因为正在修改 %1$s.',
 	'UI:CurrentObjectIsLockedBy_User_Explanation' => '该对象正在被 %1$s 修改. 您的修改无法提交因为它们会冲突.',
+	'UI:CurrentObjectIsSoftLockedBy_User' => 'The object is currently being modified by %1$s. You\'ll be able to submit your modifications once they are done.~~',
 	'UI:CurrentObjectLockExpired' => '并发修改的锁定期已过.',
 	'UI:CurrentObjectLockExpired_Explanation' => 'The lock to prevent concurrent modifications of the object has expired. You can no longer submit your modification since other users are now allowed to modify this object.',
 	'UI:ConcurrentLockKilled' => '阻止并发修改当前对象的锁已被删除.',
@@ -1439,6 +1470,7 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:ToggleFullScreen' => '切换 最大化 / 最小化',
 	'UI:Button:ResetImage' => '恢复之前的图片',
 	'UI:Button:RemoveImage' => '移除图片',
+	'UI:Button:UploadImage' => 'Upload an image from the disk~~',
 	'UI:UploadNotSupportedInThisMode' => '本模式下不支持修改文件或图片.',
 
 	'UI:Button:RemoveDocument' => 'Remove the document~~',
@@ -1550,6 +1582,8 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 
 	'UI:Search:Criteria:Raw:Filtered' => '已过滤',
 	'UI:Search:Criteria:Raw:FilteredOn' => '基于 %1$s 过滤',
+
+	'UI:StateChanged' => 'State changed~~',
 ));
 
 //
@@ -1578,6 +1612,7 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 //
 Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:Newsroom:NoNewMessage' => '没有新消息',
+	'UI:Newsroom:XNewMessage' => '%1$s new message(s)~~',
 	'UI:Newsroom:MarkAllAsRead' => '标记所有消息为已读',
 	'UI:Newsroom:ViewAllMessages' => '查看全部消息',
 	'UI:Newsroom:Preferences' => '消息选项',
@@ -1586,6 +1621,7 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'UI:Newsroom:DisplayMessagesFor_Provider' => '显示来自 %1$s 的消息',
 	'UI:Newsroom:DisplayAtMost_X_Messages' => '在 %2$s 菜单中最多显示 %1$s 条消息.',
 ));
+
 
 Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'Menu:DataSources' => '同步数据源',
@@ -1624,4 +1660,12 @@ Dict::Add('ZH CN', 'Chinese', '简体中文', array(
 	'Menu:UserManagement' => '用户管理',
 	'Menu:Queries' => '查询',
 	'Menu:ConfigurationTools' => '配置',
+));
+
+// Additional language entries not present in English dict
+Dict::Add('ZH CN', 'Chinese', '简体中文', array(
+ 'UI:Toggle:StandardDashboard' => '标准',
+ 'UI:Toggle:CustomDashboard' => '自定义',
+ 'UI:Dashboard:Edit' => '编辑这个页面...',
+ 'UI:Dashboard:Revert' => '还原到初始版本...',
 ));

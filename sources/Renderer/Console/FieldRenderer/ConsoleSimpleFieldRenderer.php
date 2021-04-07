@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2019 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -22,13 +22,12 @@ namespace Combodo\iTop\Renderer\Console\FieldRenderer;
 use AttributeDate;
 use AttributeDateTime;
 use AttributeDuration;
+use Combodo\iTop\Form\Field\TextAreaField;
+use Combodo\iTop\Renderer\FieldRenderer;
 use DateTimeFormat;
 use Dict;
 use InlineImage;
-use UserRights;
 use utils;
-use Combodo\iTop\Form\Field\TextAreaField;
-use Combodo\iTop\Renderer\FieldRenderer;
 
 /**
  * Class ConsoleSimpleFieldRenderer
@@ -211,11 +210,11 @@ EOF
 						$oOutput->AddHtml(Dict::Format('UI:DurationForm_Days_Hours_Minutes_Seconds', $sDays, $sHours, $sMinutes, $sSeconds));
 						$oOutput->AddHtml("<input type=\"hidden\" id=\"{$sId}\" value=\"".htmlentities($value, ENT_QUOTES, 'UTF-8')."\"/>");
 
-						$oOutput->AddJs("$('#{$sId}_d').bind('keyup change', function(evt, sFormId) { return UpdateDuration('$sId'); });");
-						$oOutput->AddJs("$('#{$sId}_h').bind('keyup change', function(evt, sFormId) { return UpdateDuration('$sId'); });");
-						$oOutput->AddJs("$('#{$sId}_m').bind('keyup change', function(evt, sFormId) { return UpdateDuration('$sId'); });");
-						$oOutput->AddJs("$('#{$sId}_s').bind('keyup change', function(evt, sFormId) { return UpdateDuration('$sId'); });");
-						$oOutput->AddJs("$('#{$sId}').bind('update', function(evt, sFormId) { return ToggleDurationField('$sId'); });");
+						$oOutput->AddJs("$('#{$sId}_d').on('keyup change', function(evt, sFormId) { return UpdateDuration('$sId'); });");
+						$oOutput->AddJs("$('#{$sId}_h').on('keyup change', function(evt, sFormId) { return UpdateDuration('$sId'); });");
+						$oOutput->AddJs("$('#{$sId}_m').on('keyup change', function(evt, sFormId) { return UpdateDuration('$sId'); });");
+						$oOutput->AddJs("$('#{$sId}_s').on('keyup change', function(evt, sFormId) { return UpdateDuration('$sId'); });");
+						$oOutput->AddJs("$('#{$sId}').on('update', function(evt, sFormId) { return ToggleDurationField('$sId'); });");
 					}
 					$oOutput->AddHtml('<span class="form_validation"></span>');
 					$oOutput->AddHtml('</td>');

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2013-2020 Combodo SARL
+ * Copyright (C) 2013-2021 Combodo SARL
  *
  * This file is part of iTop.
  *
@@ -21,7 +21,7 @@ require_once(APPROOT.'/application/displayblock.class.inc.php');
 /**
  * This class manages the special template format used internally to build the iTop web pages
  *
- * @deprecated Since 3.0.0
+ * @deprecated 3.0.0
  */
 class DisplayTemplate
 {

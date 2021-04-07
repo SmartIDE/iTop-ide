@@ -1,6 +1,6 @@
 <?php
-/**
- * @copyright   Copyright (C) 2010-2020 Combodo SARL
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -49,7 +49,12 @@ class AjaxPage extends WebPage implements iTabbedPage
 	 */
 	public function AddTabContainer($sTabContainer, $sPrefix = '', iUIContentBlock $oParentBlock = null)
 	{
-		$this->AddUiBlock($this->m_oTabs->AddTabContainer($sTabContainer, $sPrefix));
+		if (is_null($oParentBlock)) {
+			$oParentBlock = PanelUIBlockFactory::MakeNeutral('');
+			$this->AddUiBlock($oParentBlock);
+		}
+
+		$oParentBlock->AddSubBlock($this->m_oTabs->AddTabContainer($sTabContainer, $sPrefix));
 	}
 
 	/**
@@ -81,9 +86,9 @@ class AjaxPage extends WebPage implements iTabbedPage
 	 * @inheritDoc
 	 * @throws \Exception
 	 */
-	public function AddAjaxTab($sTabCode, $sUrl, $bCache = true, $sTabTitle = null)
+	public function AddAjaxTab($sTabCode, $sUrl, $bCache = true, $sTabTitle = null, $sPlaceholder = null)
 	{
-		$this->add($this->m_oTabs->AddAjaxTab($sTabCode, $sUrl, $bCache, $sTabTitle));
+		$this->add($this->m_oTabs->AddAjaxTab($sTabCode, $sUrl, $bCache, $sTabTitle, $sPlaceholder));
 	}
 
 	/**
@@ -179,7 +184,7 @@ EOF
 			'aCssInline' => $this->a_styles,
 			'aJsFiles' => $this->a_linked_scripts,
 			'aJsInlineLive' => $this->a_scripts,
-			'aJsInlineOnDomReady' => $this->a_ready_scripts,
+			'aJsInlineOnDomReady' => $this->GetReadyScripts(),
 			'aJsInlineOnInit' => $this->a_init_scripts,
 			'bEscapeContent' => ($this->sContentType == 'text/html') && ($this->sContentDisposition == 'inline'),
 			// TODO 3.0.0: TEMP, used while developping, remove it.
@@ -200,81 +205,6 @@ EOF
 		$oKpi->ComputeAndReport('Echoing ('.round(strlen($sHtml) / 1024).' Kb)');
 
 		return;
-
-		/////////////////////////////////////////////////////////
-		////////////////// ☢ DANGER ZONE ☢ /////////////////////
-		/////////////////////////////////////////////////////////
-
-		$oKPI = new ExecutionKPI();
-		$s_captured_output = $this->ob_get_clean_safe();
-		if (($this->sContentType == 'text/html') && ($this->sContentDisposition == 'inline')) {
-			// inline content != attachment && html => filter all scripts for malicious XSS scripts
-			echo self::FilterXSS($this->s_content);
-		} else {
-			echo $this->s_content;
-		}
-
-		// TODO 3.0.0 Only for designer ?
-		if (!empty($this->m_sMenu)) {
-			$uid = time();
-			echo "<div id=\"accordion_temp_$uid\">\n";
-			echo "<div id=\"accordion\">\n";
-			echo "<!-- Beginning of the accordion menu -->\n";
-			echo self::FilterXSS($this->m_sMenu);
-			echo "<!-- End of the accordion menu-->\n";
-			echo "</div>\n";
-			echo "</div>\n";
-
-			echo "<script type=\"text/javascript\">\n";
-			echo "$('#inner_menu').html($('#accordion_temp_$uid').html());\n";
-			echo "$('#accordion_temp_$uid').remove();\n";
-			echo "\n</script>\n";
-		}
-
-		//echo $this->s_deferred_content;
-		if (count($this->a_scripts) > 0) {
-			echo "<script type=\"text/javascript\">\n";
-			echo implode("\n", $this->a_scripts);
-			echo "\n</script>\n";
-		}
-		if (count($this->a_linked_scripts) > 0) {
-			echo "<script type=\"text/javascript\">\n";
-			foreach ($this->a_linked_scripts as $sScriptUrl) {
-				echo '$.getScript('.json_encode($sScriptUrl).");\n";
-			}
-			echo "\n</script>\n";
-		}
-		if (!empty($this->s_deferred_content)) {
-			echo "<script type=\"text/javascript\">\n";
-			echo "\$('body').append('".addslashes(str_replace("\n", '', $this->s_deferred_content))."');\n";
-			echo "\n</script>\n";
-		}
-		if (!empty($this->m_aReadyScripts)) {
-			echo "<script type=\"text/javascript\">\n";
-			echo $this->m_aReadyScripts; // Ready Scripts are output as simple scripts
-			echo "\n</script>\n";
-		}
-		if (count($this->a_linked_stylesheets) > 0) {
-			echo "<script type=\"text/javascript\">";
-			foreach ($this->a_linked_stylesheets as $aStylesheet) {
-				$sStylesheetUrl = $aStylesheet['link'];
-				echo "if (!$('link[href=\"{$sStylesheetUrl}\"]').length) $('<link href=\"{$sStylesheetUrl}\" rel=\"stylesheet\">').appendTo('head');\n";
-			}
-			echo "\n</script>\n";
-		}
-
-		if (trim($s_captured_output) != "") {
-			echo self::FilterXSS($s_captured_output);
-		}
-
-		$oKPI->ComputeAndReport('Echoing');
-
-		if (class_exists('DBSearch')) {
-			DBSearch::RecordQueryTrace();
-		}
-		if (class_exists('ExecutionKPI')) {
-			ExecutionKPI::ReportStats();
-		}
 	}
 
 	/**
@@ -293,14 +223,28 @@ EOF
 	 * @inheritDoc
 	 * @throws \Exception
 	 */
-	public function add($sHtml): ?iUIBlock
+	public function add($sHtml)
 	{
 		if (($this->m_oTabs->GetCurrentTabContainer() != '') && ($this->m_oTabs->GetCurrentTab() != '')) {
 			$this->m_oTabs->AddToTab($this->m_oTabs->GetCurrentTabContainer(), $this->m_oTabs->GetCurrentTab(), $sHtml);
 		} else {
-			return parent::add($sHtml);
+			parent::add($sHtml);
 		}
-		return null;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function AddUiBlock(?iUIBlock $oBlock): ?iUIBlock
+	{
+		if (is_null($oBlock)) {
+			return null;
+		}
+		if (($this->m_oTabs->GetCurrentTabContainer() != '') && ($this->m_oTabs->GetCurrentTab() != '')) {
+			return $this->m_oTabs->AddUIBlockToCurrentTab($oBlock);
+		}
+
+		return parent::AddUiBlock($oBlock);
 	}
 
 	/**

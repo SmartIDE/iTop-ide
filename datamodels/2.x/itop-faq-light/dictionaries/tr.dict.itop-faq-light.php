@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2012 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -19,7 +19,7 @@
  * Localized data
  *
  * @author      Izzet Sirin <izzet.sirin@htr.com.tr>
- * @copyright   Copyright (C) 2010-2012 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 // Dictionnay conventions
@@ -44,11 +44,9 @@
 // Class:<class_name>/Attribute:<attribute_code>/Value:<value>+
 // Class:<class_name>/Stimulus:<stimulus_code>
 // Class:<class_name>/Stimulus:<stimulus_code>+
-
 //
 // Class: FAQ
 //
-
 Dict::Add('TR TR', 'Turkish', 'Türkçe', array(
 	'Class:FAQ' => 'FAQ~~',
 	'Class:FAQ+' => 'Frequently asked questions~~',
@@ -81,7 +79,6 @@ Dict::Add('TR TR', 'Turkish', 'Türkçe', array(
 	'Class:FAQCategory/Attribute:faq_list' => 'FAQs~~',
 	'Class:FAQCategory/Attribute:faq_list+' => 'All the frequently asked questions related to this category~~',
 ));
-
 Dict::Add('TR TR', 'Turkish', 'Türkçe', array(
 	'Menu:ProblemManagement' => 'Problem Yönetimi',
 	'Menu:ProblemManagement+' => 'Problem Yönetimi',

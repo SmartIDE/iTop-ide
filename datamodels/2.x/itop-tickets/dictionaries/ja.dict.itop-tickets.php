@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2012 Combodo SARL
+// Copyright (C) 2010-2021 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -16,7 +16,7 @@
 //   You should have received a copy of the GNU Affero General Public License
 //   along with iTop. If not, see <http://www.gnu.org/licenses/>
 /**
- * @copyright   Copyright (C) 2010-2012 Combodo SARL
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @licence	http://opensource.org/licenses/AGPL-3.0
  */
 Dict::Add('JA JP', 'Japanese', '日本語', array(
@@ -139,7 +139,6 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 
 // Fieldset translation
 Dict::Add('JA JP', 'Japanese', '日本語', array(
-
 	'Ticket:baseinfo' => '基本情報',
 	'Ticket:date' => '日付',
 	'Ticket:contact' => '連絡先',
@@ -153,7 +152,6 @@ Dict::Add('JA JP', 'Japanese', '日本語', array(
 	'WorkOrder:Details' => '詳細',
 	'WorkOrder:Moreinfo' => '追加情報',
 	'Tickets:ResolvedFrom' => 'Automatically resolved from %1$s~~',
-
 	'Class:cmdbAbstractObject/Method:Set' => 'Set~~',
 	'Class:cmdbAbstractObject/Method:Set+' => 'Set a field with a static value~~',
 	'Class:cmdbAbstractObject/Method:Set/Param:1' => 'Target Field~~',
