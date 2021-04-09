@@ -25,7 +25,12 @@ use SynchroDataSource;
 use UserLocal;
 use utils;
 
-
+/**
+ * Class DataSynchroTest
+ *
+ * @package Combodo\iTop\Test\UnitTest\Synchro
+ * @group dataSynchro
+ */
 class DataSynchroTest extends ItopDataTestCase
 {
 	protected const AUTH_USER = 'DataSynchroTest';
@@ -43,7 +48,7 @@ class DataSynchroTest extends ItopDataTestCase
 		$oSet = new DBObjectSet($oSearch);
 		if ($oSet->Count() == 0)
 		{
-			$oProfileSearch = DBSearch::FromOQL('SELECT URP_Profiles WHERE name LIKE "administrator"');
+			$oProfileSearch = DBSearch::FromOQL('SELECT URP_Profiles WHERE id = 1');
 			$oProfileSet = new DBObjectSet($oProfileSearch);
 			$oAdminProfile = $oProfileSet->fetch();
 
