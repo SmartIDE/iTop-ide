@@ -1287,6 +1287,14 @@ class Config
 			'source_of_value' => '',
 			'show_in_conf_sample' => false,
 		],
+		'user_preferences.allow_backoffice_theme_override' => [
+			'type' => 'bool',
+			'description' => 'Whether the user can choose which theme to use in the backoffice. If set to false, all users will have the theme defined in "backoffice_default_theme"',
+			'default' => true,
+			'value' => '',
+			'source_of_value' => '',
+			'show_in_conf_sample' => false,
+		],
 		'secure_rest_services' => [
 			'type' => 'bool',
 			'description' => 'When set to true, only the users with the profile "REST Services User" are allowed to use the REST web services.',
@@ -1390,6 +1398,14 @@ class Config
 			'value' => false,
 			'source_of_value' => '',
 			'show_in_conf_sample' => true,
+		],
+		'theme.enable_precompilation' => [
+			'type' => 'bool',
+			'description' => 'If false, theme compilation will not use any precompiled file setup optimization.)',
+			'default' => true,
+			'value' => true,
+			'source_of_value' => '',
+			'show_in_conf_sample' => false,
 		],
 	];
 

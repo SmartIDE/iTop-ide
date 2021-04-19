@@ -444,6 +444,7 @@ HTML
 	 */
 	public function DisplayBareHistory(WebPage $oPage, $bEditMode = false, $iLimitCount = 0, $iLimitStart = 0)
 	{
+		DeprecatedCallsLog::NotifyDeprecatedPhpMethod();
 		// history block (with as a tab)
 		$oHistoryFilter = new DBObjectSearch('CMDBChangeOp');
 		$oHistoryFilter->AddCondition('objkey', $this->GetKey(), '=');
@@ -1155,7 +1156,9 @@ HTML
 	 */
 	public static function GetDisplaySet(WebPage $oPage, DBObjectSet $oSet, $aExtraParams = array())
 	{
+		DeprecatedCallsLog::NotifyDeprecatedPhpMethod('use GetDisplaySetBlock');
 		$oPage->AddUiBlock(static::GetDisplaySetBlock($oPage, $oSet, $aExtraParams));
+
 		return "";
 	}
 
@@ -1191,11 +1194,10 @@ HTML
 	 */
 	public static function GetDisplayExtendedSet(WebPage $oPage, CMDBObjectSet $oSet, $aExtraParams = array())
 	{
+		DeprecatedCallsLog::NotifyDeprecatedPhpMethod();
 		if (empty($aExtraParams['currentId'])) {
 			$iListId = utils::GetUniqueId(); // Works only if not in an Ajax page !!
-		}
-		else
-		{
+		} else {
 			$iListId = $aExtraParams['currentId'];
 		}
 		$aList = array();
@@ -1846,11 +1848,14 @@ HTML
 					$aEventsList[] = 'validate';
 					$aEventsList[] = 'keyup';
 					$aEventsList[] = 'change';
-					$sPlaceholderValue = 'placeholder="'.htmlentities(AttributeDate::GetFormat()->ToPlaceholder(),
-							ENT_QUOTES, 'UTF-8').'"';
 
-					$sHTMLValue = "<div class=\"field_input_zone field_input_date ibo-input-wrapper ibo-input-date-wrapper\" data-validation=\"untouched\"><input title=\"$sHelpText\" class=\"date-pick ibo-input ibo-input-date\" type=\"text\" $sPlaceholderValue name=\"attr_{$sFieldPrefix}{$sAttCode}{$sNameSuffix}\" value=\"".htmlentities($sDisplayValue,
-							ENT_QUOTES, 'UTF-8')."\" id=\"$iId\"/></div>{$sValidationSpan}{$sReloadSpan}";
+					$sPlaceholderValue = 'placeholder="'.utils::EscapeHtml(AttributeDate::GetFormat()->ToPlaceholder()).'"';
+					$sDisplayValueForHtml = utils::EscapeHtml($sDisplayValue);
+					$sHTMLValue = <<<HTML
+<div class="field_input_zone field_input_date ibo-input-wrapper ibo-input-date-wrapper" data-validation="untouched">
+	<input title="$sHelpText" class="date-pick ibo-input ibo-input-date" type="text" {$sPlaceholderValue} name="attr_{$sFieldPrefix}{$sAttCode}{$sNameSuffix}" value="{$sDisplayValueForHtml}" id="{$iId}" autocomplete="off" />
+</div>{$sValidationSpan}{$sReloadSpan}
+HTML;
 					break;
 
 				case 'DateTime':
@@ -1859,10 +1864,13 @@ HTML
 					$aEventsList[] = 'keyup';
 					$aEventsList[] = 'change';
 
-					$sPlaceholderValue = 'placeholder="'.htmlentities(AttributeDateTime::GetFormat()->ToPlaceholder(),
-							ENT_QUOTES, 'UTF-8').'"';
-					$sHTMLValue = "<div class=\"field_input_zone field_input_datetime ibo-input-wrapper ibo-input-datetime-wrapper\" data-validation=\"untouched\"><input title=\"$sHelpText\" class=\"datetime-pick ibo-input ibo-input-datetime\" type=\"text\" size=\"19\" $sPlaceholderValue name=\"attr_{$sFieldPrefix}{$sAttCode}{$sNameSuffix}\" value=\"".htmlentities($sDisplayValue,
-							ENT_QUOTES, 'UTF-8')."\" id=\"$iId\"/></div>{$sValidationSpan}{$sReloadSpan}";
+					$sPlaceholderValue = 'placeholder="'.utils::EscapeHtml(AttributeDateTime::GetFormat()->ToPlaceholder()).'"';
+					$sDisplayValueForHtml = utils::EscapeHtml($sDisplayValue);
+					$sHTMLValue = <<<HTML
+<div class="field_input_zone field_input_datetime ibo-input-wrapper ibo-input-datetime-wrapper" data-validation="untouched">
+	<input title="{$sHelpText}" class="datetime-pick ibo-input ibo-input-datetime" type="text" size="19" {$sPlaceholderValue} name="attr_{$sFieldPrefix}{$sAttCode}{$sNameSuffix}" value="{$sDisplayValueForHtml}" id="{$iId}" autoomplete="off" />
+</div>{$sValidationSpan}{$sReloadSpan}
+HTML;
 					break;
 
 				case 'Duration':
@@ -2122,9 +2130,11 @@ EOF
 						$sFileName = $oDocument->GetFileName();
 					}
 					$sFileNameForHtml = utils::EscapeHtml($sFileName);
+					$bHasFile = !empty($sFileName);
 
 					$iMaxFileSize = utils::ConvertToBytes(ini_get('upload_max_filesize'));
 					$sRemoveBtnLabelForHtml = utils::EscapeHtml(Dict::S('UI:Button:RemoveDocument'));
+					$sExtraCSSClassesForRemoveButton = $bHasFile ? '' : 'ibo-is-hidden';
 
 					$sHTMLValue = <<<HTML
 <div class="field_input_zone field_input_document">
@@ -2132,7 +2142,7 @@ EOF
 	<input type="hidden" id="do_remove_{$iId}" name="attr_{$sFieldPrefix}{$sAttCode}{$sNameSuffix}[remove]" value="0"/>
 	<input name="attr_{$sFieldPrefix}{$sAttCode}{$sNameSuffix}[filename]" type="hidden" id="{$iId}" value="{$sFileNameForHtml}"/>
 	<span id="name_{$iInputId}" >{$sFileNameForHtml}</span>&#160;&#160;
-	<button id="remove_attr_{$iId}" class="ibo-button ibo-is-alternative ibo-is-danger ibo-is-hidden" data-role="ibo-button" type="button" data-tooltip-content="{$sRemoveBtnLabelForHtml}" onClick="$('#file_{$iId}').val(''); UpdateFileName('{$iId}', '');">
+	<button id="remove_attr_{$iId}" class="ibo-button ibo-is-alternative ibo-is-danger {$sExtraCSSClassesForRemoveButton}" data-role="ibo-button" type="button" data-tooltip-content="{$sRemoveBtnLabelForHtml}" onClick="$('#file_{$iId}').val(''); UpdateFileName('{$iId}', '');">
 		<span class="fas fa-trash"></span>
 	</button>
 </div>
@@ -3220,13 +3230,21 @@ HTML;
 			// Then prepare the value
 			// - The field is visible in the current state of the object
 			if ($oAttDef->GetEditClass() == 'Document') {
+				/** @var \ormDocument $oDocument */
 				$oDocument = $this->Get($sAttCode);
 				if (!$oDocument->IsEmpty()) {
-					$sDisplayValue = $this->GetAsHTML($sAttCode);
-					$sDisplayValue .= "<br/>".Dict::Format('UI:OpenDocumentInNewWindow_',
-							$oDocument->GetDisplayLink(get_class($this), $this->GetKey(), $sAttCode)).", \n";
-					$sDisplayValue .= "<br/>".Dict::Format('UI:DownloadDocument_',
-							$oDocument->GetDownloadLink(get_class($this), $this->GetKey(), $sAttCode)).", \n";
+					$sFieldAsHtml = $this->GetAsHTML($sAttCode);
+
+					$sDisplayLabel = Dict::S('UI:OpenDocumentInNewWindow_');
+					$sDisplayUrl = $oDocument->GetDisplayURL(get_class($this), $this->GetKey(), $sAttCode);
+
+					$sDownloadLabel = Dict::Format('UI:DownloadDocument_');
+					$sDownloadUrl = $oDocument->GetDownloadURL(get_class($this), $this->GetKey(), $sAttCode);
+
+					$sDisplayValue = <<<HTML
+{$sFieldAsHtml}<br>
+<a href="{$sDisplayUrl}" target="_blank">{$sDisplayLabel}</a> / <a href="{$sDownloadUrl}">{$sDownloadLabel}</a>
+HTML;
 				} else {
 					$sDisplayValue = '';
 				}
@@ -4263,23 +4281,19 @@ HTML;
 	 */
 	public function DisplayCaseLog(WebPage $oPage, $sAttCode, $sComment = '', $sPrefix = '', $bEditMode = false)
 	{
+		DeprecatedCallsLog::NotifyDeprecatedPhpMethod();
 		$oPage->SetCurrentTab('UI:PropertiesTab');
 		$sClass = get_class($this);
 
-		if ($this->IsNew())
-		{
+		if ($this->IsNew()) {
 			$iFlags = $this->GetInitialStateAttributeFlags($sAttCode);
-		}
-		else
-		{
+		} else {
 			$iFlags = $this->GetAttributeFlags($sAttCode);
 		}
 
-		if ($iFlags & OPT_ATT_HIDDEN)
-		{
+		if ($iFlags & OPT_ATT_HIDDEN) {
 			// The case log is hidden do nothing
-		}
-		else
+		} else
 		{
 			$oAttDef = MetaModel::GetAttributeDef(get_class($this), $sAttCode);
 			$sAttDefClass = get_class($oAttDef);
@@ -4365,9 +4379,9 @@ HTML
 	 */
 	public function GetExpectedAttributes($sCurrentState, $sStimulus, $bOnlyNewOnes)
 	{
+		DeprecatedCallsLog::NotifyDeprecatedPhpMethod('Since iTop 2.4, use DBObject::GetTransitionAttributes() instead');
 		$aTransitions = $this->EnumTransitions();
-		if (!isset($aTransitions[$sStimulus]))
-		{
+		if (!isset($aTransitions[$sStimulus])) {
 			// Invalid stimulus
 			throw new ApplicationException(Dict::Format('UI:Error:Invalid_Stimulus_On_Object_In_State', $sStimulus,
 				$this->GetName(), $this->GetStateLabel()));
