@@ -313,13 +313,11 @@ class AjaxRenderController
 		$aResult["data"] = [];
 		while ($aObject = $oSet->FetchAssoc()) {
 			foreach ($aClassAliases as $sAlias => $sClass) {
-				if (isset($aColumns[$sAlias])) {
-					foreach ($aColumns[$sAlias] as $sAttCode => $oAttDef) {
-						if ($sAttCode == "_key_") {
-							$aObj[$sAlias."/".$sAttCode] = $aObject[$sAlias]->GetKey();
-						} else {
-							$aObj[$sAlias."/".$sAttCode] = $aObject[$sAlias]->GetAsHTML($sAttCode);
-						}
+				if (isset($aObject[$sAlias])) {
+					$aObj[$sAlias."/_key_"] = $aObject[$sAlias]->GetKey();
+					$aObj[$sAlias."/hyperlink"] = $aObject[$sAlias]->GetHyperlink();
+					foreach ($aObject[$sAlias]->GetLoadedAttributes() as $sAttCode) {
+						$aObj[$sAlias."/".$sAttCode] = $aObject[$sAlias]->GetAsHTML($sAttCode);
 					}
 				}
 			}
