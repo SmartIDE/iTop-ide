@@ -12,6 +12,7 @@ use Combodo\iTop\Application\UI\Base\Component\DataTable\DataTableUIBlockFactory
 use Combodo\iTop\Application\UI\Base\Component\Html\Html;
 use Combodo\iTop\Application\UI\Base\Component\Pill\PillFactory;
 use Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenu;
+use Combodo\iTop\Application\UI\Base\Component\PopoverMenu\PopoverMenuItem\PopoverMenuItemFactory;
 use Combodo\iTop\Application\UI\Base\Component\Toolbar\Separator\ToolbarSeparatorUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Toolbar\ToolbarUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\iUIBlock;
@@ -1820,6 +1821,8 @@ class MenuBlock extends DisplayBlock
 		$aRegularActions = [];
 		/** @var array $aTransitionActions Only transitions */
 		$aTransitionActions = [];
+		/** @var array $aToolkitActions Any "legacy" toolkit menu item, which are now displayed in the same menu as the $aRegularActions, after them */
+		$aToolkitActions = [];
 		if ((!isset($aExtraParams['selection_mode']) || $aExtraParams['selection_mode'] == "") && $this->m_sStyle != 'listInObject') {
 			$oAppContext = new ApplicationContext();
 			$sContext = $oAppContext->GetForLink();
@@ -2124,18 +2127,17 @@ class MenuBlock extends DisplayBlock
 			//it's easier just display configure this list and MENU_OBJLIST_TOOLKIT
 		}
 		$param = null;
-		$iMenuId = null;
 		if (is_null($sId)) {
 			$sId = uniqid();
 		}
 
 		// New extensions based on iPopupMenuItem interface
+		$oPopupMenuItemsBlock = new UIContentBlock();
 		switch ($this->m_sStyle) {
 			case 'list':
 			case 'listInObject':
 				$oSet->Rewind();
 				$param = $oSet;
-				$iMenuId = iPopupMenuExtension::MENU_OBJLIST_ACTIONS;
 				$bToolkitMenu = true;
 				if (isset($aExtraParams['toolkit_menu'])) {
 					$bToolkitMenu = (bool)$aExtraParams['toolkit_menu'];
@@ -2144,17 +2146,18 @@ class MenuBlock extends DisplayBlock
 					$sLabel = Dict::S('UI:ConfigureThisList');
 					$aRegularActions['iTop::ConfigureList'] = ['label' => $sLabel, 'url' => '#', 'onclick' => "$('#datatable_dlg_datatable_{$sId}').dialog('open'); return false;"];
 				}
+				utils::GetPopupMenuItemsBlock($oPopupMenuItemsBlock, iPopupMenuExtension::MENU_OBJLIST_ACTIONS, $param, $aRegularActions, $sId);
+				utils::GetPopupMenuItemsBlock($oPopupMenuItemsBlock, iPopupMenuExtension::MENU_OBJLIST_TOOLKIT, $param, $aToolkitActions, $sId);
 				break;
 
 			case 'details':
 				$oSet->Rewind();
 				$param = $oSet->Fetch();
-				$iMenuId = iPopupMenuExtension::MENU_OBJDETAILS_ACTIONS;
+				utils::GetPopupMenuItemsBlock($oPopupMenuItemsBlock, iPopupMenuExtension::MENU_OBJDETAILS_ACTIONS, $param, $aRegularActions, $sId);
 				break;
 
 		}
-		$oPopupMenuItemsBlock = utils::GetPopupMenuItemsBlock($iMenuId, $param, $aRegularActions, $sId);
-		if($oPopupMenuItemsBlock->HasSubBlocks()) {
+		if ($oPopupMenuItemsBlock->HasSubBlocks()) {
 			$oRenderBlock->AddSubBlock($oPopupMenuItemsBlock);
 		}
 
@@ -2287,7 +2290,7 @@ class MenuBlock extends DisplayBlock
 			}
 
 			// - Others
-			if (!empty($aRegularActions)) {
+			if (!empty($aRegularActions) || !empty($aToolkitActions)) {
 				if (count($aFavoriteRegularActions) > 0) {
 					$sName = 'UI:Menu:OtherActions';
 				} else {
@@ -2302,6 +2305,13 @@ class MenuBlock extends DisplayBlock
 
 				$oActionsToolbar->AddSubBlock($oActionButton)
 					->AddSubBlock($oRegularActionsMenu);
+
+				// Toolkit actions
+				if (!empty($aToolkitActions)) {
+					foreach ($aToolkitActions as $sActionId => $aActionData) {
+						$oRegularActionsMenu->AddItem('toolkit-actions', PopoverMenuItemFactory::MakeFromDisplayBlockAction($sActionId, $aActionData));
+					}
+				}
 			}
 		}
 
