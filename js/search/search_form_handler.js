@@ -83,11 +83,14 @@ $(function()
 		// Submit properties (XHR, throttle, ...)
 		submit: null,
 
+		/** @var {ScrollMagic.Controller} SM controller for the sticky header */
+		sticky_header_controller: null,
+
 		// the constructor
 		_create: function()
 		{
 			var me = this;
-			
+
 			this.element.addClass('search_form_handler');
 
 			// Init properties (complexe type properties would be static if not initialized with a simple type variable...)
@@ -110,6 +113,8 @@ $(function()
 			this._prepareFormArea();
 			this._prepareCriterionArea();
 			this._prepareResultsArea();
+			// - Sticky header
+			this._updateStickyHeaderHandler();
 
 			// Binding events (eg. from search_form_criteria widgets)
 			this._bindEvents();
@@ -120,23 +125,28 @@ $(function()
                 'base_oql': this.options.search.base_oql,
                 'criterion': this.options.search.criterion,
             });
-			
+
 			// If auto submit is enabled, also submit on first display
 			if(this.options.auto_submit === true)
 			{
 				this._submit();
 			}
-			
+
 		},
 		// called when created, and later when changing options
 		_refresh: function()
 		{
-			
+			this._updateStickyHeaderHandler();
 		},
 		// events bound via _bind are removed automatically
 		// revert other modifications here
 		_destroy: function()
 		{
+			// Remove ScrollMagic controller, typicaly useful when the search form is loaded to display one for another class
+			if(this.sticky_header_controller !== null) {
+				this.sticky_header_controller.destroy(true)
+			}
+
 			this.element
 			.removeClass('search_form_handler');
 		},
@@ -225,6 +235,25 @@ $(function()
 					}
 				});
 			});
+
+			// Refresh handler when the list has changed
+			// - Initialization
+			// - Destroy / reinitialization (changing the DM class of the search form)
+			// - AJAX pagination, filtering
+			// - Page length changes
+			this.element.scrollParent().on('init.dt draw.dt column-sizing.dt', function(oEvent) {
+				me._updateStickyHeaderHandler();
+			});
+
+			// Refresh handler when resising:
+			// - The window
+			// - The search form when the numerous criteria wrap on a new line
+			if(window.ResizeObserver) {
+				const oPanelRO = new ResizeObserver(function(){
+					me._updateStickyPositions();
+				});
+				oPanelRO.observe(this.element[0]);
+			}
 
 		},
 		// - Update search option of the widget
@@ -406,7 +435,7 @@ $(function()
 
 			// Header part
 			var oHeaderElem = $('<div class="sfm_header"></div>')
-				.append('<a class="sfm_toggler" data-tooltip-content="' + Dict.S('UI:Search:Criterion:MoreMenu:AddCriteria') + '" href="#"><span class="sfm_tg_title">' + Dict.S('UI:Search:Criterion:MoreMenu:AddCriteria') + '</span><span class="sfm_tg_icon fas fa-plus"></span></a>')
+				.append('<a class="sfm_toggler" aria-label="' + Dict.S('UI:Search:Criterion:MoreMenu:AddCriteria') + '" data-tooltip-content="' + Dict.S('UI:Search:Criterion:MoreMenu:AddCriteria') + '" href="#"><span class="sfm_tg_title">' + Dict.S('UI:Search:Criterion:MoreMenu:AddCriteria') + '</span><span class="sfm_tg_icon fas fa-plus"></span></a>')
 				.appendTo(this.elements.more_criterion);
 
 			// Content part
@@ -485,8 +514,8 @@ $(function()
 			// - Buttons
 			var oButtonsElem = $('<div></div>')
 				.addClass('sfm_buttons')
-				.append('<button type="button" name="apply">' + Dict.S('UI:Button:Apply') + '</button>')
-				.append('<button type="button" name="cancel">' + Dict.S('UI:Button:Cancel') + '</button>')
+				.append('<button type="button" class="ibo-button ibo-is-regular ibo-is-neutral" name="apply">' + Dict.S('UI:Button:Apply') + '</button>')
+				.append('<button type="button" class="ibo-button ibo-is-regular ibo-is-neutral" name="cancel">' + Dict.S('UI:Button:Cancel') + '</button>')
 				.appendTo(oContentElem);
 
 			// Bind events
@@ -675,8 +704,8 @@ $(function()
 
 			var sButtonText = (this.options.auto_submit === true) ? Dict.S('UI:Button:Refresh') : Dict.S('UI:Button:Search');
 			var sButtonIcon = (this.options.auto_submit === true) ? 'fas fa-sync' : 'fas fa-search';
-			var oButtonElem = $('<div class="sfb_header" data-tooltip-content="' + sButtonText + '"></div>')
-				.append('<a class="fa-fw ' + sButtonIcon + '"  href="#"></a>')
+			var oButtonElem = $('<div class="sfb_header"></div>')
+				.append('<a aria-label="' + sButtonText + '" data-tooltip-content="' + sButtonText + '" href="#"><span class="fa-fw ' + sButtonIcon + '"></span></a>')
 				.appendTo(this.elements.submit_button);
 
 			// Bind events
@@ -1093,8 +1122,318 @@ $(function()
 			this._hideLoader();
 		},
 
+		//---------------------------
+		// Sticky header helpers
+		//---------------------------
+		/**
+		 * Main function for the sticky header, it creates or recreates all the mechanism (viewport, trigger points, sizing/positioning of fixed elements)
+		 * Must be called whenever the reference elements (viewport, trigger elements, ...) change to ensure that everything is well positioned.
+		 *
+		 * @return {void}
+		 * @private
+		 */
+		_updateStickyHeaderHandler: function ()
+		{
+			const me = this;
 
+			// Update the reference viewport
+			this.options.viewport_elem = this.element.scrollParent()[0];
+
+			// Clean SM controller if there was already one
+			if (null !== this.sticky_header_controller) {
+				this.sticky_header_controller.destroy(true);
+			}
+
+			// Prepare SM controller
+			this.sticky_header_controller = new ScrollMagic.Controller({
+				container: this.options.viewport_elem,
+			});
+
+			this._addScrollSceneForForm();
+			this._addScrollSceneForResults();
+		},
+		/**
+		 * Observe when the search form reaches/leaves the viewport's top
+		 * @private
+		 */
+		_addScrollSceneForForm: function()
+		{
+			const me = this;
+			const oFormPanelHeaderElem = this._getFormPanelHeaderElem();
+
+			new ScrollMagic.Scene({
+				triggerElement: oFormPanelHeaderElem[0],
+				triggerHook: 0,
+				offset: oFormPanelHeaderElem.outerHeight(),
+			})
+				.on('enter', function () {
+					me._onFormBecomesSticky();
+				})
+				.on('leave', function () {
+					me._onFormStopsBeingSticky();
+				})
+				.addTo(this.sticky_header_controller);
+		},
+		/**
+		 * Callback for the form element SM Scene
+		 * @return {void}
+		 * @private
+		 */
+		_onFormBecomesSticky: function()
+		{
+			this._getFormPanelBodyElem().addClass('ibo-is-sticking');
+			this._updateStickyPositions();
+		},
+		/**
+		 * Callback for the form element SM Scene
+		 * @return {void}
+		 * @private
+		 */
+		_onFormStopsBeingSticky: function()
+		{
+			this._getFormPanelBodyElem().removeClass('ibo-is-sticking');
+			this._updateStickyPositions();
+		},
+		/**
+		 * Observer when the results' top toolbar reaches/leaves the search form's bottom
+		 * @private
+		 */
+		_addScrollSceneForResults: function()
+		{
+			const me = this;
+			const oFormPanelHeaderElem = this._getFormPanelHeaderElem();
+
+			new ScrollMagic.Scene({
+				triggerElement: oFormPanelHeaderElem[0],
+				triggerHook: 0,
+				// Careful, this won't get updated dynamically, meaning that if the elements move or resize, it won't be exact anymore
+				// Note: As offset() starts from the very top of the window, we need to take into account the top container height!
+				offset: this._getResultsPanelElem().find('.ibo-panel--body:first').offset().top - $('#ibo-top-container').outerHeight() - this._getFormPanelBodyElem().outerHeight(),
+			})
+				.on('enter', function () {
+					me._onResultsBecomesSticky();
+				})
+				.on('leave', function () {
+					me._onResultsStopsBeingSticky();
+				})
+				.addTo(this.sticky_header_controller);
+		},
+		/**
+		 * Callback for the results element SM Scene
+		 * @return {void}
+		 * @private
+		 */
+		_onResultsBecomesSticky: function()
+		{
+			this._getResultsPanelElem().addClass('ibo-is-sticking');
+			this._getResultsToolbarTopElem().addClass('ibo-is-sticking');
+			this._getResultsTableHeaders().addClass('ibo-is-sticking');
+			this._updateStickyPositions();
+		},
+		/**
+		 * Callback for the results element SM Scene
+		 * @return {void}
+		 * @private
+		 */
+		_onResultsStopsBeingSticky: function()
+		{
+			this._getResultsPanelElem().removeClass('ibo-is-sticking');
+			this._getResultsToolbarTopElem().removeClass('ibo-is-sticking');
+			this._getResultsTableHeaders().removeClass('ibo-is-sticking');
+			this._updateStickyPositions();
+		},
+		/**
+		 * Update all the concerned elements position / size
+		 *
+		 * @param bImmediate {boolean} Set to true if the update of the positions should have a small delay. This can be useful when ahving CSS transitions that needs to be done before computing positions.
+		 * @private
+		 */
+		_updateStickyPositions: function(bImmediate = true)
+		{
+			const me = this;
+
+			if(!bImmediate) {
+				setTimeout(function() {
+					me._updateStickyPositions(true);
+				}, 300);
+				return;
+			}
+
+			// Update the sticky elements positions
+			this._updateFormPosition();
+			this._updateResultsToolbarTopPosition();
+			this._updateResultsTableHeadersPosition();
+
+			// Update the scrolling element's top padding to avoid having a visual glitch when the results panel elements becomes sticky and changes the result table vertical position
+			// Note: The initial "-8" offset is there because we don't know yet how to retrieve the results panel body :before height, therefore this will not work well with custom themes... 😕
+			const iInitialOffset = -8;
+			let iResultsPanelOffset = iInitialOffset;
+			const aStickableElems = [
+				this._getFormPanelBodyElem(),
+				this._getResultsToolbarTopElem(),
+				this._getResultsTableHeaders()
+			];
+			for(let oElem of aStickableElems){
+				if(oElem.hasClass('ibo-is-sticking')){
+					iResultsPanelOffset += parseInt(oElem.outerHeight() + parseInt(oElem.css('margin-top')) + parseInt(oElem.css('margin-bottom')));
+				}
+			}
+
+			// If computed offset is the same as the initial, we should reset the padding.
+			if(iInitialOffset === iResultsPanelOffset) {
+				this._getResultsPanelElem().css('padding-top', '');
+			} else {
+				this._getResultsPanelElem().css('padding-top', iResultsPanelOffset);
+			}
+		},
+		/**
+		 * Update only the search form position
+		 * @private
+		 */
+		_updateFormPosition: function()
+		{
+			const oFormPanelBodyElem = this._getFormPanelBodyElem();
+			if(this._isElementSticking(oFormPanelBodyElem)) {
+				const oFormPanelElem = this._getFormPanelElem();
+				oFormPanelBodyElem.css({
+					'top': $(this.options.viewport_elem).offset().top,
+					'left': oFormPanelElem.offset().left,
+					'width': oFormPanelElem.outerWidth(),
+				});
+			} else {
+				oFormPanelBodyElem.css({
+					'top': '',
+					'left': '',
+					'width': '',
+				});
+			}
+		},
+		/**
+		 * Update only the results top toolbar position
+		 * @private
+		 */
+		_updateResultsToolbarTopPosition: function()
+		{
+			if(this._isElementSticking(this._getResultsToolbarTopElem())){
+				const oFormPanelBodyElem = this._getFormPanelBodyElem();
+
+				this._getResultsToolbarTopElem().css({
+						'top': oFormPanelBodyElem.offset().top + oFormPanelBodyElem.outerHeight(),
+						'left': oFormPanelBodyElem.offset().left,
+						'width': oFormPanelBodyElem.outerWidth(),
+						'padding-top': this._getResultsToolbarTopElem().css('margin-top'),
+						'padding-bottom': this._getResultsToolbarTopElem().css('margin-bottom'),
+					});
+			}
+			else {
+				this._getResultsToolbarTopElem().css({
+						'top': '',
+						'left': '',
+						'width': '',
+						'padding-top': '',
+						'padding-bottom': '',
+					});
+			}
+		},
+		/**
+		 * Update only the results table headers position
+		 * @private
+		 */
+		_updateResultsTableHeadersPosition: function()
+		{
+			if(this._isElementSticking(this._getResultsTableHeaders())){
+				const oFormPanelElem = this._getFormPanelElem();
+				const oResultsToolbarTopElem = this._getResultsToolbarTopElem();
+
+				this._getResultsTableHeaders().css({
+						'top': oResultsToolbarTopElem.offset().top + oResultsToolbarTopElem.outerHeight(),
+						'left': oFormPanelElem.offset().left,
+						'width': oFormPanelElem.outerWidth(),
+						'padding-top': this._getResultsTableHeaders().css('margin-top'),
+						'padding-bottom': this._getResultsTableHeaders().css('margin-bottom'),
+					});
+			}else{
+				this._getResultsTableHeaders().css({
+						'top': '',
+						'left': '',
+						'width': '',
+						'padding-top': '',
+						'padding-bottom': '',
+					});
+			}
+		},
+		/**
+		 * @param oElem {Object} jQuery object representing the element to test
+		 * @return {boolean} True if oElem is currently sticking
+		 * @private
+		 */
+		_isElementSticking: function(oElem)
+		{
+			return oElem.closest('.ibo-is-sticking').length > 0;
+		},
+		/**
+		 * @return {Object} The jQuery object representing the search form panel element (where the criteria are)
+		 * @private
+		 */
+		_getFormPanelElem: function()
+		{
+			return this.element.closest('.ibo-search-form-panel');
+		},
+		/**
+		 * @return {null|Object} The jQuery object representing the header of the search form panel; or null if none found
+		 * @private
+		 */
+		_getFormPanelHeaderElem: function()
+		{
+			const oFormPanelElem =  this._getFormPanelElem();
+			if(oFormPanelElem.length === 0){
+				return null;
+			}
+
+			return oFormPanelElem.find('[data-role="ibo-panel--header"]:first');
+		},
+		/**
+		 * @return {null|Object} The jQuery object representing the body of the search form panel; or null if none found
+		 * @private
+		 */
+		_getFormPanelBodyElem: function()
+		{
+			const oFormPanelElem =  this._getFormPanelElem();
+			if(oFormPanelElem.length === 0){
+				return null;
+			}
+
+			return oFormPanelElem.find('[data-role="ibo-panel--body"]:first');
+		},
+		/**
+		 * @return {Object} The jQuery object representing the complete results panel
+		 * @private
+		 */
+		_getResultsPanelElem: function()
+		{
+			return this.elements.results_area === null ? null : this.elements.results_area.find('[data-role="ibo-panel"]:first')
+		},
+		/**
+		 * @return {Object} The jQuery object representing the top toolbar of the results (pagination, ...)
+		 * @private
+		 */
+		_getResultsToolbarTopElem: function()
+		{
+			return this.elements.results_area === null ? null : this.elements.results_area.find('.ibo-datatable--toolbar:first');
+		},
+		/**
+		 * @return {Object} The jQuery object representing the columns headers of the results
+		 * @private
+		 */
+		_getResultsTableHeaders: function()
+		{
+			return this.elements.results_area === null ? null : this.elements.results_area.find('.dataTables_scrollHead:first');
+		},
+
+
+		//---------------------------
 		// Global helpers
+		//---------------------------
 		_refreshRecentlyUsed: function()
 		{
 			me = this;
@@ -1162,7 +1501,9 @@ $(function()
 		},
 
 
+		//---------------------------
 		// Debug helpers
+		//---------------------------
 		// - Show a trace in the javascript console
 		_trace: function(sMessage, oData)
 		{

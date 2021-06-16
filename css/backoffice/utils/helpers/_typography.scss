@@ -16,23 +16,98 @@
  * You should have received a copy of the GNU Affero General Public License
  */
 
-/* Fonts
-	Value	Common weight name (https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight)
-	100		Thin (Hairline)
-	200		Extra Light (Ultra Light)
-	300		Light
-	400		Normal (Regular)
-	500		Medium
-	600		Semi Bold (Demi Bold)
-	700		Bold
-	800		Extra Bold (Ultra Bold)
-	900		Black (Heavy)
-	950		Extra Black (Ultra Black)
+/*
+ * SCSS helpers for font sizes (use in SCSS files)
+ *
+ * Use them to only redefine the font size instead of the global font defnition, this way if the container's font changes
+ * the other properties will be propagated (weight, style)
+ *
+ * Usage: @extend %ibo-font-size-XXX;
+ */
+%ibo-font-size-50 {
+  font-size: $ibo-font-size-50;
+}
+%ibo-font-size-100 {
+  font-size: $ibo-font-size-100;
+}
+%ibo-font-size-150 {
+  font-size: $ibo-font-size-150;
+}
+%ibo-font-size-200 {
+  font-size: $ibo-font-size-200;
+}
+%ibo-font-size-250 {
+  font-size: $ibo-font-size-250;
+}
+%ibo-font-size-300 {
+  font-size: $ibo-font-size-300;
+}
+%ibo-font-size-350 {
+  font-size: $ibo-font-size-350;
+}
+%ibo-font-size-400 {
+  font-size: $ibo-font-size-400;
+}
+%ibo-font-size-450 {
+  font-size: $ibo-font-size-450;
+}
+%ibo-font-size-500 {
+  font-size: $ibo-font-size-500;
+}
+%ibo-font-size-550 {
+  font-size: $ibo-font-size-550;
+}
+
+/*
+ * SCSS helpers for font weights (use in SCSS files)
+ *
+ * Use them to only redefine the font weight instead of the global font defnition, this way if the container's font changes
+ * the other properties will be propagated (size, style)
+ *
+ * Usage: @extend %ibo-font-weight-XXX;
+ */
+%ibo-font-weight-100 {
+  font-weight: $ibo-font-weight-100;
+}
+%ibo-font-weight-200 {
+  font-weight: $ibo-font-weight-200;
+}
+%ibo-font-weight-300 {
+  font-weight: $ibo-font-weight-300;
+}
+%ibo-font-weight-400 {
+  font-weight: $ibo-font-weight-400;
+}
+%ibo-font-weight-500 {
+  font-weight: $ibo-font-weight-500;
+}
+%ibo-font-weight-600 {
+  font-weight: $ibo-font-weight-600;
+}
+%ibo-font-weight-700 {
+  font-weight: $ibo-font-weight-700;
+}
+%ibo-font-weight-800 {
+  font-weight: $ibo-font-weight-800;
+}
+%ibo-font-weight-900 {
+  font-weight: $ibo-font-weight-900;
+}
+%ibo-font-weight-950 {
+  font-weight: $ibo-font-weight-950;
+}
+
+/*
+ * SCSS helpers for global font definition (use in SCSS files)
+ *
+ * Use this only when you want to completely redefine the font, otherwise use the other helpers above
+ *
+ * Usage: @extend %ibo-font-XXX-YYY;
  */
 %ibo-font-ral-nor-50 {
   font-size: $ibo-font-size-50;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -40,7 +115,7 @@
 %ibo-font-ral-nor-100 {
   font-size: $ibo-font-size-100;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -48,7 +123,7 @@
 %ibo-font-ral-nor-150 {
   font-size: $ibo-font-size-150;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -56,7 +131,7 @@
 %ibo-font-ral-nor-200 {
   font-size: $ibo-font-size-200;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -64,7 +139,7 @@
 %ibo-font-ral-nor-250 {
   font-size: $ibo-font-size-250;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -72,7 +147,7 @@
 %ibo-font-ral-nor-300 {
   font-size: $ibo-font-size-300;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -80,7 +155,7 @@
 %ibo-font-ral-nor-350 {
   font-size: $ibo-font-size-350;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -88,7 +163,7 @@
 %ibo-font-ral-nor-400 {
   font-size: $ibo-font-size-400;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -96,7 +171,7 @@
 %ibo-font-ral-nor-450 {
   font-size: $ibo-font-size-450;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -104,7 +179,7 @@
 %ibo-font-ral-nor-500 {
   font-size: $ibo-font-size-500;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -112,7 +187,7 @@
 %ibo-font-ral-nor-550 {
   font-size: $ibo-font-size-550;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -120,7 +195,7 @@
 %ibo-font-ral-med-50 {
   font-size: $ibo-font-size-50;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 500;
+  font-weight: $ibo-font-weight-500;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -128,7 +203,7 @@
 %ibo-font-ral-med-100 {
   font-size: $ibo-font-size-100;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 500;
+  font-weight: $ibo-font-weight-500;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -136,7 +211,7 @@
 %ibo-font-ral-med-150 {
   font-size: $ibo-font-size-150;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 500;
+  font-weight: $ibo-font-weight-500;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -144,7 +219,7 @@
 %ibo-font-ral-med-200 {
   font-size: $ibo-font-size-200;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 500;
+  font-weight: $ibo-font-weight-500;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -152,7 +227,7 @@
 %ibo-font-ral-med-250 {
   font-size: $ibo-font-size-250;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 500;
+  font-weight: $ibo-font-weight-500;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -160,7 +235,7 @@
 %ibo-font-ral-med-300 {
   font-size: $ibo-font-size-300;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 500;
+  font-weight: $ibo-font-weight-500;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -168,7 +243,7 @@
 %ibo-font-ral-med-350 {
   font-size: $ibo-font-size-350;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 500;
+  font-weight: $ibo-font-weight-500;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -176,7 +251,7 @@
 %ibo-font-ral-med-400 {
   font-size: $ibo-font-size-400;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 500;
+  font-weight: $ibo-font-weight-500;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -184,7 +259,7 @@
 %ibo-font-ral-med-450 {
   font-size: $ibo-font-size-450;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 500;
+  font-weight: $ibo-font-weight-500;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -192,7 +267,7 @@
 %ibo-font-ral-med-500 {
   font-size: $ibo-font-size-500;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 500;
+  font-weight: $ibo-font-weight-500;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -200,7 +275,7 @@
 %ibo-font-ral-med-550 {
   font-size: $ibo-font-size-550;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 500;
+  font-weight: $ibo-font-weight-500;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -208,7 +283,7 @@
 %ibo-font-ral-bol-50 {
   font-size: $ibo-font-size-50;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 700;
+  font-weight: $ibo-font-weight-700;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -216,7 +291,7 @@
 %ibo-font-ral-bol-100 {
   font-size: $ibo-font-size-100;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 700;
+  font-weight: $ibo-font-weight-700;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -224,7 +299,7 @@
 %ibo-font-ral-bol-150 {
   font-size: $ibo-font-size-150;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 700;
+  font-weight: $ibo-font-weight-700;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -232,7 +307,7 @@
 %ibo-font-ral-bol-200 {
   font-size: $ibo-font-size-200;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 700;
+  font-weight: $ibo-font-weight-700;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -240,7 +315,7 @@
 %ibo-font-ral-bol-250 {
   font-size: $ibo-font-size-250;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 700;
+  font-weight: $ibo-font-weight-700;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -248,7 +323,7 @@
 %ibo-font-ral-bol-300 {
   font-size: $ibo-font-size-300;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 700;
+  font-weight: $ibo-font-weight-700;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -256,7 +331,7 @@
 %ibo-font-ral-bol-350 {
   font-size: $ibo-font-size-350;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 700;
+  font-weight: $ibo-font-weight-700;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -264,7 +339,7 @@
 %ibo-font-ral-bol-400 {
   font-size: $ibo-font-size-400;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 700;
+  font-weight: $ibo-font-weight-700;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -272,7 +347,7 @@
 %ibo-font-ral-bol-450 {
   font-size: $ibo-font-size-450;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 700;
+  font-weight: $ibo-font-weight-700;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -280,7 +355,7 @@
 %ibo-font-ral-bol-500 {
   font-size: $ibo-font-size-500;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 700;
+  font-weight: $ibo-font-weight-700;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -288,7 +363,7 @@
 %ibo-font-ral-bol-550 {
   font-size: $ibo-font-size-550;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 700;
+  font-weight: $ibo-font-weight-700;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -296,7 +371,7 @@
 %ibo-font-ral-sembol-50 {
   font-size: $ibo-font-size-50;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 600;
+  font-weight: $ibo-font-weight-600;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -304,7 +379,7 @@
 %ibo-font-ral-sembol-100 {
   font-size: $ibo-font-size-100;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 600;
+  font-weight: $ibo-font-weight-600;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -312,7 +387,7 @@
 %ibo-font-ral-sembol-150 {
   font-size: $ibo-font-size-150;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 600;
+  font-weight: $ibo-font-weight-600;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -320,7 +395,7 @@
 %ibo-font-ral-sembol-200 {
   font-size: $ibo-font-size-200;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 600;
+  font-weight: $ibo-font-weight-600;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -328,7 +403,7 @@
 %ibo-font-ral-sembol-250 {
   font-size: $ibo-font-size-250;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 600;
+  font-weight: $ibo-font-weight-600;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -336,7 +411,7 @@
 %ibo-font-ral-sembol-300 {
   font-size: $ibo-font-size-300;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 600;
+  font-weight: $ibo-font-weight-600;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -344,7 +419,7 @@
 %ibo-font-ral-sembol-350 {
   font-size: $ibo-font-size-350;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 600;
+  font-weight: $ibo-font-weight-600;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -352,7 +427,7 @@
 %ibo-font-ral-sembol-400 {
   font-size: $ibo-font-size-400;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 600;
+  font-weight: $ibo-font-weight-600;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -360,7 +435,7 @@
 %ibo-font-ral-sembol-450 {
   font-size: $ibo-font-size-450;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 600;
+  font-weight: $ibo-font-weight-600;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -368,7 +443,7 @@
 %ibo-font-ral-sembol-500 {
   font-size: $ibo-font-size-500;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 600;
+  font-weight: $ibo-font-weight-600;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -376,7 +451,7 @@
 %ibo-font-ral-sembol-550 {
   font-size: $ibo-font-size-550;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 600;
+  font-weight: $ibo-font-weight-600;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
   font-feature-settings: "lnum";
@@ -384,7 +459,7 @@
 %ibo-font-ral-ita-50 {
   font-size: $ibo-font-size-50;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   font-style: italic;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
@@ -393,7 +468,7 @@
 %ibo-font-ral-ita-100 {
   font-size: $ibo-font-size-100;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   font-style: italic;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
@@ -402,7 +477,7 @@
 %ibo-font-ral-ita-150 {
   font-size: $ibo-font-size-150;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   font-style: italic;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
@@ -411,7 +486,7 @@
 %ibo-font-ral-ita-200 {
   font-size: $ibo-font-size-200;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   font-style: italic;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
@@ -420,7 +495,7 @@
 %ibo-font-ral-ita-250 {
   font-size: $ibo-font-size-250;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   font-style: italic;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
@@ -429,7 +504,7 @@
 %ibo-font-ral-ita-300 {
   font-size: $ibo-font-size-300;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   font-style: italic;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
@@ -438,7 +513,7 @@
 %ibo-font-ral-ita-350 {
   font-size: $ibo-font-size-350;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   font-style: italic;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
@@ -447,7 +522,7 @@
 %ibo-font-ral-ita-400 {
   font-size: $ibo-font-size-400;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   font-style: italic;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
@@ -456,7 +531,7 @@
 %ibo-font-ral-ita-450 {
   font-size: $ibo-font-size-450;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   font-style: italic;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
@@ -465,7 +540,7 @@
 %ibo-font-ral-ita-500 {
   font-size: $ibo-font-size-500;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   font-style: italic;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
@@ -475,7 +550,7 @@
 %ibo-font-ral-ita-550 {
   font-size: $ibo-font-size-550;
   font-family: $ibo-font-family-base, $ibo-font-family-fallbacks;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
   font-style: italic;
   -webkit-font-feature-settings: "lnum";
   -moz-font-feature-settings: "lnum";
@@ -485,69 +560,129 @@
 %ibo-font-code-50 {
   font-size: $ibo-font-size-50;
   font-family: $ibo-font-family-code;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
 }
 
 %ibo-font-code-100 {
   font-size: $ibo-font-size-100;
   font-family: $ibo-font-family-code;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
 }
 
 %ibo-font-code-150 {
   font-size: $ibo-font-size-150;
   font-family: $ibo-font-family-code;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
 }
 
 %ibo-font-code-200 {
   font-size: $ibo-font-size-200;
   font-family: $ibo-font-family-code;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
 }
 
 %ibo-font-code-250 {
   font-size: $ibo-font-size-250;
   font-family: $ibo-font-family-code;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
 }
 
 %ibo-font-code-300 {
   font-size: $ibo-font-size-300;
   font-family: $ibo-font-family-code;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
 }
 
 %ibo-font-code-350 {
   font-size: $ibo-font-size-350;
   font-family: $ibo-font-family-code;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
 }
 
 %ibo-font-code-400 {
   font-size: $ibo-font-size-400;
   font-family: $ibo-font-family-code;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
 }
 
 %ibo-font-code-450 {
   font-size: $ibo-font-size-450;
   font-family: $ibo-font-family-code;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
 }
 
 %ibo-font-code-500 {
   font-size: $ibo-font-size-500;
   font-family: $ibo-font-family-code;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
 }
 
 %ibo-font-code-550 {
   font-size: $ibo-font-size-550;
   font-family: $ibo-font-family-code;
-  font-weight: 400;
+  font-weight: $ibo-font-weight-400;
 }
 
+/*
+ * CSS classes for font sizes (use in HTML markup, JS scripts)
+ *
+ * Use them to only redefine the font size instead of the global font defnition, this way if the container's font changes
+ * the other properties will be propagated (weight, style)
+ *
+ * Usage: .ibo-font-size-XXX;
+ */
+$ibo-font-sizes: (
+  'ibo-font-size-50',
+  'ibo-font-size-100',
+  'ibo-font-size-150',
+  'ibo-font-size-200',
+  'ibo-font-size-250',
+  'ibo-font-size-300',
+  'ibo-font-size-350',
+  'ibo-font-size-400',
+  'ibo-font-size-450',
+  'ibo-font-size-500',
+  'ibo-font-size-550'
+);
+@each $sFontSize in $ibo-font-sizes {
+  .#{$sFontSize} {
+    @extend %#{$sFontSize};
+  }
+}
+
+/*
+ * CSS classes for font weights (use in HTML markup, JS scripts)
+ *
+ * Use them to only redefine the font weight instead of the global font defnition, this way if the container's font changes
+ * the other properties will be propagated (size, style)
+ *
+ * Usage: .ibo-font-weight-XXX;
+ */
+$ibo-font-weights: (
+  'ibo-font-weight-100',
+  'ibo-font-weight-200',
+  'ibo-font-weight-300',
+  'ibo-font-weight-400',
+  'ibo-font-weight-500',
+  'ibo-font-weight-600',
+  'ibo-font-weight-700',
+  'ibo-font-weight-800',
+  'ibo-font-weight-900',
+  'ibo-font-weight-950'
+);
+@each $sFontWeight in $ibo-font-weights {
+  .#{$sFontWeight} {
+    @extend %#{$sFontWeight};
+  }
+}
+
+/*
+ * CSS classes for global font wrappers (use in HTML markup, JS scripts)
+ *
+ * Use this only when you want to completely redefine the font, otherwise use the other helpers
+ *
+ * Usage: .ibo-font-XXX-YYY;
+ */
 $ibo-fonts-all: (
         'ibo-font-ral-nor-50',
         'ibo-font-ral-nor-100',
@@ -616,7 +751,6 @@ $ibo-fonts-all: (
         'ibo-font-code-500',
         'ibo-font-code-550'
 );
-
 @each $sFont in $ibo-fonts-all {
   .#{$sFont} {
     @extend %#{$sFont};

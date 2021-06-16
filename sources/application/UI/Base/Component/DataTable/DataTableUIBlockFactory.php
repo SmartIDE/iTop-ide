@@ -285,9 +285,11 @@ class DataTableUIBlockFactory extends AbstractUIBlockFactory
 			$oSet->SetLimit($oCustomSettings->iDefaultPageSize);
 		}
 
-		if (sizeof($oCustomSettings->aColumns) == 0)
+		if (count($oCustomSettings->aColumns) == 0)
 		{
 			$oCustomSettings->aColumns = $oDefaultSettings->aColumns;
+		}
+		if(count($oCustomSettings->GetSortOrder()) == 0){
 			$oCustomSettings->aSortOrder = $oDefaultSettings->aSortOrder;
 		}
 
@@ -295,8 +297,12 @@ class DataTableUIBlockFactory extends AbstractUIBlockFactory
 		$aColumnsToLoad = array();
 		foreach ($oCustomSettings->aColumns as $sAlias => $aColumnsInfo) {
 			foreach ($aColumnsInfo as $sAttCode => $aData) {
+				$bForceLoad = false;
+				if ($aData['sort'] != 'none' || isset($oCustomSettings->aSortOrder[$sAttCode])) {
+					$bForceLoad = true;
+				}
 				if ($sAttCode != '_key_') {
-					if ($aData['checked']) {
+					if ($aData['checked'] || $bForceLoad) {
 						$aColumnsToLoad[$sAlias][] = $sAttCode;
 					} else {
 						// See if this column is a must to load
@@ -319,11 +325,15 @@ class DataTableUIBlockFactory extends AbstractUIBlockFactory
 		}
 		foreach ($aClassAliases as $sClassAlias => $sClassName) {
 			foreach ($oCustomSettings->aColumns[$sClassAlias] as $sAttCode => $aData) {
+				$sCode = ($aData['code'] == '_key_') ? 'friendlyname' : $aData['code'];
 				if ($aData['sort'] != 'none') {
-					$sCode = ($aData['code'] == '_key_') ? 'friendlyname' : $aData['code'];
-					$aSortOrder[$sAlias.$sCode] = ($aData['sort'] == 'asc'); // true for ascending, false for descending
+					$aSortOrder[$sAlias.'.'.$sCode] = ($aData['sort'] == 'asc'); // true for ascending, false for descending
 					$aSortDatable=[$iIndexColumn,$aData['sort']];
 				}
+				elseif (isset($oCustomSettings->aSortOrder[$sAttCode])){
+					$aSortOrder[$sAlias.'.'.$sCode] = $oCustomSettings->aSortOrder[$sAttCode]; // true for ascending, false for descending
+				}
+				
 				if ($aData['checked']) {
 					if ($sAttCode == '_key_') {
 						if ($bViewLink) {

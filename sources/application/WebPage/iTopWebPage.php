@@ -380,6 +380,11 @@ JS
 			PrepareWidgets();
 		}, 500);
 	});
+	
+	// Default values for blockui
+	$.blockUI.defaults.css = {}; 
+	$.blockUI.defaults.message= '<i class="fas fa-fw fa-spin fa-sync"></i>'; 
+	$.blockUI.defaults.overlayCSS = {} 
 JS
 		);
 
@@ -470,6 +475,8 @@ JS
 		$this->sBreadCrumbEntryDescription = null;
 		$this->sBreadCrumbEntryUrl = null;
 		$this->sBreadCrumbEntryIcon = null;
+
+		$this->GetTopBarLayout()->SetBreadcrumbs(new Breadcrumbs($this->GetBreadCrumbsNewEntry(), Breadcrumbs::BLOCK_CODE));
 	}
 
 
