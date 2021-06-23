@@ -284,6 +284,7 @@ class DailyRotatingLogFileNameBuilder extends RotatingLogFileNameBuilder
 	 */
 	public function ShouldRotate($oLogFileLastModified, $oNow)
 	{
+//		$oNow->setTimezone($oLogFileLastModified->getTimezone());
 		$iLogYear = $oLogFileLastModified->format('Y');
 		$iLogDay = $oLogFileLastModified->format('z');
 		$iNowYear = $oNow->format('Y');
@@ -335,6 +336,7 @@ class WeeklyRotatingLogFileNameBuilder extends RotatingLogFileNameBuilder
 	 */
 	public function ShouldRotate($oLogFileLastModified, $oNow)
 	{
+//		$oNow->setTimezone($oLogFileLastModified->getTimezone());
 		$iLogYear = $oLogFileLastModified->format('Y');
 		$iLogWeek = $oLogFileLastModified->format('W');
 		$iNowYear = $oNow->format('Y');
@@ -375,6 +377,7 @@ class MonthlyRotatingLogFileNameBuilder extends RotatingLogFileNameBuilder
 	 */
 	public function ShouldRotate($oLogFileLastModified, $oNow)
 	{
+//		$oNow->setTimezone($oLogFileLastModified->getTimezone());
 		$iLogYear = $oLogFileLastModified->format('Y');
 		$iLogMonth = $oLogFileLastModified->format('n');
 		$iNowYear = $oNow->format('Y');
