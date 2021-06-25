@@ -17,6 +17,8 @@
  * You should have received a copy of the GNU Affero General Public License
  */
 
+use Combodo\iTop\Renderer\BlockRenderer;
+
 
 /**
  * Special class of WebPage for printing into a PDF document
@@ -65,10 +67,10 @@ class PDFPage extends WebPage
 table {
 	padding: 2pt;
 }
-table.listResults td {
+table.ibo-datatable td, table.listResults td  {
 	border: 0.5pt solid #000 ;
 }
-table.listResults th {
+table.ibo-datatable th, table.listResults th  {
 	background-color: #eee;
 	border: 0.5pt solid #000 ;
 }
@@ -83,6 +85,13 @@ table.section td {
 }
 td.icon {
 	width: 30px;
+}
+h2{
+	font-size: 10pt;
+	vertical-align: middle;
+	background-color:#eee;
+	padding: 2pt;
+	margin:2pt;
 }
 EOF
 		);
@@ -107,17 +116,16 @@ EOF
 	 */
 	public function flush()
 	{
-		if (strlen($this->s_content) > 0)
-		{
-			$sHtml = '';
-			if (count($this->a_styles) > 0)
-			{
-				$sHtml .= "<style>\n".implode("\n", $this->a_styles)."\n</style>\n";
-			}
+		$sHtml = '';
+		if (count($this->a_styles) > 0) {
+			$sHtml .= "<style>\n".implode("\n", $this->a_styles)."\n</style>\n";
+		}
+		if (strlen($this->s_content) > 0) {
 			$sHtml .= $this->s_content;
-			$this->oPdf->writeHTML($sHtml); // The style(s) must be supplied each time we call writeHtml
 			$this->s_content = '';
 		}
+		$sHtml .= BlockRenderer::RenderBlockTemplates($this->oContentLayout);
+		$this->oPdf->writeHTML($sHtml); // The style(s) must be supplied each time we call writeHtml
 	}
 
 	/**
