@@ -1517,7 +1517,8 @@ abstract class DBObject implements iDisplay
 	/**
 	 * Helper to get the friendly name in a safe manner for displaying inside a web page
 	 *
-     * @api
+	 * @internal
+	 * @since 3.0.0 N°4106 This method is now internal. It will be set final in 3.1.0 (N°4107)
 	 *
 	 * @return string
 	 * @throws \CoreException
@@ -1528,16 +1529,17 @@ abstract class DBObject implements iDisplay
 	}
 
 	/**
-     * Helper to get the friendly name
-     *
-     * This is not safe for displaying inside a web page since the " < > characters are not escaped.
-     * In example, the name may contain some XSS script instructions.
+	 * Helper to get the friendly name
+	 *
+	 * This is not safe for displaying inside a web page since the " < > characters are not escaped.
+	 * In example, the name may contain some XSS script instructions.
 	 * Use this function only for internal computations or for an output to a non-HTML destination
 	 *
-     * @api
-     *
+	 * @internal
 	 * @return string
 	 * @throws \CoreException
+	 * @since 3.0.0 N°4106 This method is now internal. It will be set final in 3.1.0 (N°4107)
+	 *
 	 */
 	public function GetRawName()
 	{
@@ -2431,14 +2433,6 @@ abstract class DBObject implements iDisplay
 		return $this->m_aCurrValues;
 	}
 
-	/*
-	 * return array
-	 */
-	public function GetLoadedAttributes()
-	{
-		return array_keys($this->m_aLoadedAtt);
-	}
-
 	/**
 	 * @api
 	 * @api-advanced
@@ -3286,13 +3280,11 @@ abstract class DBObject implements iDisplay
 					$this->m_aTouchedAtt = array();
 					$this->m_aModifiedAtt = array();
 
-					if (count($aChanges) != 0)
-					{
+					if (count($aChanges) != 0) {
 						$this->RecordAttChanges($aChanges, $aOriginalValues);
 					}
 
-					if ($bIsTransactionEnabled)
-					{
+					if ($bIsTransactionEnabled) {
 						CMDBSource::Query('COMMIT');
 					}
 					break;
