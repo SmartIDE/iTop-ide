@@ -434,7 +434,7 @@ class SetupUtils
 
 		// some CLI scripts are launched automatically
 		// we need a log so that we don't miss errors after migration !
-		IssueLog::Error($oCliPage->s_title.' '.$sMessageTitle, 'CLI', $aPhpCheckErrorsForPrint);
+		IssueLog::Error($oCliPage->s_title.' '.$sMessageTitle, LogChannels::CLI, $aPhpCheckErrorsForPrint);
 
 		exit($iExitCode);
 	}
@@ -2192,7 +2192,7 @@ JS
 				'openssl' => 'Strong encryption will not be used.',
 			],
 			'ldap' => 'LDAP authentication will be disabled.',
-			'curl' => 'Required to export as PDF',
+			'curl' => 'PDF exports won\'t be possible.',
 		];
 
 		if (utils::IsDevelopmentEnvironment()) {
