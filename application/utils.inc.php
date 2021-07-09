@@ -1515,7 +1515,11 @@ class utils
 			return null;
 		}
 
-		return 'http://www.combodo.com';
+		$sAppRootUrl = static::GetAbsoluteUrlAppRoot();
+		$oAppContext = new ApplicationContext();
+		$sUrl = $sAppRootUrl.'pages/UI.php?operation=search&'.$oAppContext->GetForLink().'&filter='.rawurlencode($oFilter->serialize());
+
+		return $sUrl;
 	}
 
 	/**
