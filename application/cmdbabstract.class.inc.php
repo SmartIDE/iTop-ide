@@ -662,7 +662,7 @@ HTML
 				}
 
 				$oClassIcon = new MedallionIcon(MetaModel::GetClassIcon($sTargetClass, false));
-				$oClassIcon->SetDescription($oAttDef->GetDescription())->AddCSSClass('ibo-blocklist--medallion');
+				$oClassIcon->SetDescription($oAttDef->GetDescription())->AddCSSClass('ibo-block-list--medallion');
 				$oPage->AddUiBlock($oClassIcon);
 				
 				$sDisplayValue = ''; // not used
@@ -740,7 +740,7 @@ HTML
 					);
 				}
 				$oClassIcon = new MedallionIcon(MetaModel::GetClassIcon($sTargetClass, false));
-				$oClassIcon->SetDescription($oAttDef->GetDescription())->AddCSSClass('ibo-blocklist--medallion');
+				$oClassIcon->SetDescription($oAttDef->GetDescription())->AddCSSClass('ibo-block-list--medallion');
 				$oPage->AddUiBlock($oClassIcon);
 				$oBlock = new DisplayBlock($oLinkSet->GetFilter(), 'list', false);
 				$oBlock->Display($oPage, 'rel_'.$sAttCode, $aParams);
@@ -797,7 +797,7 @@ HTML
 
 			foreach($aNotificationClasses as $sNotifClass) {
 				$oClassIcon = new MedallionIcon(MetaModel::GetClassIcon($sNotifClass, false));
-				$oClassIcon->SetDescription(MetaModel::GetName($sNotifClass))->AddCSSClass('ibo-blocklist--medallion');
+				$oClassIcon->SetDescription(MetaModel::GetName($sNotifClass))->AddCSSClass('ibo-block-list--medallion');
 				$oPage->AddUiBlock($oClassIcon);
 
 				$oBlock = new DisplayBlock($aNotifSearches[$sNotifClass], 'list', false);
@@ -2533,14 +2533,13 @@ EOF
 						$sDisplayValueForHtml = utils::EscapeHtml($sDisplayValue);
 
 						// Adding tooltip so we can read the whole value when its very long (eg. URL)
-						$sTip = '';
+                        $sTip = '';
 						if (!empty($sDisplayValue)) {
 							$sTip = 'data-tooltip-content="'.$sDisplayValueForHtml.'"';
-							$oPage->add_ready_script(
-								<<<EOF
+							$oPage->add_ready_script(<<<JS
 								$('#{$iId}').on('keyup', function(evt, sFormId){ 
-									var sVal = $('#{$iId}').val();
-									var oTippy = this._tippy;
+									let sVal = $('#{$iId}').val();
+									const oTippy = this._tippy;
 									
 									if(sVal === '')
 									{
@@ -2553,7 +2552,7 @@ EOF
 									}
 									oTippy.setContent(sVal);
 								});
-EOF
+JS
 							);
 						}
 
@@ -3203,7 +3202,7 @@ HTML
 		);
 
 		// Page title and subtitles
-		$oPage->AddUiBlock(TitleUIBlockFactory::MakeForPage($sActionLabel.' - '.$this->GetName()));
+		$oPage->AddUiBlock(TitleUIBlockFactory::MakeForPage($sActionLabel.' - '.$this->GetRawName()));
 		if (!empty($sActionDetails)) {
 			$oPage->AddUiBlock(TitleUIBlockFactory::MakeForPage($sActionDetails));
 		}
@@ -5343,6 +5342,20 @@ EOF
 		$sJSOk = json_encode(Dict::S('UI:Button:Ok'));
 		$oPage->add_ready_script(
 			<<<JS
+		// Prepare reusable modal
+		const oOwnershipLockModal = $('<div></div>').dialog({
+			title: $sJSTitle,
+			modal: true,
+			autoOpen: false,
+			minWidth: 600,
+			buttons:[{
+				text: $sJSOk,
+				class: 'ibo-is-alternative',
+				click: function() { $(this).dialog('close'); }
+			}],
+			close: function() { $(this).dialog('close'); }
+		});
+		// Start periodic handler
 		let hOwnershipLockHandlerInterval = window.setInterval(function() {
 			if (window.bInSubmit || window.bInCancel) return;
 			
@@ -5352,18 +5365,8 @@ EOF
 					if ($('.lock_owned').length == 0)
 					{
 						$('.ui-layout-content').prepend('<div class="header_message message_error lock_owned">'+data.message+'</div>');
-						$('<div>'+data.popup_message+'</div>').dialog({
-							title: $sJSTitle,
-							modal: true,
-							autoOpen: true,
-							minWidth: 600,
-							buttons:[{
-								text: {$sJSOk},
-								class: 'ibo-is-alternative',
-								click: function() { $(this).dialog('close'); }
-							}],
-							close: function() { $(this).remove(); }
-						});
+						oOwnershipLockModal.text(data.popup_message);
+						oOwnershipLockModal.dialog('open');
 					}
 					$('.object-details form .ibo-toolbar .ibo-button:not([name="cancel"])').prop('disabled', true);
 					clearInterval(hOwnershipLockHandlerInterval);
@@ -5373,18 +5376,8 @@ EOF
 					if ($('.lock_owned').length == 0)
 					{
 						$('.ui-layout-content').prepend('<div class="header_message message_error lock_owned">'+data.message+'</div>');
-						$('<div>'+data.popup_message+'</div>').dialog({
-							title: $sJSTitle,
-							modal: true,
-							autoOpen: true,
-							minWidth: 600,
-							buttons:[{
-								text: $sJSOk,
-								class: 'ibo-is-alternative',
-								click: function() { $(this).dialog('close'); }
-							}],
-							close: function() { $(this).remove(); }
-						});
+						oOwnershipLockModal.text(data.popup_message);
+						oOwnershipLockModal.dialog('open');
 					}
 					$('.object-details form .ibo-toolbar .ibo-button:not([name="cancel"])').prop('disabled', true);
 					clearInterval(hOwnershipLockHandlerInterval);

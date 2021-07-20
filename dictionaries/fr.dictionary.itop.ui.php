@@ -3,7 +3,6 @@
  * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
-
 Dict::Add('FR FR', 'French', 'Français', array(
 	'Class:AuditCategory' => 'Catégorie d\'audit',
 	'Class:AuditCategory+' => 'Une section de l\'audit',
@@ -1219,6 +1218,8 @@ Lors de l\'association à un déclencheur, on attribue à chaque action un numé
 	'UI:DashboardEdit:Properties' => 'Propriétés du tableau de bord',
 	'UI:DashboardEdit:Dashlets' => 'Indicateurs',
 	'UI:DashboardEdit:DashletProperties' => 'Propriétés de l\'Indicateur',
+	'UI:DashboardEdit:Revert' => 'Revenir à la valeur précédente',
+	'UI:DashboardEdit:Apply' => 'Appliquer',
 
 	'UI:Form:Property' => 'Propriété',
 	'UI:Form:Value' => 'Valeur',
