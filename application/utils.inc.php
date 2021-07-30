@@ -1505,22 +1505,20 @@ class utils
 	}
 
 	/**
-	 * For now detection is made using an ugly hack, checking script URL :( This must be improved !
-	 *
 	 * We cannot use iMenuId (corresponding values in iPopupMenuExtension constants) as value is always \iPopupMenuExtension::MENU_OBJLIST_TOOLKIT
 	 * whenever we are in a datatable, whereas it is included in a object tab, a dashlet or a search.
+	 *
+	 * So a {@see \ContextTag} is set on the corresponding calls.
 	 *
 	 * @return bool true if we are in a search page context, either directly or by the datatable ajax call
 	 *
 	 * @since 3.0.0
+	 *
+	 * @uses \ContextTag::TAG_SEARCH
 	 */
 	public static function IsCurrentPageASearch(): bool
 	{
-		$sCurrentScript = basename($_SERVER['SCRIPT_NAME'], '.php');
-		if (($sCurrentScript === 'UI') && (utils::ReadParam('operation') === 'search')) {
-			return true;
-		}
-		if ($sCurrentScript === 'ajax.searchform') {
+		if (ContextTag::Check(ContextTag::TAG_SEARCH)) {
 			return true;
 		}
 

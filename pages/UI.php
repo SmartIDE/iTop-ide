@@ -496,18 +496,18 @@ try
 		///////////////////////////////////////////////////////////////////////////////////////////
 
 		case 'search': // Serialized DBSearch
+			$oSearchContext = new ContextTag(ContextTag::TAG_SEARCH);
 			$sFilter = utils::ReadParam('filter', '', false, 'raw_data');
 			$sFormat = utils::ReadParam('format', '');
 			$bSearchForm = utils::ReadParam('search_form', true);
-			if (empty($sFilter))
-			{
+			if (empty($sFilter)) {
 				throw new ApplicationException(Dict::Format('UI:Error:1ParametersMissing', 'filter'));
 			}
 			$oP->set_title(Dict::S('UI:SearchResultsPageTitle'));
 			$oFilter = DBSearch::unserialize($sFilter); // TO DO : check that the filter is valid
 			$oFilter->UpdateContextFromUser();
 			DisplaySearchSet($oP, $oFilter, $bSearchForm, '' /* sBaseClass */, $sFormat);
-		break;
+			break;
 	
 		///////////////////////////////////////////////////////////////////////////////////////////
 
