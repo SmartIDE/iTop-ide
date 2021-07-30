@@ -1525,6 +1525,18 @@ class utils
 		return false;
 	}
 
+	/**
+	 * @param \DBObjectSearch $oFilter object list
+	 *
+	 * @return string|null null if we are already in a search, otherwise the URL to open this list in a search
+	 *
+	 * @throws \ArchivedObjectException
+	 * @throws \CoreException
+	 *
+	 * @uses utils::IsCurrentPageASearch()
+	 *
+	 * @since 3.0.0
+	 */
 	private static function GetDataTableSearchUrl(DBObjectSearch $oFilter): ?string
 	{
 		if (static::IsCurrentPageASearch()) {
