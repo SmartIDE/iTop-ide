@@ -1418,12 +1418,12 @@ class utils
 						$aResult[] = new JSPopupMenuItem('UI:Menu:ExportPDF', Dict::S('UI:Menu:ExportPDF'), "ExportListDlg('$sOQL', '$sDataTableId', 'pdf', ".json_encode(Dict::S('UI:Menu:ExportPDF')).")");
 					}
 				}
-				$aResult[] = new JSPopupMenuItem('UI:Menu:AddToDashboard', Dict::S('UI:Menu:AddToDashboard'), "DashletCreationDlg('$sOQL', '$sContext')");
-				$aResult[] = new JSPopupMenuItem('UI:Menu:ShortcutList', Dict::S('UI:Menu:ShortcutList'), "ShortcutListDlg('$sOQL', '$sDataTableId', '$sContext')");
 				$sSearchUrl = static::GetDataTableSearchUrl($oFilter);
 				if (!empty($sSearchUrl)) {
 					$aResult[] = new URLPopupMenuItem('UI:Menu:OpenSearch', Dict::S('UI:Menu:OpenSearch'), $sSearchUrl);
 				}
+				$aResult[] = new JSPopupMenuItem('UI:Menu:AddToDashboard', Dict::S('UI:Menu:AddToDashboard'), "DashletCreationDlg('$sOQL', '$sContext')");
+				$aResult[] = new JSPopupMenuItem('UI:Menu:ShortcutList', Dict::S('UI:Menu:ShortcutList'), "ShortcutListDlg('$sOQL', '$sDataTableId', '$sContext')");
 
 				break;
 
@@ -1506,6 +1506,9 @@ class utils
 
 	/**
 	 * For now detection is made using an ugly hack, checking script URL :( This must be improved !
+	 *
+	 * We cannot use iMenuId (corresponding values in iPopupMenuExtension constants) as value is always \iPopupMenuExtension::MENU_OBJLIST_TOOLKIT
+	 * whenever we are in a datatable, whereas it is included in a object tab, a dashlet or a search.
 	 *
 	 * @return bool true if we are in a search page context, either directly or by the datatable ajax call
 	 *
