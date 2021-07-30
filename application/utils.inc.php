@@ -1504,14 +1504,30 @@ class utils
 		}
 	}
 
-	private static function GetDataTableSearchUrl(DBObjectSearch $oFilter): ?string
+	/**
+	 * For now detection is made using an ugly hack, checking script URL :( This must be improved !
+	 *
+	 * @return bool true if we are in a search page context, either directly or by the datatable ajax call
+	 *
+	 * @since 3.0.0
+	 */
+	public static function IsCurrentPageASearch(): bool
 	{
-		// ugly hack : we don't want to add the link when already in a search page
 		$sCurrentScript = basename($_SERVER['SCRIPT_NAME'], '.php');
 		if (($sCurrentScript === 'UI') && (utils::ReadParam('operation') === 'search')) {
-			return null;
+			return true;
 		}
 		if ($sCurrentScript === 'ajax.searchform') {
+			return true;
+		}
+
+		return false;
+	}
+
+	private static function GetDataTableSearchUrl(DBObjectSearch $oFilter): ?string
+	{
+		if (static::IsCurrentPageASearch()) {
+			// we don't want to add the link when already in a search page !
 			return null;
 		}
 
