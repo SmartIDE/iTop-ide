@@ -1116,7 +1116,6 @@ abstract class MetaModel
 	 */
 	final public static function GetFilterCodeOrigin($sClass, $sAttCode)
 	{
-		DeprecatedCallsLog::NotifyDeprecatedPhpMethod('do not use : dead code, will be removed in the future');
 		self::_check_subclass($sClass);
 
 		return self::$m_aFilterOrigins[$sClass][$sAttCode];
@@ -6957,7 +6956,7 @@ abstract class MetaModel
 	 * @param int $iKey id value of the object to retrieve
 	 * @param bool $bMustBeFound see throws ArchivedObjectException
 	 * @param bool $bAllowAllData if true then user rights will be bypassed - use with care!
-	 * @param null $aModifierProperties
+	 * @param array $aModifierProperties properties for {@see iQueryModifier} impl
 	 *
 	 * @return \DBObject null if : (the object is not found) or (archive mode disabled and object is archived and
 	 *     $bMustBeFound=false)
@@ -7244,7 +7243,6 @@ abstract class MetaModel
 	 */
 	public static function BulkUpdate(DBObjectSearch $oFilter, array $aValues)
 	{
-		DeprecatedCallsLog::NotifyDeprecatedPhpMethod('do not use : dead code, will be removed in the future');
 		// $aValues is an array of $sAttCode => $value
 		$sSQL = $oFilter->MakeUpdateQuery($aValues);
 		if (!self::DBIsReadOnly()) {

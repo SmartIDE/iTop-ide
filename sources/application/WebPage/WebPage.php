@@ -74,7 +74,13 @@ class WebPage implements Page
 	protected $s_title;
 	protected $s_content;
 	protected $s_deferred_content;
-	/** @var array Scripts to be put in the page's header */
+	/**
+	 * @var array Scripts to be put in the page's header, therefore executed first, BEFORE the DOM interpretation.
+	 *            /!\ Keep in mind that no external JS files (eg. jQuery) will be loaded yet.
+	 * @since 3.0.0
+	 */
+	protected $a_early_scripts;
+	/** @var array Scripts to be executed immediately without waiting for the DOM to be ready */
 	protected $a_scripts;
 	/** @var array Scripts to be executed when the DOM is ready (typical JQuery use), right before "ready scripts" */
 	protected $a_init_scripts;
@@ -85,7 +91,7 @@ class WebPage implements Page
 	protected $a_ready_scripts;
 	/** @var array Scripts linked (externals) to the page through URIs */
 	protected $a_linked_scripts;
-	/** @var array Specific dictionnary entries to be used client side */
+	/** @var array Specific dictionary entries to be used client side */
 	protected $a_dict_entries;
 	/** @var array Sub-sets of dictionary entries (based on the given prefix) for the client side */
 	protected $a_dict_entries_prefixes;
@@ -93,6 +99,11 @@ class WebPage implements Page
 	protected $a_styles;
 	/** @var array Stylesheets linked (external) to the page through URIs */
 	protected $a_linked_stylesheets;
+	/**
+	 * @var array These parameters are used by the page UIBlocks and avoid accessing them directly from external code
+	 * @since 3.0.0
+	 */
+	protected $aBlockParams;
 	protected $a_headers;
 	protected $a_base;
 	protected $iNextId;
@@ -105,6 +116,11 @@ class WebPage implements Page
 	protected $a_OutputOptions;
 	protected $bPrintable;
 	protected $bHasCollapsibleSection;
+	/**
+	 * @var bool Whether the JS dictionary entries should be added to the page or not during the final output
+	 * @see static::add_dict_entry
+	 * @see static::add_dict_entries
+	 */
 	protected $bAddJSDict;
 	/** @var iUIContentBlock $oContentLayout */
 	protected $oContentLayout;
@@ -122,11 +138,12 @@ class WebPage implements Page
 	 * @param string $s_title
 	 * @param bool $bPrintable
 	 */
-	public function __construct($s_title, $bPrintable = false)
+	public function __construct(string $s_title, bool $bPrintable = false)
 	{
 		$this->s_title = $s_title;
 		$this->s_content = "";
 		$this->s_deferred_content = '';
+		$this->InitializeEarlyScripts();
 		$this->InitializeScripts();
 		$this->InitializeInitScripts();
 		$this->InitializeReadyScripts();
@@ -134,8 +151,8 @@ class WebPage implements Page
 		$this->InitializeDictEntries();
 		$this->InitializeStyles();
 		$this->InitializeLinkedStylesheets();
-		$this->a_headers = array();
-		$this->a_base = array('href' => '', 'target' => '');
+		$this->a_headers = [];
+		$this->a_base = ['href' => '', 'target' => ''];
 		$this->iNextId = 0;
 		$this->iTransactionId = 0;
 		$this->sContentType = '';
@@ -143,7 +160,8 @@ class WebPage implements Page
 		$this->sContentFileName = '';
 		$this->bTrashUnexpectedOutput = false;
 		$this->s_OutputFormat = utils::ReadParam('output_format', 'html');
-		$this->a_OutputOptions = array();
+		$this->a_OutputOptions = [];
+		$this->aBlockParams = [];
 		$this->bHasCollapsibleSection = false;
 		$this->bPrintable = $bPrintable;
 		$this->bAddJSDict = true;
@@ -433,6 +451,45 @@ class WebPage implements Page
 	/**
 	 * Empty all base JS in the page's header
 	 *
+	 * @uses \WebPage::$a_a_early_scripts
+	 * @return void
+	 * @since 3.0.0
+	 */
+	protected function EmptyEarlyScripts(): void
+	{
+		$this->a_early_scripts = [];
+	}
+
+	/**
+	 * Initialize base JS in the page's header
+	 *
+	 * @uses \WebPage::$a_scripts
+	 * @return void
+	 * @since 3.0.0
+	 */
+	protected function InitializeEarlyScripts(): void
+	{
+		$this->EmptyEarlyScripts();
+	}
+
+	/**
+	 * Add some Javascript to the header of the page, therefore executed first, BEFORE the DOM interpretation.
+	 * /!\ Keep in mind that no external JS files (eg. jQuery) will be loaded yet.
+	 *
+	 * @uses \WebPage::$a_a_early_scripts
+	 * @param string $s_script
+	 * @since 3.0.0
+	 */
+	public function add_early_script($s_script)
+	{
+		if (!empty(trim($s_script))) {
+			$this->a_early_scripts[] = $s_script;
+		}
+	}
+
+	/**
+	 * Empty all base JS
+	 *
 	 * @uses \WebPage::$a_scripts
 	 * @return void
 	 * @since 3.0.0
@@ -443,7 +500,7 @@ class WebPage implements Page
 	}
 
 	/**
-	 * Initialize base JS in the page's header
+	 * Initialize base JS
 	 *
 	 * @uses \WebPage::$a_scripts
 	 * @return void
@@ -455,10 +512,11 @@ class WebPage implements Page
 	}
 
 	/**
-	 * Add some Javascript to the header of the page
+	 * Add some Javascript to be executed immediately without waiting for the DOM to be ready
 	 *
 	 * @uses \WebPage::$a_scripts
 	 * @param string $s_script
+	 * @since 3.0.0 These scripts are put at the end of the <body> tag instead of the end of the <head> tag, {@see static::add_early_script} to add script there
 	 */
 	public function add_script($s_script)
 	{
@@ -1116,22 +1174,25 @@ JS;
 		// Base structure of data to pass to the TWIG template
 		$aData['aPage'] = [
 			'sAbsoluteUrlAppRoot' => addslashes(utils::GetAbsoluteUrlAppRoot()),
-			'sTitle' => $this->s_title,
-			'aMetadata' => [
+			'sTitle'              => $this->s_title,
+			'aMetadata'           => [
 				'sCharset' => static::PAGES_CHARSET,
-				'sLang' => $this->GetLanguageForMetadata(),
+				'sLang'    => $this->GetLanguageForMetadata(),
 			],
-			'aCssFiles' => $this->a_linked_stylesheets,
-			'aCssInline' => $this->a_styles,
-			'aJsFiles' => $this->a_linked_scripts,
-			'aJsInlineLive' => $this->a_scripts,
+			'aCssFiles'           => $this->a_linked_stylesheets,
+			'aCssInline'          => $this->a_styles,
+			'aJsInlineEarly'      => $this->a_early_scripts,
+			'aJsFiles'            => $this->a_linked_scripts,
+			'aJsInlineLive'       => $this->a_scripts,
 			'aJsInlineOnDomReady' => $this->GetReadyScripts(),
-			'aJsInlineOnInit' => $this->a_init_scripts,
+			'aJsInlineOnInit'     => $this->a_init_scripts,
 
 			// TODO 3.0.0: TEMP, used while developing, remove it.
-			'sCapturedOutput' => utils::FilterXSS($s_captured_output),
-			'sDeferredContent' => utils::FilterXSS($this->s_deferred_content),
+			'sCapturedOutput'     => utils::FilterXSS($s_captured_output),
+			'sDeferredContent'    => utils::FilterXSS($this->s_deferred_content),
 		];
+
+		$aData['aBlockParams'] = $this->GetBlockParams();
 
 		if ($this->a_base['href'] != '') {
 			$aData['aPage']['aMetadata']['sBaseUrl'] = $this->a_base['href'];
@@ -1548,5 +1609,32 @@ EOD
 	public function GetTemplateRelPath()
 	{
 		return $this->sTemplateRelPath;
+	}
+
+	/**
+	 *
+	 * @see static::$aBlockParams
+	 *
+	 * @param string $sKey
+	 * @param $value
+	 *
+	 * @return $this
+	 * @since 3.0.0
+	 */
+	public function SetBlockParam(string $sKey, $value)
+	{
+		$this->aBlockParams[$sKey] = $value;
+
+		return $this;
+	}
+
+	/**
+	 * @see static::$aBlockParams
+	 * @return array
+	 * @since 3.0.0
+	 */
+	public function GetBlockParams(): array
+	{
+		return $this->aBlockParams;
 	}
 }

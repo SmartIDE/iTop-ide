@@ -154,6 +154,7 @@ class SearchForm
 			$aCSSClasses[] = 'no_auto_submit';
 		}
 		$oForm = FormUIBlockFactory::MakeStandard();
+		$oForm->SetAction($sAction);
 		$oForm->AddSubBlock(new Html(Dict::Format('UI:SearchFor_Class_Objects', $sClassesCombo)));
 
 		$oUiSearchBlock = new Panel('', [], Panel::ENUM_COLOR_CYAN, $sSearchFormId);
@@ -247,7 +248,7 @@ class SearchForm
 			'criterion_outer_selector' => "#fs_{$sSearchFormId}_criterion_outer",
 			'result_list_outer_selector' => "#{$aExtraParams['result_list_outer_selector']}",
 			'data_config_list_selector' => "#{$aExtraParams['result_list_outer_selector']}",
-			'endpoint' => utils::GetAbsoluteUrlAppRoot().'pages/ajax.searchform.php',
+			'endpoint' => utils::GetAbsoluteUrlAppRoot().'pages/ajax.searchform.php?'.$sContext,
 			'init_opened' => $bOpen,
 			'auto_submit' => $bAutoSubmit,
 			'list_params' => $aListParams,

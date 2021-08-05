@@ -167,9 +167,7 @@ $ibo-vendors-jqueryui--ui-slider--ui-slider-handle--hover--border-color: $ibo-co
 		top: 0;
 	}
 	.ui-button {
-		@extend .ibo-button;
-		@extend .ibo-is-regular;
-		@extend .ibo-is-secondary;
+		@extend .ibo-button, .ibo-is-regular, .ibo-is-secondary;
 		> .ui-icon {
 			background-image: none;
 			float: unset;
@@ -301,7 +299,7 @@ $ibo-vendors-jqueryui--ui-slider--ui-slider-handle--hover--border-color: $ibo-co
   background-color: $ibo-vendors-jqueryui--ui-datepicker--background-color;
   border-radius: $ibo-vendors-jqueryui--ui-datepicker--border-radius;
   box-shadow: $ibo-vendors-jqueryui--ui-datepicker--box-shadow;
-  z-index: 21 !important;
+  z-index: 32 !important;
   padding: 0px 8px 5px 8px;
 
   .ui-datepicker-header {

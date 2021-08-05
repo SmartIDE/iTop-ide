@@ -124,12 +124,16 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:User/Attribute:status/Value:enabled' => 'Enabled',
 	'Class:User/Attribute:status/Value:disabled' => 'Disabled',
 
-	'Class:User/Error:LoginMustBeUnique' => 'Login must be unique - "%1s" is already being used.',
+	'Class:User/Error:LoginMustBeUnique' => 'Login must be unique - "%1$s" is already being used.',
 	'Class:User/Error:AtLeastOneProfileIsNeeded' => 'At least one profile must be assigned to this user.',
+	'Class:User/Error:ProfileNotAllowed' => 'Profile "%1$s" cannot be added it will deny the access to backoffice',
+	'Class:User/Error:StatusChangeIsNotAllowed' => 'Changing status is not allowed for your own User',
+	'Class:User/Error:AllowedOrgsMustContainUserOrg' => 'Allowed organizations must contain User organization',
+	'Class:User/Error:CurrentProfilesHaveInsufficientRights' => 'The current list of profiles does not give sufficient access rights (Users are not modifiable anymore)',
 	'Class:User/Error:AtLeastOneOrganizationIsNeeded' => 'At least one organization must be assigned to this user.',
 	'Class:User/Error:OrganizationNotAllowed' => 'Organization not allowed.',
 	'Class:User/Error:UserOrganizationNotAllowed' => 'The user account does not belong to your allowed organizations.',
-	'Class:User/Error:PersonIsMandatory' => 'The Contact is mandatory.',
+	'Class:User/Error:PersonIsMandatory' > 'The Contact is mandatory.',
 	'Class:UserInternal' => 'User Internal',
 	'Class:UserInternal+' => 'User defined within '.ITOP_APPLICATION_SHORT,
 ));

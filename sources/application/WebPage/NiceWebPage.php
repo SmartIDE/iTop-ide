@@ -30,7 +30,7 @@ class NiceWebPage extends WebPage
 		$this->m_sRootUrl = $this->GetAbsoluteUrlAppRoot();
 		parent::__construct($s_title, $bPrintable);
 
-	    $this->LoadTheme();
+		$this->LoadTheme();
 	}
 
 	/**
@@ -100,6 +100,7 @@ EOF
 		parent::InitializeLinkedScripts();
 
 		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/jquery.min.js');
+		$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/jquery.blockUI.js');
 		if (utils::IsDevelopmentEnvironment()) // Needed since many other plugins still rely on oldies like $.browser
 		{
 			$this->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/jquery-migrate.dev-params.js');

@@ -150,7 +150,7 @@ class ObjectDetails extends Panel implements iKeyboardShortcut
 	 */
 	public function SetStatus(string $sCode, string $sLabel, string $sColor)
 	{
-		$this->sStatusCode = $sColor;
+		$this->sStatusCode = $sCode;
 		$this->sStatusLabel = $sLabel;
 		$this->sStatusColor = $sColor;
 
@@ -159,9 +159,9 @@ class ObjectDetails extends Panel implements iKeyboardShortcut
 
 	/**
 	 * @see self::$sStatusCode
-	 * @return string
+	 * @return string|null
 	 */
-	public function GetStatusCode(): string
+	public function GetStatusCode(): ?string
 	{
 		return $this->sStatusCode;
 	}

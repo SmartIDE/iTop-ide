@@ -333,77 +333,135 @@ abstract class User extends cmdbAbstractObject
 	{
 		parent::DoCheckToWrite();
 
-		// Note: This MUST be factorized later: declare unique keys (set of columns) in the data model
+		$oAddon = UserRights::GetModuleInstance();
 		$aChanges = $this->ListChanges();
-		if (array_key_exists('login', $aChanges))
-		{
-			if (strcasecmp($this->Get('login'), $this->GetOriginal('login')) !== 0)
-			{
+		if (array_key_exists('login', $aChanges)) {
+			// Check login uniqueness
+			if (strcasecmp($this->Get('login'), $this->GetOriginal('login')) !== 0) {
 				$sNewLogin = $aChanges['login'];
 				$oSearch = DBObjectSearch::FromOQL_AllData("SELECT User WHERE login = :newlogin");
-				if (!$this->IsNew())
-				{
+				if (!$this->IsNew()) {
 					$oSearch->AddCondition('id', $this->GetKey(), '!=');
 				}
 				$oSet = new DBObjectSet($oSearch, array(), array('newlogin' => $sNewLogin));
-				if ($oSet->Count() > 0)
-				{
+				if ($oSet->Count() > 0) {
 					$this->m_aCheckIssues[] = Dict::Format('Class:User/Error:LoginMustBeUnique', $sNewLogin);
 				}
 			}
 		}
-		// Check that this user has at least one profile assigned when profiles have changed
-		if (array_key_exists('profile_list', $aChanges))
-		{
-			$oSet = $this->Get('profile_list');
-			if ($oSet->Count() == 0)
-			{
-				$this->m_aCheckIssues[] = Dict::S('Class:User/Error:AtLeastOneProfileIsNeeded');
+
+		// A User cannot disable himself
+		if ($this->IsCurrentUser()) {
+			if (isset($aChanges['status']) && ($this->Get('status') == 'disabled')) {
+				$this->m_aCheckIssues[] = Dict::S('Class:User/Error:StatusChangeIsNotAllowed');
 			}
 		}
+
+		// Check that this user has at least one profile assigned when profiles have changed
+		if (array_key_exists('profile_list', $aChanges)) {
+			/** @var \DBObjectSet $oSet */
+			$oSet = $this->Get('profile_list');
+			if ($oSet->Count() == 0) {
+				$this->m_aCheckIssues[] = Dict::S('Class:User/Error:AtLeastOneProfileIsNeeded');
+			}
+
+			// A user cannot add to themself a profile denying the access to the backoffice
+			$aForbiddenProfiles = PortalDispatcherData::GetData('backoffice')['deny'];
+			if ($this->IsCurrentUser()) {
+				$oSet->Rewind();
+				$aProfiles = [];
+				while ($oUserProfile = $oSet->Fetch()) {
+					$sProfile = $oUserProfile->Get('profile');
+					if (in_array($sProfile, $aForbiddenProfiles)) {
+						$this->m_aCheckIssues[] = Dict::Format('Class:User/Error:ProfileNotAllowed', $sProfile);
+					}
+					$aProfiles[$oUserProfile->Get('profileid')] = $sProfile;
+				}
+
+				if (!in_array(ADMIN_PROFILE_NAME, $aProfiles)) {
+					// Check if the user is yet allowed to modify Users
+					if (method_exists($oAddon, 'ResetCache')) {
+						$aCurrentProfiles = $_SESSION['profile_list'] ?? null;
+						// Set the current profiles into a session variable (not yet in the database)
+						$_SESSION['profile_list'] = $aProfiles;
+
+						$oAddon->ResetCache();
+						if (!$oAddon->IsActionAllowed($this, 'User', UR_ACTION_MODIFY, null)) {
+							$this->m_aCheckIssues[] = Dict::S('Class:User/Error:CurrentProfilesHaveInsufficientRights');
+						}
+						$oAddon->ResetCache();
+
+						if (is_null($aCurrentProfiles)) {
+							unset($_SESSION['profile_list']);
+						} else {
+							$_SESSION['profile_list'] = $aCurrentProfiles;
+						}
+					}
+				}
+			}
+		}
+
 		// Only administrators can manage administrators
-		if (UserRights::IsAdministrator($this) && !UserRights::IsAdministrator())
-		{
+		if (UserRights::IsAdministrator($this) && !UserRights::IsAdministrator()) {
 			$this->m_aCheckIssues[] = Dict::S('UI:Login:Error:AccessRestricted');
 		}
 
-		if (!UserRights::IsAdministrator())
-		{
-			$oUser = UserRights::GetUserObject();
-			$oAddon = UserRights::GetModuleInstance();
-			if (!is_null($oUser) && method_exists($oAddon, 'GetUserOrgs'))
-			{
-				if ((empty($this->GetOriginal('contactid')) && !($this->IsNew())) || empty($this->Get('contactid')))
-				{
-					$this->m_aCheckIssues[] = Dict::S('Class:User/Error:PersonIsMandatory');
+		// A contact is mandatory (an administrator can bypass it but not for himself)
+		if ((!UserRights::IsAdministrator() || $this->IsCurrentUser())
+			&& !$this->IsNew()
+			&& isset($aChanges['contactid'])
+			&& empty($this->Get('contactid'))) {
+			$this->m_aCheckIssues[] = Dict::S('Class:User/Error:PersonIsMandatory');
+		}
+
+		// Allowed orgs must contains the user org (if any)
+		if (!empty($this->Get('org_id')) && !UserRights::IsAdministrator($this)) {
+			// Get the user org and all its parent orgs
+			$aUserOrgs = [$this->Get('org_id')];
+			$sHierarchicalKeyCode = MetaModel::IsHierarchicalClass('Organization');
+			if ($sHierarchicalKeyCode !== false) {
+				$sOrgQuery = 'SELECT Org FROM Organization AS Org JOIN Organization AS Root ON Org.'.$sHierarchicalKeyCode.' ABOVE Root.id WHERE Root.id = :id';
+				$oOrgSet = new DBObjectSet(DBObjectSearch::FromOQL_AllData($sOrgQuery), [], ['id' => $this->Get('org_id')]);
+				while ($aRow = $oOrgSet->FetchAssoc()) {
+					$oOrg = $aRow['Org'];
+					$aUserOrgs[] = $oOrg->GetKey();
 				}
-				else
-				{
-					$aOrgs = $oAddon->GetUserOrgs($oUser, '');
-					if (count($aOrgs) > 0)
-					{
-						// Check that the modified User belongs to one of our organization
-						if (!in_array($this->GetOriginal('org_id'), $aOrgs) && !in_array($this->Get('org_id'), $aOrgs))
-						{
-							$this->m_aCheckIssues[] = Dict::S('Class:User/Error:UserOrganizationNotAllowed');
-						}
-						// Check users with restricted organizations when allowed organizations have changed
-						if ($this->IsNew() || array_key_exists('allowed_org_list', $aChanges))
-						{
-							$oSet = $this->get('allowed_org_list');
-							if ($oSet->Count() == 0)
-							{
-								$this->m_aCheckIssues[] = Dict::S('Class:User/Error:AtLeastOneOrganizationIsNeeded');
-							}
-							else
-							{
-								$aModifiedLinks = $oSet->ListModifiedLinks();
-								foreach ($aModifiedLinks as $oLink)
-								{
-									if (!in_array($oLink->Get('allowed_org_id'), $aOrgs))
-									{
-										$this->m_aCheckIssues[] = Dict::S('Class:User/Error:OrganizationNotAllowed');
-									}
+			}
+			// Check the allowed orgs list
+			$oSet = $this->get('allowed_org_list');
+			if ($oSet->Count() > 0) {
+				$bFound = false;
+				while ($oOrg = $oSet->Fetch()) {
+					if (in_array($oOrg->Get('allowed_org_id'), $aUserOrgs)) {
+						$bFound = true;
+						break;
+					}
+				}
+				if (!$bFound) {
+					$this->m_aCheckIssues[] = Dict::S('Class:User/Error:AllowedOrgsMustContainUserOrg');
+				}
+			}
+		}
+
+		if (!UserRights::IsAdministrator()) {
+			$oUser = UserRights::GetUserObject();
+			if (!is_null($oUser) && method_exists($oAddon, 'GetUserOrgs')) {
+				$aOrgs = $oAddon->GetUserOrgs($oUser, ''); // Modifier allowed orgs
+				if (count($aOrgs) > 0) {
+					// Check that the modified User belongs to one of our organization
+					if (!in_array($this->GetOriginal('org_id'), $aOrgs) && !in_array($this->Get('org_id'), $aOrgs)) {
+						$this->m_aCheckIssues[] = Dict::S('Class:User/Error:UserOrganizationNotAllowed');
+					}
+					// Check users with restricted organizations when allowed organizations have changed
+					if ($this->IsNew() || array_key_exists('allowed_org_list', $aChanges)) {
+						$oSet = $this->get('allowed_org_list');
+						if ($oSet->Count() == 0) {
+							$this->m_aCheckIssues[] = Dict::S('Class:User/Error:AtLeastOneOrganizationIsNeeded');
+						} else {
+							$aModifiedLinks = $oSet->ListModifiedLinks();
+							foreach ($aModifiedLinks as $oLink) {
+								if (!in_array($oLink->Get('allowed_org_id'), $aOrgs)) {
+									$this->m_aCheckIssues[] = Dict::S('Class:User/Error:OrganizationNotAllowed');
 								}
 							}
 						}
@@ -413,14 +471,26 @@ abstract class User extends cmdbAbstractObject
 		}
 	}
 
+	/**
+	 * @inheritDoc
+	 * @since 3.0.0
+	 */
+	public function DoCheckToDelete(&$oDeletionPlan)
+	{
+		parent::DoCheckToDelete($oDeletionPlan);
+
+		// A user cannot suppress himself
+		if ($this->IsCurrentUser()) {
+			$this->m_bSecurityIssue = true;
+			$this->m_aDeleteIssues[] = Dict::S('UI:Delete:NotAllowedToDelete');
+		}
+	}
+
 	function GetGrantAsHtml($sClass, $iAction)
 	{
-		if (UserRights::IsActionAllowed($sClass, $iAction, null, $this)) 
-		{
+		if (UserRights::IsActionAllowed($sClass, $iAction, null, $this)) {
 			return '<span style="background-color: #ddffdd;">'.Dict::S('UI:UserManagement:ActionAllowed:Yes').'</span>';
-		}
-		else
-		{
+		} else {
 			return '<span style="background-color: #ffdddd;">'.Dict::S('UI:UserManagement:ActionAllowed:No').'</span>';
 		}
 	}
@@ -527,6 +597,19 @@ abstract class User extends cmdbAbstractObject
 			return;
 		}
 		parent::DBDeleteSingleObject();
+	}
+
+	/**
+	 * @return bool
+	 * @throws \OQLException
+	 * @since 3.0.0
+	 */
+	private function IsCurrentUser(): bool
+	{
+		if (is_null(UserRights::GetUserId())) {
+			return false;
+		}
+		return UserRights::GetUserId() == $this->GetKey();
 	}
 }
 
@@ -1009,6 +1092,30 @@ class UserRights
 		{
 			return self::$m_oUser;
 		}
+	}
+
+	/**
+	 * @param Person $oPerson Person we try to match against Users contact (also Person objects)
+	 * @param bool $bMustBeUnique If true, return null when 2+ Users matching this Person were found. Otherwise return the first one
+	 *
+	 * @return \DBObject|null
+	 * @throws \CoreException
+	 * @throws \CoreUnexpectedValue
+	 * @throws \MissingQueryArgument
+	 * @throws \MySQLException
+	 * @throws \MySQLHasGoneAwayException
+	 * @since 3.0.0
+	 */
+	public static function GetUserFromPerson(Person $oPerson, bool $bMustBeUnique = true): ?DBObject
+	{
+		$sUserSearch = 'SELECT User WHERE contactid = :id';
+		$oUserSearch = DBObjectSearch::FromOQL($sUserSearch);
+		$oUserSearch->AllowAllData();
+		$oUserSet = new DBObjectSet($oUserSearch, array(), array('id' => $oPerson->GetKey()));
+		if($oUserSet->Count() > 0 && !($oUserSet->Count() > 1 && $bMustBeUnique)){
+			return $oUserSet->Fetch();
+		}
+		return null;
 	}
 
 	/**

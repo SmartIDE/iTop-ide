@@ -16,17 +16,17 @@ $.fn.dataTable.pipeline = function (opts) {
 		data: null,   // function or object with parameters to send to the server
 	                  // matching how `ajax.data` works in DataTables
 		method: 'GET' // Ajax HTTP method
-	}, opts );
+	}, opts);
 
 	// Private variables for storing the cache
 	var cacheLower = -1;
 	var cacheUpper = null;
 	var cacheLastRequest = null;
 	var cacheLastJson = null;
-	var	draw_number = 1;
+	var draw_number = 1;
 
-	return function ( request, drawCallback, settings ) {
-		let message = Dict.S('UI:Datatables:Language:Processing');
+	return function (request, drawCallback, settings) {
+		let message = settings["oLanguage"]["processing"];
 		if (this.find('tbody').find('td').length == 0) {
 			this.find('tbody').append('<tr class="ibo-dataTables--processing"><td>&#160;</td></tr>');
 			this.find('tbody').block({
@@ -132,7 +132,7 @@ $.fn.dataTable.pipeline = function (opts) {
 				"data":     request,
 				"dataType": "json",
 				"cache":    false,
-				"success":  function ( json ) {
+				"success": function (json) {
 					cacheLastJson = $.extend(true, {}, json);
 
 					if (cacheLower != drawStart && requestLength != -1) {
@@ -142,6 +142,28 @@ $.fn.dataTable.pipeline = function (opts) {
 						json.data.splice(requestLength, json.data.length);
 					}
 					drawCallback(json);
+				},
+				error: function (data) {
+					let oDlg = $('<div></div>');
+					$('body').append(oDlg);
+					oDlg.html(data.responseText);
+					oDlg.dialog({
+						title: settings["oLanguage"]["errorMessage"],
+						modal: true,
+						width: 'auto',
+						height: 'auto',
+						maxHeight: $(window).height() * 0.7,
+						maxWidth: '500',
+						position: {my: "center", at: "center", of: window},
+						buttons: [
+							{
+								text: settings["oLanguage"]["buttonOk"],
+								class: "ibo-is-primary ibo-is-neutral",
+								click: function () {
+									$(this).dialog('close');
+								}
+							}],
+					});
 				}
 			} );
 		} else {

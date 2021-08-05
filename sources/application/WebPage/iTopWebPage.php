@@ -72,7 +72,11 @@ class iTopWebPage extends NiceWebPage implements iTabbedPage
 	 * @param string $sTitle
 	 * @param bool $bPrintable
 	 *
-	 * @throws \Exception
+	 * @throws \ConfigException
+	 * @throws \CoreException
+	 * @throws \CoreUnexpectedValue
+	 * @throws \DictExceptionMissingString
+	 * @throws \MySQLException
 	 */
 	public function __construct($sTitle, $bPrintable = false)
 	{
@@ -102,10 +106,9 @@ class iTopWebPage extends NiceWebPage implements iTabbedPage
 		$this->add_header("Content-type: text/html; charset=".self::PAGES_CHARSET);
 		$this->no_cache();
 		$this->add_xframe_options();
-		if (!$this->IsPrintableVersion())
-		{
+		if (!$this->IsPrintableVersion()) {
 			$this->PrepareLayout();
-		} else{
+		} else {
 			$oPrintHeader = $this->OutputPrintable();
 			$this->AddUiBlock($oPrintHeader);
 		}
@@ -800,15 +803,17 @@ HTML;
 		// Base structure of data to pass to the TWIG template
 		$aData['aPage'] = [
 			'sAbsoluteUrlAppRoot' => $sAbsoluteUrlAppRoot,
-			'sTitle' => $this->s_title,
-			'sFaviconUrl' => $sFaviconUrl,
-			'aMetadata' => [
+			'sTitle'              => $this->s_title,
+			'sFaviconUrl'         => $sFaviconUrl,
+			'aMetadata'           => [
 				'sCharset' => static::PAGES_CHARSET,
-				'sLang' => $sMetadataLanguage,
+				'sLang'    => $sMetadataLanguage,
 			],
-			'oPrintHeader' => $oPrintHeader,
-			'isPrintable' => $this->IsPrintableVersion(),
+			'oPrintHeader'        => $oPrintHeader,
+			'isPrintable'         => $this->IsPrintableVersion(),
 		];
+
+		$aData['aBlockParams'] = $this->GetBlockParams();
 
 		// Base tag
 		// Note: We might consider to put the app_root_url parameter here, but that would need a BIG rework on iTop AND the extensions to replace all the "../images|js|css/xxx.yyy"...
@@ -861,6 +866,7 @@ HTML;
 			[
 				'aCssFiles' => $this->a_linked_stylesheets,
 				'aCssInline' => $this->a_styles,
+				'aJsInlineEarly' => $this->a_early_scripts,
 				'aJsFiles' => $this->a_linked_scripts,
 				'aJsInlineOnInit' => $this->a_init_scripts,
 				'aJsInlineOnDomReady' => $this->GetReadyScripts(),
@@ -1165,5 +1171,25 @@ EOF
 		$oBlock = new BlockPrintHeader();
 
 		return $oBlock;
+	}
+
+	/**
+	 * @param string $sKey
+	 * @param $value
+	 *
+	 * @return \iTopWebPage
+	 * @since 3.0.0
+	 */
+	public function SetBlockParam(string $sKey, $value)
+	{
+		$oGlobalSearch = $this->GetTopBarLayout()->GetGlobalSearch();
+		$sGlobalSearchId = $oGlobalSearch->GetId();
+		switch ($sKey) {
+			case "$sGlobalSearchId.sQuery":
+				$oGlobalSearch->SetQuery($value);
+				break;
+		}
+
+		return parent::SetBlockParam($sKey, $value);
 	}
 }

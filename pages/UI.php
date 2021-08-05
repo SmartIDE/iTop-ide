@@ -547,31 +547,24 @@ try
 				// Save search to history
 				// - Prepare icon
 				$sQueryIconUrl = null;
-				if(!empty($sClassName))
-				{
+				if(!empty($sClassName)) {
 					$sQueryIconUrl = MetaModel::GetClassIcon($sClassName, false);
 				}
 				// - Prepare label
 				$sQueryLabel = null;
-				if($sQuery !== $sFullText)
-				{
+				if ($sQuery !== $sFullText) {
 					$sQueryLabel = $sFullText;
 				}
 				GlobalSearchHelper::AddQueryToHistory($sQuery, $sQueryIconUrl, $sQueryLabel);
-				$oP->GetTopBarLayout()
-					->GetGlobalSearch()
-					->SetQuery($sQuery)
-					->SetLastQueries(GlobalSearchHelper::GetLastQueries());
+				$oP->SetBlockParam('ibo-global-search.sQuery', $sQuery);
 
 				// Check the needle length
 				$iMinLenth = MetaModel::GetConfig()->Get('full_text_needle_min');
-				foreach ($aFullTextNeedles as $sNeedle)
-				{
-					if (strlen($sNeedle) < $iMinLenth)
-					{
+				foreach ($aFullTextNeedles as $sNeedle) {
+					if (strlen($sNeedle) < $iMinLenth) {
 						$oP->p(Dict::Format('UI:Search:NeedleTooShort', $sNeedle, $iMinLenth));
 						$key = array_search($sNeedle, $aFullTextNeedles);
-						if($key!== false)
+						if ($key !== false)
 						{
 							unset($aFullTextNeedles[$key]);
 						}
@@ -1555,20 +1548,25 @@ EOF
 		$oObj = MetaModel::GetObject($sClass, $id, false);
 		if ($oObj != null)
 		{
-			$aPrefillFormParam = array( 'user' => $_SESSION["auth_user"],
-				'context' => $oAppContext->GetAsHash(),
+			$aPrefillFormParam = array(
+				'user'     => $_SESSION["auth_user"],
+				'context'  => $oAppContext->GetAsHash(),
 				'stimulus' => $sStimulus,
-				'origin' => 'console'
+				'origin'   => 'console',
 			);
-			try
-			{
-				$oObj->DisplayStimulusForm($oP, $sStimulus, $aPrefillFormParam);
+			try {
+				$bApplyTransition = $oObj->DisplayStimulusForm($oP, $sStimulus, $aPrefillFormParam);
 			}
-			catch(ApplicationException $e)
-			{
+			catch (ApplicationException $e) {
 				$sMessage = $e->getMessage();
 				$sSeverity = 'info';
 				ReloadAndDisplay($oP, $oObj, 'stimulus', $sMessage, $sSeverity);
+			}
+			if ($bApplyTransition) {
+				$sMessage = Dict::Format('UI:Class_Object_Updated', MetaModel::GetName(get_class($oObj)), $oObj->GetName());
+				$sSeverity = 'ok';
+				//transition is ok, whe can display object with transition message
+				ReloadAndDisplay($oP, $oObj, 'apply_stimulus', $sMessage, $sSeverity);
 			}
 		}
 		else

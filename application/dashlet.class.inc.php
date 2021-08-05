@@ -1272,9 +1272,9 @@ abstract class DashletGroupBy extends Dashlet
 		$aExtraParams["surround_with_panel"] = true;
 		$aExtraParams["panel_title"] = Dict::S($sTitle);
 		$aExtraParams["panel_class"] = $sClass;
-		$oPanel = $oBlock->GetDisplay($oPage, $sType, array_merge($aExtraParams, $aParams));
+		$oPanel = $oBlock->GetDisplay($oPage, $sBlockId, array_merge($aExtraParams, $aParams));
 		if ($bEditMode) {
-			$oPanel->AddHtml('<div class="dashlet-blocker"></div>');
+			$oPanel->AddHtml('<div class="ibo-dashlet-blocker dashlet-blocker"></div>');
 		}
 
 		return $oPanel;
