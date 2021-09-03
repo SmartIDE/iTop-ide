@@ -1420,7 +1420,7 @@ class utils
 				}
 				$sSearchUrl = static::GetDataTableSearchUrl($oFilter);
 				if (!empty($sSearchUrl)) {
-					$aResult[] = new URLPopupMenuItem('UI:Menu:OpenSearch', Dict::S('UI:Menu:OpenSearch'), $sSearchUrl);
+					$aResult[] = new URLPopupMenuItem('UI:Menu:FilterList', Dict::S('UI:Menu:FilterList'), $sSearchUrl);
 				}
 				$aResult[] = new JSPopupMenuItem('UI:Menu:AddToDashboard', Dict::S('UI:Menu:AddToDashboard'), "DashletCreationDlg('$sOQL', '$sContext')");
 				$aResult[] = new JSPopupMenuItem('UI:Menu:ShortcutList', Dict::S('UI:Menu:ShortcutList'), "ShortcutListDlg('$sOQL', '$sDataTableId', '$sContext')");
