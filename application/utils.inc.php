@@ -1418,10 +1418,6 @@ class utils
 						$aResult[] = new JSPopupMenuItem('UI:Menu:ExportPDF', Dict::S('UI:Menu:ExportPDF'), "ExportListDlg('$sOQL', '$sDataTableId', 'pdf', ".json_encode(Dict::S('UI:Menu:ExportPDF')).")");
 					}
 				}
-				$sSearchUrl = static::GetDataTableSearchUrl($oFilter);
-				if (!empty($sSearchUrl)) {
-					$aResult[] = new URLPopupMenuItem('UI:Menu:FilterList', Dict::S('UI:Menu:FilterList'), $sSearchUrl);
-				}
 				$aResult[] = new JSPopupMenuItem('UI:Menu:AddToDashboard', Dict::S('UI:Menu:AddToDashboard'), "DashletCreationDlg('$sOQL', '$sContext')");
 				$aResult[] = new JSPopupMenuItem('UI:Menu:ShortcutList', Dict::S('UI:Menu:ShortcutList'), "ShortcutListDlg('$sOQL', '$sDataTableId', '$sContext')");
 
@@ -1537,7 +1533,7 @@ class utils
 	 *
 	 * @since 3.0.0
 	 */
-	private static function GetDataTableSearchUrl(DBObjectSearch $oFilter): ?string
+	public static function GetDataTableSearchUrl(DBSearch $oFilter): ?string
 	{
 		if (static::IsCurrentPageASearch()) {
 			// we don't want to add the link when already in a search page !
