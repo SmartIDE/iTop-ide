@@ -26,8 +26,8 @@ apachectl -k start
 > 在弹出浏览器中安装如下插件
 
 - PHP Extension Pack
+  
   ![php_extension_pack.png](img/php_extension_pack.png)
-
 ## 调试
 ### 安装Xdebug调试
 ```bash
@@ -40,13 +40,18 @@ apachectl -k restart
 ### Chrome Xdebug helper扩展安装及设置
 - 安装参考：https://github.com/mac-cain13/xdebug-helper-for-chrome
 - 设置：
+  
   ![chrome_xdebug_install.png](img/chrome_xdebug_install.png)
 - 开启：
+  
   ![chrome_xdebug_debug.png](img/chrome_xdebug_debug.png)
 ### 断点位置
 - setup/wizard.php
+  
   ![setup_wizard_breakpoint.png](img/setup_wizard_breakpoint.png)
 ### 启动调试
+
   ![debug.png](img/debug.png)
 ### 触发断点
+
   ![debugging.png](img/debugging.png)
