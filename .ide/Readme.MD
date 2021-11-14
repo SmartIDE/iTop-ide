@@ -15,59 +15,38 @@
 ## 使用远程vm 启动smaritde
 
 ```bash
-smartide vm start -f .ide/.ide-simple.yaml --host 192.168.1.5 --username leansoft --repourl  https://github.com/SmartIDE/metersphere.git --password leansoft -d
-smartide vm start -f .ide/.ide-simple.yaml --host sm-ms-ws001.chinanorth2.cloudapp.chinacloudapi.cn --username ${username} --repourl  https://github.com/SmartIDE/metersphere.git --password ${password}
-
+smartide vm start -f .ide/.ide.yaml --host 192.168.1.5 --username leansoft --repourl  https://github.com/SmartIDE/metersphere.git --password leansoft -d
 ```
 ## 启动Apache服务
 ```bash
-/usr/sbin/apachectl -DNO_DETACH -k start
+apachectl -k start
 ```
-## 安装Java 依赖插件
+## 安装PHP依赖插件
 
 > 在弹出浏览器中安装如下插件
 
-- Extension Pack for Java
-- Spring Boot Extension Pack
-
-![extension](./img/step2.png)
-
-## 编译项目
-
-```bash
-mvn package
-```
-![build](./img/step3.png)
-
-**注意编译成功后在右侧菜单栏JAVA PROJECTS若为空（无法编译），尝试打开Java 项目backend**
-
-![project](./img/step4.png)
-![openjava](./img/step5.png)
-
-**若打开导入Java项目成功成功如下图所示**
-![step6](./img/step6.png)
-
-> 重载项目
-
-![step7](./img/step7.png)
-
-若重载成功，如下图所示
-![step8](./img/step8.png)
+- PHP Extension Pack
+  ![php_extension_pack.png](img/php_extension_pack.png)
 
 ## 调试
-
+### 安装Xdebug调试
+```bash
+cd / && ./install-xdebug.sh 9003 openvs
+```
+### 重新启动Apache服务
+```bash
+apachectl -k restart
+```
+### Chrome Xdebug helper扩展安装及设置
+- 安装参考：https://github.com/mac-cain13/xdebug-helper-for-chrome
+- 设置：
+  ![chrome_xdebug_install.png](img/chrome_xdebug_install.png)
+- 开启：
+  ![chrome_xdebug_debug.png](img/chrome_xdebug_debug.png)
 ### 断点位置
-
-![step9](./img/step9.png)
-
+- setup/wizard.php
+  ![setup_wizard_breakpoint.png](img/setup_wizard_breakpoint.png)
 ### 启动调试
-
-![step10](./img/step10.png)
-
-忽略此处报错
-
-![step11](./img/step11.png)
-
+  ![debug.png](img/debug.png)
 ### 触发断点
-
-![step12](./img/step12.png)
+  ![debugging.png](img/debugging.png)
