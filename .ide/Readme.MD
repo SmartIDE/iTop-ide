@@ -8,14 +8,14 @@
 
 # ide.yaml使用说明
 
-## 安装smaride-cli
+## 安装smartide-cli
 
 > 详情请见[安装手册](https://smartide.dev/zh/docs/getting-started/install/)
 
-## 使用远程vm 启动smaritde
-
+## 使用远程vm启动smartide
+ - 需要保证vm用户环境：建议Ubuntu20+、Git、Docker、docker-compose命令
 ```bash
-smartide vm start -f .ide/.ide.yaml --host 192.168.1.5 --username leansoft --repourl  https://github.com/SmartIDE/metersphere.git --password leansoft -d
+smartide vm start -f .ide/.ide.yaml --host 192.168.1.5 --username leansoft --repourl https://github.com/SmartIDE/iTop --password leansoft -d
 ```
 ## 启动Apache服务
 ```bash
