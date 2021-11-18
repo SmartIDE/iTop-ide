@@ -21,6 +21,8 @@ smartide vm start -f .ide/.ide.yaml --host 192.168.1.5 --username leansoft --rep
 smartide vm start -f .ide/.ide.yaml --host 192.168.1.5 --username leansoft --password leansoft --repourl https://gitee.com/chileeb/smartide-itop.git -d
 # 最新修改的模式
 smartide start --host 192.168.1.5 --username leansoft --password leansoft --repourl https://gitee.com/chileeb/smartide-itop.git --branch develop --filepath .ide/.ide.yaml
+smartide start --host 20.198.250.255 --username azureuser --password '******' --repourl https://gitee.com/chileeb/smartide-itop.git --branch develop --filepath .ide/.ide.yaml
+
 ```
 ## 启动Apache服务
 ```bash
