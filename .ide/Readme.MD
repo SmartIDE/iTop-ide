@@ -10,7 +10,7 @@
 
 ## 安装smartide-cli
 
-> 详情请见[安装手册](https://smartide.dev/zh/docs/getting-started/install/)
+> 详情请见[安装手册](https://smartide.dev/zh/docs/quickstart/)
 
 ## 使用远程vm启动smartide
  - 需要保证vm用户环境：建议Ubuntu20+、Git、Docker、docker-compose命令
@@ -20,7 +20,7 @@ smartide vm start -f .ide/.ide.yaml --host 192.168.1.5 --username leansoft --rep
 # github仓库慢的话，使用gitee的
 smartide vm start -f .ide/.ide.yaml --host 192.168.1.5 --username leansoft --password leansoft --repourl https://gitee.com/chileeb/smartide-itop.git -d
 # 最新修改的模式
-smartide start --host 192.168.1.5 --username leansoft --password leansoft --repourl https://gitee.com/chileeb/smartide-itop.git --branch main --filepath .ide/.ide.yaml
+smartide start --host 192.168.1.5 --username leansoft --password leansoft --repourl https://gitee.com/chileeb/smartide-itop.git --branch develop --filepath .ide/.ide.yaml
 ```
 ## 启动Apache服务
 ```bash
