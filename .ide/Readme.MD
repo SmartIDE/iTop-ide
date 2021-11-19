@@ -15,7 +15,7 @@
 ## 使用远程vm启动smartide
  - 需要保证vm用户环境：建议Ubuntu20+、Git、Docker、docker-compose命令
 ```bash
-smartide start --host 20.198.250.255 --username azureuser --password '******' --repourl https://github.com/SmartIDE/iTop --branch develop --filepath .ide/.ide.yaml
+smartide start --host 20.198.250.255 --username {host-username} –password {host-password} --repourl https://github.com/SmartIDE/iTop --branch develop --filepath .ide/.ide.yaml -d
 
 ```
 ## 启动Apache服务
