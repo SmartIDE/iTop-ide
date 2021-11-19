@@ -20,10 +20,12 @@ smartide start --host 20.198.250.255 --username azureuser --password '******' --
 ```
 ## 启动Apache服务
 ```bash
+# 设置Git权限
+git config --global core.filemode false
 # 设置访问权限
 chmod -R 777 /home/project
 # 启动
-apachectl -k start
+apache2ctl -k start
 ```
 ## 安装PHP依赖插件
 
@@ -33,13 +35,9 @@ apachectl -k start
   
   ![php_extension_pack.png](img/php_extension_pack.png)
 ## 调试
-### 安装Xdebug调试
+### 启动Xdebug调试
 ```bash
-cd / && ./install-xdebug.sh 9003 openvs
-```
-### 重新启动Apache服务
-```bash
-apachectl -k restart
+cd / && ./start-xdebug.sh 9003 openvs
 ```
 ### Chrome Xdebug helper扩展安装及设置
 - 安装参考：https://github.com/mac-cain13/xdebug-helper-for-chrome
