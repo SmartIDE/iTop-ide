@@ -31,7 +31,7 @@ workspace:
         MYSQL_ROOT_PASSWORD: leansoft
       restart: always
       volumes:
-        - ../mysql-db:/var/lib/mysql
+        - ~/mysql-db:/var/lib/mysql
       ports:
         - 3306:3306
       networks:
