@@ -15,13 +15,7 @@
 ## 使用远程vm启动smartide
  - 需要保证vm用户环境：建议Ubuntu20+、Git、Docker、docker-compose命令
 ```bash
-# github
-smartide vm start -f .ide/.ide.yaml --host 192.168.1.5 --username leansoft --repourl https://github.com/SmartIDE/iTop --password leansoft -d
-# github仓库慢的话，使用gitee的
-smartide vm start -f .ide/.ide.yaml --host 192.168.1.5 --username leansoft --password leansoft --repourl https://gitee.com/chileeb/smartide-itop.git -d
-# 最新修改的模式
-smartide start --host 192.168.1.5 --username leansoft --password leansoft --repourl https://gitee.com/chileeb/smartide-itop.git --branch develop --filepath .ide/.ide.yaml
-smartide start --host 20.198.250.255 --username azureuser --password '******' --repourl https://gitee.com/chileeb/smartide-itop.git --branch develop --filepath .ide/.ide.yaml
+smartide start --host 20.198.250.255 --username azureuser --password '******' --repourl https://github.com/SmartIDE/iTop --branch develop --filepath .ide/.ide.yaml
 
 ```
 ## 启动Apache服务
