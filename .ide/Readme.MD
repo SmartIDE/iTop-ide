@@ -39,7 +39,7 @@ apache2ctl -k start
 ```bash
 cd / && ./start-xdebug.sh 9003 openvs
 ```
-### Chrome Xdebug helper扩展安装及设置
+### 浏览器插件调试方式：Chrome Xdebug helper扩展安装及设置
 - 安装参考：https://github.com/mac-cain13/xdebug-helper-for-chrome
 - 设置：
   
@@ -47,7 +47,10 @@ cd / && ./start-xdebug.sh 9003 openvs
 - 开启：
   
   ![chrome_xdebug_debug.png](img/chrome_xdebug_debug.png)
-### 断点位置
+### URL参数方式
+- URL中加入?XDEBUG_SESSION=openvs参数，如：
+  `http://localhost:8080/pages/UI.php?XDEBUG_SESSION=openvs`
+### 设置断点
 - setup/wizard.php
   
   ![setup_wizard_breakpoint.png](img/setup_wizard_breakpoint.png)
