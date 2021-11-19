@@ -19,6 +19,11 @@ workspace:
         ROOT_PASSWORD: root123
       volumes:
         - .:/home/project
+      command:
+        - cd /home/project && git config core.filemode false
+        - chmod -R 777 /home/project
+        - apache2ctl -k start
+        - cd / && ./start-xdebug.sh 9003 openvs
       expose:
         - 3000
       ports:
@@ -31,7 +36,8 @@ workspace:
         MYSQL_ROOT_PASSWORD: leansoft
       restart: always
       volumes:
-        - ~/mysql-db:/var/lib/mysql
+        - ./mysql/conf/my.cnf:/etc/my.cnf
+        - ../mysql-db:/var/lib/mysql
       ports:
         - 3306:3306
       networks:
