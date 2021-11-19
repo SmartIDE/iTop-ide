@@ -28,12 +28,12 @@ workspace:
     itop-db:
       image: mysql:5.7
       environment:
-        MYSQL_ROOT_PASSWORD: "leansoft"
+        MYSQL_ROOT_PASSWORD: leansoft
       restart: always
       volumes:
-        - ./db:/var/lib/mysql
+        - ../mysql-db:/var/lib/mysql
       ports:
-        - "3306:3306"
+        - 3306:3306
       networks:
         - smartide-network
   networks:
