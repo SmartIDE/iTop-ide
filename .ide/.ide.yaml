@@ -17,6 +17,8 @@ workspace:
       environment:
         POSTGRES_HOST_AUTH_METHOD: trust
         ROOT_PASSWORD: root123
+        MYSQL_ROOT_PASSWORD: leansoft
+        TZ: Asia/Shanghai
       volumes:
         - .:/home/project
       expose:
