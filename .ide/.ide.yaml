@@ -17,14 +17,25 @@ workspace:
       environment:
         POSTGRES_HOST_AUTH_METHOD: trust
         ROOT_PASSWORD: root123
-        MYSQL_ROOT_PASSWORD: leansoft
-        TZ: Asia/Shanghai
       volumes:
         - .:/home/project
       expose:
         - 3000
       ports:
         - 8080:80
+      networks:
+        - smartide-network
+    itop-db:
+      image: mysql:5.7
+      environment:
+        MYSQL_ROOT_PASSWORD: "leansoft"
+        MYSQL_USER: 'admin'
+        MYSQL_PASS: 'leansoftX'
+      restart: always
+      volumes:
+        - ./db:/var/lib/mysql
+      ports:
+        - "3306:3306"
       networks:
         - smartide-network
   networks:

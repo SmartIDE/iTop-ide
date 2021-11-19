@@ -21,7 +21,7 @@ smartide start --host 20.198.250.255 --username azureuser --password '******' --
 ## 启动Apache服务
 ```bash
 # 设置Git权限
-git config --global core.filemode false
+git config core.filemode false
 # 设置访问权限
 chmod -R 777 /home/project
 # 启动
