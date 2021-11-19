@@ -57,4 +57,5 @@ cd / && ./start-xdebug.sh 9003 openvs
 ### 触发断点
 - 访问：http://localhost:8080/
 - 触发open vscode断点
+  
   ![debugging.png](img/debugging.png)
