@@ -20,11 +20,6 @@ workspace:
       volumes:
         - .:/home/project
       command:
-        - mkdir /home/project
-        - cd /home/project && git config core.filemode false
-        - chmod -R 777 /home/project
-        - apache2ctl -k start
-        - cd / && ./start-xdebug.sh 9003 openvs
       expose:
         - 3000
       ports:
